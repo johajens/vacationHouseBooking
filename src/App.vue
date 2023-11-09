@@ -5,6 +5,8 @@
 <script>
 import { defineComponent } from 'vue'
 
+//test commit
+
 export default defineComponent({
   name: 'App'
 })
