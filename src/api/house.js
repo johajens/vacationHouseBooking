@@ -6,7 +6,7 @@ import { ref } from "vue";
 const collectionName = "houses";
 
 //Take a house object and creates a document in the database
-export async function addHouse(house){
+export async function createHouse(house){
   const currentTimestamp = getReadableTimestamp()
   try {
     await addDoc(collection(database, collectionName), {
@@ -21,7 +21,7 @@ export async function addHouse(house){
 }
 
 //Returns a list of all the houses in the database
-export async function getAllHouses(){
+export async function readAllHouses(){
   const houses = ref([]);
   try{
     const querySnapshot = await getDocs(collection(database, collectionName));
@@ -38,7 +38,7 @@ export async function getAllHouses(){
 }
 
 //Takes an ID and returns the full house object
-export async function getHouseById(id){
+export async function readHouseById(id){
   const docRef = doc(database, collectionName, id);
   try{
     const house = await getDoc(docRef);
@@ -62,7 +62,7 @@ export async function updateHouseById(house){
   }
 }
 
-//Take an houseId and delete housedocument
+//Take an houseId and delete house document
 export async function deleteHouseById(houseId){
   try{
   await deleteDoc(doc(database, collectionName, houseId));
