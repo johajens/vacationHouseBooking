@@ -14,7 +14,8 @@ async function createUser(user){
       name: user.name,
       email: user.email,
       password: user.password,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      houseId: user.houseId
     })
   } catch (e){
     throw new Error (`Failed to add user with email: ${user.email}\n${e.stack}`)
