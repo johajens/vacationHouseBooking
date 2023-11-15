@@ -22,7 +22,7 @@ async function createUser(user){
   }
 }
 
-async function readUserById(userId){
+export async function readUserById(userId){
   try{
     return (await getDoc(doc(database, collectionName, userId))).data()
   } catch (e){
