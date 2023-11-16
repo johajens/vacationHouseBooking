@@ -13,7 +13,6 @@ const routes = [
       { path: 'documentPage', component: () => import('pages/documentPage.vue') },
       { path: 'galleryPage', component: () => import('pages/galleryPage.vue') },
       { path: 'profilePage', component: () => import('pages/profilePage.vue') },
-      { path: 'testing', component: () => import('pages/testingPage.vue') },
     ]
   },
 

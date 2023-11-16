@@ -66,6 +66,7 @@ export default {
     const user = ref();
     const house = ref();
 
+
     const onPageLoad = async () => {
       user.value = await getUser();
       house.value = await readHouseById(user.value.houseId);

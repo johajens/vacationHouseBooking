@@ -6,6 +6,10 @@ export function getReadableTimestamp(){
   return newTimestamp;
 }
 
+export function getDateFromTimestamp(date){
+  return date.split(",");
+}
+
 //Takes either an array of strings or a single string and returns true if any of the inputs are empty
 export function isInputValid(input){
   if (Array.isArray(input)){

@@ -91,7 +91,6 @@ export default {
       {to: "/informationPage", label: "Information (Not implemented)"},
       {to: "/documentPage", label: "Dokumenter (Not implemented)"},
       {to: "/galleryPage", label: "Galleri (Not implemented)"},
-      {to: "/testing", label: "Testing"},
     ]
 
     //Open left drawer on click

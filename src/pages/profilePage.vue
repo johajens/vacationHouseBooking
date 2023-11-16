@@ -140,6 +140,7 @@ export default {
       const users = await readAllUsers();
       if (user.value.email !== email.value) {
         if (users.value.filter((user) => user.email === email.value).length > 0) {
+          // TODO Fix with proper errormessage
           errorMessage.value = "* DENNE EMAIL ER ALLEREDE I BRUG *";
         }else{
           await updateUser()
@@ -168,7 +169,7 @@ export default {
 
     const onPageLoad = async () => {
       user.value = await getUser();
-      console.log(user.value);
+      user.value = await getUser();
       name.value = user.value.name;
       email.value = user.value.email;
       password.value = user.value.password;
