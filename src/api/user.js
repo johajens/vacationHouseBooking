@@ -5,7 +5,7 @@ import {ref} from "vue";
 
 const collectionName = 'users'
 
-async function createUser(user){
+export async function createUser(user){
   const currentTime = getReadableTimestamp()
   try {
     await addDoc(collection(database, collectionName), {

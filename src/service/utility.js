@@ -5,3 +5,12 @@ export function getReadableTimestamp(){
   let newTimestamp = timestamp.toDate().toLocaleString('en-GB');
   return newTimestamp;
 }
+
+//Takes either an array of strings or a single string and returns true if any of the inputs are empty
+export function isInputValid(input){
+  if (Array.isArray(input)){
+    return input.some(element => !element || !element.trim().length)
+  } else {
+    return !input || !input.trim().length;
+  }
+}
