@@ -49,7 +49,7 @@
             <span class="text-h4">Velkommen til FerieboligBooking</span>
           </div>
           <div class="col-12 q-pt-lg">
-            <q-btn class="q-px-lg" push size="lg" color="secondary" text-color="accent" icon="login" label="Log ind" @click="toggleLoginDialog" />
+            <q-btn class="q-px-lg" push size="lg" color="secondary" text-color="accent" icon="login" label="Log ind" @click="toggleDialog('login')" />
           </div>
           <div class="col-12 q-pt-xl">
             <div>
@@ -98,6 +98,7 @@
               text-color="accent"
               icon-right="login"
               label="Log ind"
+              @click="handleLogin"
             />
           </div>
         </div>
@@ -193,13 +194,15 @@
 
 <script>
 import { defineComponent, ref} from 'vue'
-import { createUser } from "src/api/user.js"
+import { useRouter } from 'vue-router'
+import { createUser, verifyAndLoginUser} from "src/api/user.js"
 import { createHouse } from "src/api/house.js"
 import { isInputValid } from "src/service/utility";
 
 export default defineComponent({
   name: 'IndexPage',
   setup () {
+    const router = useRouter()
     const isPwd = ref(true)
     const isPwdRepeat = ref(true)
     const notificationDialog = ref(false)
@@ -220,6 +223,18 @@ export default defineComponent({
       createHouseInfo: false,
     })
 
+    const handleLogin = async () => {
+      try {
+        const email = loginUserEmail.value
+        const password = loginUserPassword.value
+        const [message, type] = await verifyAndLoginUser(email, password, localStorage)
+        displayNotification(message, type);
+        router.push("houseFrontpage")
+      } catch (error) {
+        displayNotification(error.message, 'error')
+      }
+    }
+
     const toggleDialog = (dialogName) => {
       Object.keys(dialogs.value).forEach(key => {
         dialogs.value[key] = false;
@@ -231,8 +246,9 @@ export default defineComponent({
       switch (type){
         case 'error': notificationClass.value = 'bg-red'
           break
-        case 'notification': notificationClass.value = 'bg-green'
+        case 'success': notificationClass.value = 'bg-primary'
           break
+        case 'notification': notificationClass.value = 'bg-blue'
       }
       notificationMessage.value = message
       notificationDialog.value = true
@@ -284,6 +300,7 @@ export default defineComponent({
       //Functionality
       validateUserInfoAndProceed,
       validateHouseInfoAndCreateNewUser,
+      handleLogin,
       //Dialogs and components
       dialogs,
       toggleDialog,
