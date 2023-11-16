@@ -26,8 +26,7 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
-import { createHouse, readAllHouses, readHouseById, updateHouseById, deleteHouseById} from 'src/api/house.js';
+import { defineComponent } from "vue";
 
 import { useRouter } from "vue-router";
 export default defineComponent({
