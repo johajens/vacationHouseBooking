@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page class="flex flex-center bg-primary">
     <section class="desktop-only">
       <section class="q-pa-xl absolute-top row window-width bg-primary">
 
@@ -38,12 +38,12 @@
                 <table class="q-table">
                   <thead>
                   <tr>
-                    <th v-for="column in columns" :key="column.name">{{ column.label }}</th>
+                    <th v-for="column in columns.desktop" :key="column.name">{{ column.label }}</th>
                     <th>Redigér</th>
                   </tr>
                   </thead>
                   <tbody>
-                  <tr v-for="user in users" :key="user.id"><td v-for="column in columns" :key="column.name" >{{ user[column.field] }}</td>
+                  <tr v-for="user in users" :key="user.id"><td v-for="column in columns.desktop" :key="column.name" >{{ user[column.field] }}</td>
                     <td>
                       <q-btn
                         size="md"
@@ -66,22 +66,70 @@
       </section>
     </section>
 
-    <!-- background for mobile -->
+    <!-- Mobile version -->
     <section class="mobile-only">
-      <div style="max-width: 100vw;overflow: hidden">
-        <img
-          src="~assets/ferieboligbooking-background-m-swedish-art.png"
-          style="object-fit: cover; object-position: 100% 0;"
-          alt="FerieboligBooking visuel identitet"
-        >
-      </div>
-      <section class="q-pa-md q-pt-xl absolute-top">
-        <section class="q-pa-sm row">
-            <h4>Administrer brugere</h4>
+      <section class="q-pa-md q-pt-xl absolute-top bg-primary">
+        <section class="q-pa-sm column col-12">
+            <h4 class="q-ma-none">Administrer brugere</h4>
+          <div class="row">
+          <q-input
+            color="accent"
+            style="width: 70%"
+            class="q-my-sm"
+            outlined
+            v-model="password"
+            label="Password for alle brugere"
+            standout="bg-secondary text-accent"
+            @update:model-value="inputChange()">
+            <template v-slot:append>
+              <q-icon name="edit" />
+            </template>
+          </q-input>
+          <q-btn
+            v-if="hasUnsavedChanges"
+            style="width: 25%;"
+            label="opdater"
+            class="bg-secondary q-ma-sm"
+            @click="submitChangePassword">
+          </q-btn>
+          </div>
         </section>
-        <section class="fixed-bottom-right q-pa-md">
+
+        <section class="q-pa-md q-mt-none col-12">
+          <div class="q-pr-none">
+            <table class="q-table">
+              <thead>
+              <tr>
+                <th v-for="column in columns.mobile" :key="column.name">{{ column.label }}</th>
+                <th>Redigér</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="user in users" :key="user.id"><td v-for="column in columns.mobile" :key="column.name" >{{ user[column.field] }}</td>
+                <td>
+                  <q-btn
+                    size="md"
+                    class="q-mr-md"
+                    color="secondary"
+                    text-color="accent"
+                    @click="userClicked(user)"
+                  >
+                    <q-icon name="edit" />
+                  </q-btn>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div class="col-12" align="center">
+          <q-btn icon="person_add" color="secondary" text-color="accent" @click="addUserClicked" />
+        </div>
+
+<!--        <section class="fixed-bottom-right q-pa-md">
           <span class="text-h7 text-accent">FerieboligBooking, JohaJens 2023(™)</span>
-        </section>
+        </section>-->
+
       </section>
     </section>
 
@@ -149,13 +197,20 @@
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById } from "src/api/user";
 import { getUser, routeFrontPage } from "src/service/authentication";
 
-const columns = [
+const columns = {
+  mobile: [
+    { name: "name", label: "Navn", field: "name" },
+    { name: "email", label: "E-mail", field: "email" }
+  ],
+  desktop: [
+    { name: "name", label: "Navn", field: "name" },
+    { name: "email", label: "E-mail", field: "email" },
+    { name: "created", label: "Oprettet", field: "created" },
+    { name: "isAdmin", label: "Admin", field: "isAdmin" }
+  ]
+};
 
-  { name: "name", label: "Navn", field: "name" },
-  { name: "email", label: "E-mail", field: "email" },
-  { name: "password", label: "Password", field: "password" },
-  { name: "created", label: "Oprettet", field: "created" },
-]
+
 
 export default {
   name: "administerUsersPage",
@@ -277,4 +332,5 @@ th, td {
 tr {
   border-bottom: 1pt solid black;
 }
+
 </style>
