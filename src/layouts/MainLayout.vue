@@ -13,10 +13,18 @@
           @click.stop="toggleLeftDrawer"
           />
         <q-toolbar-title>
-          <div class="float-right q-ma-sm">
-            <span class="text-h4">Feriebolig </span>
-            <span class="text-h6">Booking</span>
-          </div>
+          <section class="desktop-only">
+            <div class="float-right q-ma-sm">
+              <span class="text-h4">Feriebolig </span>
+              <span class="text-h6">Booking</span>
+            </div>
+          </section>
+          <section class="mobile-only">
+            <div class="float-right q-ma-sm">
+              <span class="text-h6">Feriebolig </span>
+              <span style="font-size: 12px;">Booking</span>
+            </div>
+          </section>
         </q-toolbar-title>
         <q-btn-dropdown
           dense
@@ -47,6 +55,7 @@
       side="left"
       overlay
       elevated
+      behavior="desktop"
       :width="250"
       >
       <q-scroll-area class="fit">
