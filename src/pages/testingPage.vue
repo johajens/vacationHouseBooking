@@ -1,7 +1,10 @@
 <template>
   <q-page class="flex flex-center bg-primary">
-
-    <section class="mobile-only">
+    <section class="desktop-only">
+      <q-btn class="bg-secondary text-accent q-ma-md" label="set user storage" @click="setLocalStorageUser()" />
+      <q-btn class="bg-secondary text-accent q-ma-md" label="Delete user storage" @click="deleteLocalStorageUser" />
+    </section>
+      <section class="mobile-only">
       <div style="max-width: 100vw;overflow: hidden">
         <img
           src="~assets/ferieboligbooking-background-m-swedish-art.png"
@@ -32,14 +35,16 @@ export default defineComponent({
   setup() {
     const router = useRouter();
 
-    const setLocalStorageUser = () => {
+    const setLocalStorageUser = async () => {
       // Fetch houses and update the items list
-      localStorage.setItem("userId", "UFLOAGwZG1VBmBpPan0t")
-      router.push("/houseFrontpage");
-
+      localStorage.setItem("userId", "k8rHraDvYKVmY040jlwY")
+      await router.push("/houseFrontpage");
+      await window.location.reload();
     };
-    const deleteLocalStorageUser = () => {
+    const deleteLocalStorageUser = async () => {
       localStorage.removeItem("userId")
+      await router.push("/houseFrontpage");
+      await window.location.reload();
     };
 
     return {

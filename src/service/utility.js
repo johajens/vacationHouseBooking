@@ -5,3 +5,7 @@ export function getReadableTimestamp(){
   let newTimestamp = timestamp.toDate().toLocaleString('en-GB');
   return newTimestamp;
 }
+
+export function getDateFromTimestamp(date){
+  return date.split(",");
+}

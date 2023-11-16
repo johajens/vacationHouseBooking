@@ -1,11 +1,11 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, where, query } from "firebase/firestore";
 import { database } from "boot/firebaseConfig";
 import { getReadableTimestamp } from "src/service/utility.js";
 import { ref } from "vue";
 
 const collectionName = 'users'
 
-async function createUser(user){
+export async function createUser(user){
   const currentTime = getReadableTimestamp()
   try {
     await addDoc(collection(database, collectionName), {
@@ -45,6 +45,25 @@ export async function readAllUsers(){
   }
 }
 
+export async function readAllUsersByHouseId(houseId){
+  const retrievedUsers = []
+  try{
+    const q = query(collection(database, collectionName), where("houseId", "==", houseId));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      retrievedUsers.push({ id: doc.id, ...doc.data() })
+    });
+    return retrievedUsers
+  }catch (e){
+    throw new Error(`Failed to retrieve users from database \n${e.stack}`)
+  }
+
+}
+
+
+
+
+
 export async function updateUserById(user){
   try{
     await updateDoc(doc(database, collectionName, user.id), {
@@ -59,7 +78,7 @@ export async function updateUserById(user){
   }
 }
 
-async function deleteUserById(userId){
+export async function deleteUserById(userId){
   try{
     await deleteDoc(doc(database, collectionName, userId))
   } catch (e) {

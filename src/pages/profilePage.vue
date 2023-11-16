@@ -140,6 +140,7 @@ export default {
       const users = await readAllUsers();
       if (user.value.email !== email.value) {
         if (users.value.filter((user) => user.email === email.value).length > 0) {
+          // TODO Fix with proper errormessage
           errorMessage.value = "* DENNE EMAIL ER ALLEREDE I BRUG *";
         }else{
           await updateUser()
