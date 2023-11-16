@@ -193,11 +193,12 @@
 </template>
 
 <script>
-import { defineComponent, ref} from 'vue'
+import { defineComponent, ref, onMounted} from 'vue'
 import { useRouter } from 'vue-router'
 import { createUser, verifyAndLoginUser} from "src/api/user.js"
 import { createHouse } from "src/api/house.js"
 import { isInputValid } from "src/service/utility";
+import houseFrontpage from "pages/houseFrontpage.vue";
 
 export default defineComponent({
   name: 'IndexPage',
@@ -229,7 +230,7 @@ export default defineComponent({
         const password = loginUserPassword.value
         const [message, type] = await verifyAndLoginUser(email, password, localStorage)
         displayNotification(message, type);
-        router.push("houseFrontpage")
+        onPageLoad()
       } catch (error) {
         displayNotification(error.message, 'error')
       }
@@ -294,6 +295,18 @@ export default defineComponent({
         displayNotification(e.message, 'error');
       }
     }
+
+    const onPageLoad = () => {
+      if (localStorage.getItem('userId')){
+        setTimeout(() => {
+          router.push('houseFrontpage')
+        },500)
+      }
+    }
+
+    onMounted(() => {
+      onPageLoad()
+    })
 
     // Expose only the necessary data and methods
     return {
