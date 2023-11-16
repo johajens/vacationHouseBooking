@@ -169,7 +169,7 @@ export default {
 
     const onPageLoad = async () => {
       user.value = await getUser();
-      console.log(user.value);
+      user.value = await getUser();
       name.value = user.value.name;
       email.value = user.value.email;
       password.value = user.value.password;
