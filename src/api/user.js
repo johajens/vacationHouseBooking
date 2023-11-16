@@ -33,11 +33,11 @@ export async function readUserById(userId){
 }
 
 export async function readAllUsers(){
-  const retrievedUsers = ref([])
+  const retrievedUsers = []
   try{
     const dbUserSnapsnot = await getDocs(collection(database, collectionName))
-    dbUserSnapsnot.forEach((user) => {
-      retrievedUsers.value.push(user.data())
+    dbUserSnapsnot.forEach((doc) => {
+      retrievedUsers.push({ id: doc.id, ...doc.data() })
     })
     return retrievedUsers
   } catch (e){
@@ -83,5 +83,20 @@ export async function deleteUserById(userId){
     await deleteDoc(doc(database, collectionName, userId))
   } catch (e) {
     throw new Error(`Failed to delete user with userId: ${userId}\n${e.stack}`)
+  }
+}
+
+export async function verifyAndLoginUser(userEmail, userPassword, localStorage) {
+  try {
+    const allUsers = await readAllUsers()
+    const user = await allUsers.find(user => user.email.toLowerCase() === userEmail.toLowerCase() && user.password === userPassword)
+    if (user) {
+      localStorage.setItem("userId", user.id);
+      return [`Du er nu logget ind som, ${user.name}`, 'notification'];
+    } else{
+      return [`Vi kunne ikke finde en bruger med den angivne mail og adgangskode`, 'error'];
+    }
+  } catch (e) {
+    throw new Error(`Failed to verify and login user with email: ${userEmail}\n${e.stack}`);
   }
 }

@@ -9,12 +9,13 @@ const collectionName = "houses";
 export async function createHouse(house){
   const currentTimestamp = getReadableTimestamp()
   try {
-    await addDoc(collection(database, collectionName), {
+    const houseDocRef = await addDoc(collection(database, collectionName), {
       name: house.name,
       description: house.description,
       created: currentTimestamp,
       updated: currentTimestamp
     })
+    return houseDocRef.id
   }catch (e){
     throw new Error(`Failed to add house with name: ${house.name}\n${e.stack}`)
   }
