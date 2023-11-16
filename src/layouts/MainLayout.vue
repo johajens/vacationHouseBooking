@@ -36,12 +36,14 @@
           <q-list>
             <q-item
               class="q-ma-sm text-weight-bold text-accent"
-              v-for="(test, index) in profileDropdown"
+              v-for="(item, index) in profileDropdown"
               :key="index"
-              :to="test.to">
-              <q-item-section>
-                <q-item-label>{{ test.label }}</q-item-label>
-              </q-item-section>
+            >
+              <q-btn @click="() => handleDropdownClick(item)" flat round dense>
+                <q-item-section>
+                  <q-item-label>{{ item.label }}</q-item-label>
+                </q-item-section>
+              </q-btn>
             </q-item>
           </q-list>
         </q-btn-dropdown>
@@ -77,9 +79,11 @@
 <script>
 import { onMounted, ref } from "vue";
 import{ readUserById } from "src/api/user";
+import { useRouter } from 'vue-router'
 
 export default {
   setup () {
+    const router = useRouter()
     const leftDrawerOpen = ref(false)
     const userId = ref()
     const profileDropdown = ref([]);
@@ -92,6 +96,20 @@ export default {
       {to: "/documentPage", label: "Dokumenter (Not implemented)"},
       {to: "/galleryPage", label: "Galleri (Not implemented)"},
     ]
+
+    const handleDropdownClick = (event) => {
+      if(event.label === "Log ud"){
+        localStorage.removeItem("userId")
+        window.location.reload()
+      }else if(event.label === "Log ind"){
+        console.log("You have clicked 'Log ind' :D ")
+        // TODO open log in
+      }
+      else{
+        router.push(event.to)
+      }
+
+    }
 
     //Open left drawer on click
     const toggleLeftDrawer = () => {
@@ -138,7 +156,8 @@ export default {
       leftSideLinks,
       handleBodyClick,
       profileDropdown,
-      userId
+      userId,
+      handleDropdownClick
     }
   }
 }
