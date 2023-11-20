@@ -125,11 +125,6 @@
         <div class="col-12" align="center">
           <q-btn icon="person_add" color="secondary" text-color="accent" @click="addUserClicked" />
         </div>
-
-<!--        <section class="fixed-bottom-right q-pa-md">
-          <span class="text-h7 text-accent">FerieboligBooking, JohaJens 2023(™)</span>
-        </section>-->
-
       </section>
     </section>
 
@@ -237,7 +232,6 @@ export default {
           tempUser.password = password.value
           await updateUserById(tempUser)
         });
-
       }
     };
 
