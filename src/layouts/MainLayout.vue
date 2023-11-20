@@ -71,6 +71,7 @@
         </q-item>
       </q-scroll-area>
     </q-drawer>
+
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -165,7 +166,7 @@ export default {
       profileDropdown,
       userId,
       handleDropdownClick,
-      handleLeftDrawerItemClick
+      handleLeftDrawerItemClick,
     }
   },
 }
