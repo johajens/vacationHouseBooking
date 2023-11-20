@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase/firestore";
+import { readAllUsers} from "src/api/user";
 
 export function getReadableTimestamp(){
   const timestamp = Timestamp.now();
@@ -17,4 +18,12 @@ export function isInputValid(input){
   } else {
     return !input || !input.trim().length;
   }
+}
+
+export async function isEmailInUse(emailToVerify){
+  const users = await readAllUsers()
+  users.forEach(user => {
+    console.log(user)
+  })
+  return users.some(element => element.email.toLowerCase() === emailToVerify.toLowerCase())
 }

@@ -122,18 +122,19 @@
 </template>
 
 <script>
-import { ref } from "vue";
-import { createUser, verifyAndLoginUser } from "src/api/user";
-import { isInputValid } from "src/service/utility";
-import { createHouse } from "src/api/house";
-import { useRouter } from "vue-router";
-import NotificationBanner from "components/notificationBanner.vue";
+import { ref } from "vue"
+import { createUser, verifyAndLoginUser } from "src/api/user"
+import { isEmailInUse, isInputValid } from "src/service/utility"
+import { createHouse } from "src/api/house"
+import { useRouter } from "vue-router"
+import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
   name: "loginAndRegistrationDialogs",
   components: { NotificationBanner },
   setup () {
     const router = useRouter()
+    //Form values
     const isPwd = ref(true)
     const isPwdRepeat = ref(true)
     const loginUserEmail = ref("")
@@ -144,23 +145,27 @@ export default {
     const createPasswordRepeat = ref("")
     const createHouseName = ref("")
     const createHouseDescription = ref("")
-
+    //Dialogs and components
     const notificationBanner = ref()
-
     const dialogs = ref({
       login: false,
       createUserInfo: false,
       createHouseInfo: false,
     })
 
+    const toggleDialog = (dialogName) => {
+      Object.keys(dialogs.value).forEach(key => {
+        dialogs.value[key] = false
+      });
+      dialogs.value[dialogName] = !dialogs.value[dialogName]
+    }
+
     const handleLogin = async () => {
       try {
         const email = loginUserEmail.value
         const password = loginUserPassword.value
         const [message, type] = await verifyAndLoginUser(email, password, localStorage)
-        console.log(message);
-        console.log(type);
-        notificationBanner.value.displayNotification(message, type);
+        notificationBanner.value.displayNotification(message, type)
         if (localStorage.getItem('userId')){
           setTimeout(async () => {
             await router.push('houseFrontpage')
@@ -172,18 +177,14 @@ export default {
       }
     }
 
-    const toggleDialog = (dialogName) => {
-      Object.keys(dialogs.value).forEach(key => {
-        dialogs.value[key] = false;
-      });
-      dialogs.value[dialogName] = !dialogs.value[dialogName]
-    }
-
-    const validateUserInfoAndProceed = () => {
+    const validateUserInfoAndProceed = async () => {
       const error = isInputValid([createUserName.value ,createUserEmail.value, createPassword.value, createPasswordRepeat.value])
-      //TODO: Add matching password verification + check if email already exists
       if (error) {
         notificationBanner.value.displayNotification("Alle felter skal udfyldes", 'error')
+      } else if (createPassword.value !== createPasswordRepeat.value) {
+        notificationBanner.value.displayNotification("De indtastede adgangskode stemmer ikke overens", 'error')
+      } else if (await isEmailInUse(createUserEmail.value)) {
+        notificationBanner.value.displayNotification("Den indtastede email-adresse er allerede i brug", 'error')
       } else {
         toggleDialog('createHouseInfo')
       }
@@ -215,7 +216,7 @@ export default {
         notificationBanner.value.displayNotification("Succes! Brugeren og ferieboligen blev oprettet", "notification")
         //TODO: Add automatic login and closing of login dialog
       } catch (e) {
-        notificationBanner.value.displayNotification(e.message, 'error');
+        notificationBanner.value.displayNotification(e.message, 'error')
       }
     }
 
@@ -224,9 +225,9 @@ export default {
       validateUserInfoAndProceed,
       validateHouseInfoAndCreateNewUser,
       handleLogin,
+      toggleDialog,
       //Dialogs and components
       dialogs,
-      toggleDialog,
       notificationBanner,
       //Form values
       isPwd,
@@ -241,7 +242,7 @@ export default {
       createHouseDescription,
     }
   }
-};
+}
 </script>
 
 <style scoped>
