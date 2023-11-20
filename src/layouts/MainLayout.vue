@@ -65,7 +65,8 @@
           class="text-accent text-weight-bold q-ma-sm"
           v-for="(link, index) in leftSideLinks"
           :key="index"
-          :to="link.to">
+          :to="link.to"
+          @click="handleLeftDrawerItemClick(link.to)">
           <q-item-section>{{ link.label }}</q-item-section>
         </q-item>
       </q-scroll-area>
@@ -108,8 +109,13 @@ export default {
       else{
         router.push(event.to)
       }
-
     }
+
+    const handleLeftDrawerItemClick = (to) => {
+      if (router.currentRoute.value.path === to) {
+        leftDrawerOpen.value = false;
+      }
+    };
 
     //Open left drawer on click
     const toggleLeftDrawer = () => {
@@ -157,7 +163,8 @@ export default {
       handleBodyClick,
       profileDropdown,
       userId,
-      handleDropdownClick
+      handleDropdownClick,
+      handleLeftDrawerItemClick
     }
   }
 }
