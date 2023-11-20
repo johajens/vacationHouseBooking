@@ -183,11 +183,7 @@
     </q-dialog>
 
     <!-- Notification dialog -->
-    <q-dialog v-model="notificationDialog" seamless position="bottom">
-      <q-card :class="[notificationClass, 'q-px-md', 'q-pt-md', 'q-pb-md']" style="width: 100vw">
-        <div class="text-body2 text-white">{{ notificationMessage }}</div>
-      </q-card>
-    </q-dialog>
+    <notification-banner ref="notificationBanner"></notification-banner>
 
   </q-page>
 </template>
@@ -199,16 +195,16 @@ import { createUser, verifyAndLoginUser} from "src/api/user.js"
 import { createHouse } from "src/api/house.js"
 import { isInputValid } from "src/service/utility";
 import houseFrontpage from "pages/houseFrontpage.vue";
+import NotificationBanner from "components/notificationBanner.vue";
 
 export default defineComponent({
   name: 'IndexPage',
+  components: { NotificationBanner },
   setup () {
     const router = useRouter()
     const isPwd = ref(true)
     const isPwdRepeat = ref(true)
-    const notificationDialog = ref(false)
-    const notificationMessage = ref("")
-    const notificationClass = ref('bg-red')
+    const notificationBanner = ref()
     const loginUserEmail = ref("")
     const loginUserPassword = ref("")
     const createUserName = ref("")
@@ -229,10 +225,10 @@ export default defineComponent({
         const email = loginUserEmail.value
         const password = loginUserPassword.value
         const [message, type] = await verifyAndLoginUser(email, password, localStorage)
-        displayNotification(message, type);
+        notificationBanner.value.displayNotification(message, type);
         onPageLoad()
       } catch (error) {
-        displayNotification(error.message, 'error')
+        notificationBanner.value.displayNotification(error.message, 'error')
       }
     }
 
@@ -243,25 +239,11 @@ export default defineComponent({
       dialogs.value[dialogName] = !dialogs.value[dialogName]
     }
 
-    const displayNotification = (message, type) => {
-      switch (type){
-        case 'error': notificationClass.value = 'bg-red'
-          break
-        case 'success': notificationClass.value = 'bg-primary'
-          break
-        case 'notification': notificationClass.value = 'bg-blue'
-      }
-      notificationMessage.value = message
-      notificationDialog.value = true
-      setTimeout(() => {
-        notificationDialog.value = false
-      }, 3000);
-    }
-
     const validateUserInfoAndProceed = () => {
-      const error = isInputValid(createUserEmail.value, createUserName.value, createPassword.value, createPasswordRepeat.value)
+      const error = isInputValid([createUserName.value ,createUserEmail.value, createPassword.value, createPasswordRepeat.value])
+      //TODO: Add matching password verification + check if email already exists
       if (error) {
-        displayNotification("Alle felter skal udfyldes", 'error')
+        notificationBanner.value.displayNotification("Alle felter skal udfyldes", 'error')
       } else {
         toggleDialog('createHouseInfo')
       }
@@ -270,7 +252,7 @@ export default defineComponent({
     const validateHouseInfoAndCreateNewUser = async () => {
       const error = isInputValid(createHouseName.value);
       if (error) {
-        displayNotification("Ferieboligen skal have et navn", 'error')
+        notificationBanner.value.displayNotification("Ferieboligen skal have et navn", 'error')
         return
       }
 
@@ -290,9 +272,10 @@ export default defineComponent({
         }
         await createUser(newUser)
         toggleDialog('createHouseInfo')
-        displayNotification("Succes! Brugeren og ferieboligen blev oprettet", "notification")
+        notificationBanner.value.displayNotification("Succes! Brugeren og ferieboligen blev oprettet", "notification")
+        //TODO: Add automatic login and closing of login dialog
       } catch (e) {
-        displayNotification(e.message, 'error');
+        notificationBanner.value.displayNotification(e.message, 'error');
       }
     }
 
@@ -319,9 +302,7 @@ export default defineComponent({
       //Dialogs and components
       dialogs,
       toggleDialog,
-      notificationDialog,
-      notificationMessage,
-      notificationClass,
+      notificationBanner,
       //Form values
       isPwd,
       isPwdRepeat,
