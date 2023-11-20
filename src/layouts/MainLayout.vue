@@ -30,6 +30,7 @@
           dense
           flat
           round
+          auto-close
           icon="account_circle"
           class="float-right q-ma-sm"
           size="20px">
@@ -76,16 +77,20 @@
       <router-view />
     </q-page-container>
   </q-layout>
+  <login-and-registration-dialogs ref="loginAndRegistrationDialogs"></login-and-registration-dialogs>
 </template>
 
 <script>
 import { onMounted, ref } from "vue";
 import{ readUserById } from "src/api/user";
 import { useRouter } from 'vue-router'
+import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue";
 
 export default {
+  components: { LoginAndRegistrationDialogs },
   setup () {
     const router = useRouter()
+    const loginAndRegistrationDialogs = ref()
     const leftDrawerOpen = ref(false)
     const userId = ref(localStorage.getItem("userId"))
     const profileDropdown = ref([])
@@ -105,8 +110,7 @@ export default {
         localStorage.removeItem("userId")
         window.location.reload()
       }else if(event.label === "Log ind"){
-        console.log("You have clicked 'Log ind' :D ")
-        // TODO open log in
+        loginAndRegistrationDialogs.value.toggleDialog("login")
       }
       else{
         router.push(event.to)
@@ -167,6 +171,7 @@ export default {
       userId,
       handleDropdownClick,
       handleLeftDrawerItemClick,
+      loginAndRegistrationDialogs
     }
   },
 }
