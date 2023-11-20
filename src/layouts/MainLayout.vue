@@ -33,16 +33,15 @@
           auto-close
           icon="account_circle"
           class="float-right q-ma-sm"
-          size="20px">
-          <q-list>
+          size="20px"
+          >
+          <q-list class="bg-secondary">
             <q-item
-              class="q-ma-sm text-weight-bold text-accent"
+              class="text-weight-bold text-accent q-pa-none q-space d"
               v-for="(item, index) in profileDropdown"
-              :key="index"
-            >
-              <q-btn @click="() => handleDropdownClick(item)" flat round dense>
-                <q-item-section>
-                  <q-item-label>{{ item.label }}</q-item-label>
+              :key="index">
+              <q-btn @click="() => handleDropdownClick(item)" flat dense class="q-px-md" no-caps>
+                <q-item-section><q-item-label>{{ item.label }}</q-item-label>
                 </q-item-section>
               </q-btn>
             </q-item>
