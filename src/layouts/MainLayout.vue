@@ -85,9 +85,9 @@ export default {
   setup () {
     const router = useRouter()
     const leftDrawerOpen = ref(false)
-    const userId = ref()
-    const profileDropdown = ref([]);
-    let leftSideLinks = [
+    const userId = ref(localStorage.getItem("userId"))
+    const profileDropdown = ref([])
+    let leftSideLinks = ref([
       {to: "/", label: "Forside anonym (Slettes)"},
       {to: "/houseFrontpage", label: "Forside"},
       {to: "/bookingPage", label: "Booking (Not implemented)"},
@@ -95,8 +95,9 @@ export default {
       {to: "/informationPage", label: "Information (Not implemented)"},
       {to: "/documentPage", label: "Dokumenter (Not implemented)"},
       {to: "/galleryPage", label: "Galleri (Not implemented)"},
-    ]
+    ])
 
+    // Handling two different types of clicks. Both links and functionality
     const handleDropdownClick = (event) => {
       if(event.label === "Log ud"){
         localStorage.removeItem("userId")
@@ -108,7 +109,6 @@ export default {
       else{
         router.push(event.to)
       }
-
     }
 
     //Open left drawer on click
@@ -135,7 +135,7 @@ export default {
         ]
         const user = await readUserById(userId.value);
         if (user.isAdmin === true) {
-          leftSideLinks.push({ to: "/administerUsersPage", label: "Administration" },);
+          leftSideLinks.value.push({ to: "/administerUsersPage", label: "Administration" },);
         }
       } else {
         profileDropdown.value = [
@@ -159,7 +159,7 @@ export default {
       userId,
       handleDropdownClick
     }
-  }
+  },
 }
 </script>
 <style>
