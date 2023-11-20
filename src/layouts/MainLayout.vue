@@ -81,13 +81,14 @@ import { onMounted, ref } from "vue";
 import{ readUserById } from "src/api/user";
 import { useRouter } from 'vue-router'
 
+
 export default {
   setup () {
     const router = useRouter()
     const leftDrawerOpen = ref(false)
-    const userId = ref()
-    const profileDropdown = ref([]);
-    let leftSideLinks = [
+    const userId = ref(localStorage.getItem("userId"))
+    const profileDropdown = ref([])
+    let leftSideLinks = ref([
       {to: "/", label: "Forside anonym (Slettes)"},
       {to: "/houseFrontpage", label: "Forside"},
       {to: "/bookingPage", label: "Booking (Not implemented)"},
@@ -95,7 +96,7 @@ export default {
       {to: "/informationPage", label: "Information (Not implemented)"},
       {to: "/documentPage", label: "Dokumenter (Not implemented)"},
       {to: "/galleryPage", label: "Galleri (Not implemented)"},
-    ]
+    ])
 
     const handleDropdownClick = (event) => {
       if(event.label === "Log ud"){
@@ -108,7 +109,6 @@ export default {
       else{
         router.push(event.to)
       }
-
     }
 
     //Open left drawer on click
@@ -135,7 +135,7 @@ export default {
         ]
         const user = await readUserById(userId.value);
         if (user.isAdmin === true) {
-          leftSideLinks.push({ to: "/administerUsersPage", label: "Administration" },);
+          leftSideLinks.value.push({ to: "/administerUsersPage", label: "Administration" },);
         }
       } else {
         profileDropdown.value = [
@@ -144,11 +144,14 @@ export default {
       }
     };
 
+
+
     // Add event listener when the component is mounted
     onMounted(() => {
       document.body.addEventListener("click", handleBodyClick);
       onPageLoad();
     })
+
 
     return {
       leftDrawerOpen,
@@ -159,7 +162,7 @@ export default {
       userId,
       handleDropdownClick
     }
-  }
+  },
 }
 </script>
 <style>

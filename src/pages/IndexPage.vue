@@ -298,9 +298,11 @@ export default defineComponent({
 
     const onPageLoad = () => {
       if (localStorage.getItem('userId')){
-        setTimeout(() => {
-          router.push('houseFrontpage')
-        },500)
+        setTimeout(async () => {
+
+          await router.push('houseFrontpage')
+          window.location.reload()
+        },1000)
       }
     }
 
