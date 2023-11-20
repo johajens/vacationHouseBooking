@@ -81,7 +81,6 @@ import { onMounted, ref } from "vue";
 import{ readUserById } from "src/api/user";
 import { useRouter } from 'vue-router'
 
-
 export default {
   setup () {
     const router = useRouter()
@@ -98,6 +97,7 @@ export default {
       {to: "/galleryPage", label: "Galleri (Not implemented)"},
     ])
 
+    // Handling two different types of clicks. Both links and functionality
     const handleDropdownClick = (event) => {
       if(event.label === "Log ud"){
         localStorage.removeItem("userId")
@@ -144,14 +144,11 @@ export default {
       }
     };
 
-
-
     // Add event listener when the component is mounted
     onMounted(() => {
       document.body.addEventListener("click", handleBodyClick);
       onPageLoad();
     })
-
 
     return {
       leftDrawerOpen,
