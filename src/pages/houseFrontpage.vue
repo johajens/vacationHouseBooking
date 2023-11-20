@@ -1,8 +1,7 @@
 <template>
   <q-page class="flex flex-center bg-primary">
-    <section class="desktop-only bg-primary">
+    <section class="desktop-only">
       <img
-        class="bg-primary"
         src="~assets/ferieboligbooking-background-swedish-art.png"
         alt="FerieboligBooking visuel identitet">
       <section class="q-pa-xl absolute-top">
