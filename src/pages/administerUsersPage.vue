@@ -178,20 +178,18 @@
         <q-card-section align="center">
           <h4 class="q-mt-none">Opret ny bruger</h4>
           <q-input
-            class="q-mt-xl"
+            class="q-mt-xl bg-secondary"
             color="accent"
             outlined
             v-model="nameCreate"
             label="Navn"
-            standout="bg-secondary text-accent"
           />
           <q-input
-            class="q-mt-xl"
+            class="q-mt-xl bg-secondary"
             color="accent"
             outlined
             v-model="emailCreate"
             label="E-mail"
-            standout="bg-secondary text-accent"
           />
         </q-card-section>
         <q-card-actions align="center">
