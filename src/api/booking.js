@@ -30,7 +30,7 @@ export async function readBookingById(bookingId){
     const bookingData = booking.data()
     return { id: booking.id, ...bookingData }
   } catch (e){
-    throw new Error(`Failed to retrieve booking by userId: ${bookingId}\n${e.stack}`)
+    throw new Error(`Failed to retrieve booking by bookingId: ${bookingId}\n${e.stack}`)
   }
 }
 
