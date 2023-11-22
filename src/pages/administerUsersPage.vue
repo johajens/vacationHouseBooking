@@ -215,8 +215,7 @@ const columns = {
   desktop: [
     { name: "name", label: "Navn", field: "name" },
     { name: "email", label: "E-mail", field: "email" },
-    { name: "created", label: "Oprettet", field: "created" },
-    { name: "isAdmin", label: "Admin", field: "isAdmin" }
+    { name: "created", label: "Oprettet", field: "created" }
   ]
 };
 
@@ -340,7 +339,8 @@ export default {
       if(user.value.isAdmin !== true){
         await routeFrontPage();
       }
-      users.value = await readAllUsersByHouseId(user.value.houseId);
+      const allUsers = await readAllUsersByHouseId(user.value.houseId);
+      users.value = allUsers.filter(tempUser => tempUser.id !== user.value.id)
       password.value = user.value.password
     }
     onMounted(() => {
