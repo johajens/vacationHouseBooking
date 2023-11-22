@@ -153,9 +153,12 @@ export default {
       createHouseInfo: false,
     })
 
+
     const toggleDialog = (dialogName) => {
       Object.keys(dialogs.value).forEach(key => {
-        dialogs.value[key] = false
+        if (key !== dialogName){
+          dialogs.value[key] = false
+        }
       });
       dialogs.value[dialogName] = !dialogs.value[dialogName]
     }
@@ -211,10 +214,12 @@ export default {
           houseId: houseId,
           isAdmin: true
         }
-        await createUser(newUser)
-        toggleDialog('createHouseInfo')
-        notificationBanner.value.displayNotification("Succes! Brugeren og ferieboligen blev oprettet", "notification")
-        //TODO: Add automatic login and closing of login dialog
+        localStorage.setItem("userId", await createUser(newUser))
+        setTimeout(async () => {
+          toggleDialog('createHouseInfo')
+          await router.push('houseFrontpage')
+        },1000)
+        notificationBanner.value.displayNotification("Succes! Brugeren og ferieboligen blev oprettet.", "notification")
       } catch (e) {
         notificationBanner.value.displayNotification(e.message, 'error')
       }

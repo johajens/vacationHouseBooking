@@ -8,7 +8,7 @@ const collectionName = 'users'
 export async function createUser(user){
   const currentTime = getReadableTimestamp()
   try {
-    await addDoc(collection(database, collectionName), {
+    const userDocRef = await addDoc(collection(database, collectionName), {
       created: currentTime,
       updated: currentTime,
       name: user.name,
@@ -17,6 +17,7 @@ export async function createUser(user){
       isAdmin: user.isAdmin,
       houseId: user.houseId
     })
+    return userDocRef.id
   } catch (e){
     throw new Error (`Failed to add user with email: ${user.email}\n${e.stack}`)
   }
