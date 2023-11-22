@@ -38,7 +38,6 @@
                 <q-icon name="edit" />
               </template>
             </q-input>
-            <div class="text-negative q-mt-xs text-weight-bold">{{ errorMessage }}</div>
 
             <div class="q-mt-xl">
               <q-input outlined v-model="password" label="Password" :disable="true" />
@@ -97,7 +96,6 @@
                 <q-icon name="edit" />
               </template>
             </q-input>
-            <div class="text-negative q-mt-xs text-weight-bold">{{ errorMessage }}</div>
 
             <div class="q-mt-xl">
               <q-input outlined v-model="password" label="Password" :disable="true" />
@@ -119,38 +117,37 @@
       </section>
     </section>
   </q-page>
+  <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
 <script>
 import { onMounted, ref } from "vue";
 import { getUser } from "src/service/authentication";
-import { readAllUsers, updateUserById } from "src/api/user";
-import {isEmailInUse} from "src/service/utility";
+import { updateUserById } from "src/api/user";
+import { userDataValid } from "src/service/utility";
+import NotificationBanner from "components/notificationBanner.vue";
 
 export default {
   name: "profilePage",
+  components: { NotificationBanner },
   setup() {
-    const user = ref();
-    const name = ref("");
-    const email = ref("");
-    const password = ref("");
-    const hasUnsavedChanges = ref(false);
-    const errorMessage = ref("");
+    const user = ref()
+    const name = ref("")
+    const email = ref("")
+    const password = ref("")
+    const hasUnsavedChanges = ref(false)
+    const notificationBanner = ref()
 
     const submitChangeData = async () => {
-      if (user.value.email !== email.value) {
-        if (await isEmailInUse(email.value)) {
-          //TODO: Add error handling
-        }else{
-          await updateUser()
-        }
-      } else {
+      const data = await userDataValid([email.value, name.value], user.value)
+      if (data.validInfo){
         await updateUser()
+        data.notificationMessage = "Bruger opdateret"
       }
-    };
+      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
+    }
 
     async function updateUser() {
-      errorMessage.value = "";
       user.value.name = name.value;
       user.value.email = email.value;
       await updateUserById(user.value);
@@ -158,7 +155,6 @@ export default {
     }
 
     function inputChange(){
-      errorMessage.value = "";
       if(user.value.name === name.value && user.value.email === email.value){
         hasUnsavedChanges.value = false
       }else{
@@ -186,7 +182,7 @@ export default {
       hasUnsavedChanges,
       submitChangeData,
       inputChange,
-      errorMessage
+      notificationBanner
     };
   },
 };
