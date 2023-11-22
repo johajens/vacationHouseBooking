@@ -162,7 +162,7 @@
     </q-dialog>
 
     <!-- Create user dialog -->
-    <q-dialog v-model="showPopupCreate" >
+    <q-dialog v-model="showPopupCreate">
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
           <h4 class="q-mt-none">Opret ny bruger</h4>
