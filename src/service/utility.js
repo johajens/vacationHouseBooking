@@ -1,10 +1,9 @@
-import { Timestamp } from "firebase/firestore"
-import { readAllUsers, readUserById } from "src/api/user"
+import {Timestamp} from "firebase/firestore"
+import {readAllUsers} from "src/api/user"
 
 export function getReadableTimestamp(){
   const timestamp = Timestamp.now()
-  let newTimestamp = timestamp.toDate().toLocaleString('en-GB')
-  return newTimestamp
+  return timestamp.toDate().toLocaleString('en-GB')
 }
 
 export function getDateFromTimestamp(date){

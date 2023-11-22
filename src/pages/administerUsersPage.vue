@@ -24,7 +24,7 @@
               outlined
               v-model="password"
               label="Password for alle brugere"
-              @update:model-value="inputChange()"
+              @update:model-value="inputChangePassword()"
               :type="isPwd ? 'password' : 'text'">
 
               <template v-slot:append>
@@ -86,7 +86,7 @@
             outlined
             v-model="password"
             label="Password for alle brugere"
-            @update:model-value="inputChange()"
+            @update:model-value="inputChangePassword()"
             :type="isPwd ? 'password' : 'text'">
             <template v-slot:append>
               <q-icon
@@ -325,10 +325,10 @@ export default {
       if (password.value.trim().length === 0) {
         notificationBanner.value.displayNotification("Password må ikke være tom", "error")
       }else{
-        users.value.forEach(async function(tempUser){
+        for (const tempUser of users.value) {
           tempUser.password = password.value
           await updateUserById(tempUser)
-        })
+        }
         notificationBanner.value.displayNotification("Password opdateret", "success")
         hasUnsavedPasswordChanges.value = false
       }
