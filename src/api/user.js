@@ -1,7 +1,6 @@
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, where, query } from "firebase/firestore";
 import { database } from "boot/firebaseConfig";
 import { getReadableTimestamp } from "src/service/utility.js";
-import { ref } from "vue";
 
 const collectionName = 'users'
 
