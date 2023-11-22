@@ -111,7 +111,7 @@ export default {
 
     const handleLeftDrawerItemClick = (to) => {
       if (router.currentRoute.value.path === to) {
-        leftDrawerOpen.value = false;
+        leftDrawerOpen.value = false
       }
     }
 
@@ -131,21 +131,14 @@ export default {
     // On page load, make both profile dropdown and left-drawer links as needed
     const onPageLoad = async () => {
       leftDrawerOpen.value = false
-      userId.value = localStorage.getItem("userId");
-      if (userId.value !== null) {
-        profileDropdown.value = [
-          { to: "/profilePage", label: "Profil" },
-          { to: "/", label: "Log ud" }
-        ]
-        const user = await readUserById(userId.value);
-        if (user.isAdmin === true) {
-          leftSideLinks.value.push({ to: "/administerUsersPage", label: "Administration" },)
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        user.value = await readUserById(userId)
+        if (user.value) {
+          leftSideLinks.value = await getLeftDrawerLinks(user.value)
         }
-      } else {
-        profileDropdown.value = [
-          { to: "/", label: "Log ind" }
-        ]
       }
+      profileDropdown.value = await getDropdownLinks(user.value)
     }
 
     // Add event listener when the component is mounted
