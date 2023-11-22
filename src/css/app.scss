@@ -1,23 +1,38 @@
 // app global css in SCSS form
 
-.desktop-background {
-  background-image: url('src/assets/ferieboligbooking-background-swedish-art.png');
+@mixin background-style($image-url) {
+  background-image: url($image-url);
   background-repeat: no-repeat;
   background-attachment: local;
-  background-position: top;
-  background-size: contain;
   background-color: #FFE48B;
   width: 100vw;
   min-height: 100vh;
 }
 
-.mobile-background {
-  background-image: url('src/assets/ferieboligbooking-background-m-swedish-art.png');
-  background-repeat: no-repeat;
-  background-attachment: local;
+@mixin desktop-style($image-url){
+  @include background-style($image-url);
+  background-position: top;
+  background-size: contain;
+}
+
+@mixin mobile-style($image-url){
+  @include background-style($image-url);
   background-position-y: 12vh;
   background-size: 900px, auto, cover;
-  background-color: #FFE48B;
-  width: 100vw;
-  min-height: 100vh;
+}
+
+.desktop-background {
+  @include desktop-style('src/assets/ferieboligbooking-background-swedish-art.png');
+}
+
+.mobile-background {
+  @include mobile-style('src/assets/ferieboligbooking-background-m-swedish-art.png');
+}
+
+.desktop-background-low-opacity {
+  @include desktop-style('src/assets/ferieboligbooking-background-swedish-art-low-opacity.png');
+}
+
+.mobile-background-low-opacity {
+  @include mobile-style('src/assets/ferieboligbooking-background-m-swedish-art-low-opacity.png');
 }
