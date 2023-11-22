@@ -124,7 +124,7 @@
 <script>
 import { ref } from "vue"
 import { createUser, verifyAndLoginUser } from "src/api/user"
-import { isEmailInUse, isInputValid } from "src/service/utility"
+import { isEmailInUse, isInputInvalid } from "src/service/utility"
 import { createHouse } from "src/api/house"
 import { useRouter } from "vue-router"
 import NotificationBanner from "components/notificationBanner.vue"
@@ -181,7 +181,7 @@ export default {
     }
 
     const validateUserInfoAndProceed = async () => {
-      const error = isInputValid([createUserName.value ,createUserEmail.value, createPassword.value, createPasswordRepeat.value])
+      const error = isInputInvalid([createUserName.value ,createUserEmail.value, createPassword.value, createPasswordRepeat.value])
       if (error) {
         notificationBanner.value.displayNotification("Alle felter skal udfyldes", 'error')
       } else if (createPassword.value !== createPasswordRepeat.value) {
@@ -194,7 +194,7 @@ export default {
     }
 
     const validateHouseInfoAndCreateNewUser = async () => {
-      const error = isInputValid(createHouseName.value);
+      const error = isInputInvalid(createHouseName.value);
       if (error) {
         notificationBanner.value.displayNotification("Ferieboligen skal have et navn", 'error')
         return
