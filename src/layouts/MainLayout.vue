@@ -30,18 +30,18 @@
           dense
           flat
           round
+          auto-close
           icon="account_circle"
           class="float-right q-ma-sm"
-          size="20px">
-          <q-list>
+          size="20px"
+          >
+          <q-list class="bg-secondary">
             <q-item
-              class="q-ma-sm text-weight-bold text-accent"
+              class="text-weight-bold text-accent q-pa-none q-space d"
               v-for="(item, index) in profileDropdown"
-              :key="index"
-            >
-              <q-btn @click="() => handleDropdownClick(item)" flat round dense>
-                <q-item-section>
-                  <q-item-label>{{ item.label }}</q-item-label>
+              :key="index">
+              <q-btn @click="() => handleDropdownClick(item)" flat dense class="q-px-md" no-caps>
+                <q-item-section><q-item-label>{{ item.label }}</q-item-label>
                 </q-item-section>
               </q-btn>
             </q-item>
@@ -76,16 +76,20 @@
       <router-view />
     </q-page-container>
   </q-layout>
+  <login-and-registration-dialogs ref="loginAndRegistrationDialogs"></login-and-registration-dialogs>
 </template>
 
 <script>
 import { onMounted, ref } from "vue";
 import{ readUserById } from "src/api/user";
 import { useRouter } from 'vue-router'
+import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue";
 
 export default {
+  components: { LoginAndRegistrationDialogs },
   setup () {
     const router = useRouter()
+    const loginAndRegistrationDialogs = ref()
     const leftDrawerOpen = ref(false)
     const userId = ref(localStorage.getItem("userId"))
     const profileDropdown = ref([])
@@ -105,8 +109,7 @@ export default {
         localStorage.removeItem("userId")
         window.location.reload()
       }else if(event.label === "Log ind"){
-        console.log("You have clicked 'Log ind' :D ")
-        // TODO open log in
+        loginAndRegistrationDialogs.value.toggleDialog("login")
       }
       else{
         router.push(event.to)
@@ -167,6 +170,7 @@ export default {
       userId,
       handleDropdownClick,
       handleLeftDrawerItemClick,
+      loginAndRegistrationDialogs
     }
   },
 }
