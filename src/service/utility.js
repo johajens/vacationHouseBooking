@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-import { readAllUsers} from "src/api/user";
+import { readAllUsers, readUserById } from "src/api/user";
 
 export function getReadableTimestamp(){
   const timestamp = Timestamp.now();
@@ -23,4 +23,34 @@ export function isInputValid(input){
 export async function isEmailInUse(emailToVerify){
   const users = await readAllUsers()
   return users.some(element => element.email.toLowerCase() === emailToVerify.toLowerCase())
+}
+
+export async function getDropdownLinks(user){
+  if(user){
+    return [
+      { to: "/profilePage", label: "Profil" },
+      { to: "/", label: "Log ud" }
+    ]
+  }
+  return [
+    { to: "/", label: "Log ind" }
+  ]
+}
+
+export async function getLeftDrawerLinks(user){
+  const leftDrawerLinks = [
+    {to: "/", label: "Forside anonym (Slettes)"},
+    {to: "houseFrontpage", label: "Forside"},
+    {to: "bookingPage", label: "Booking (Not implemented)"},
+    {to: "repairPage", label: "Reparation (Not implemented)"},
+    {to: "informationPage", label: "Information (Not implemented)"},
+    {to: "documentPage", label: "Dokumenter (Not implemented)"},
+    {to: "galleryPage", label: "Galleri (Not implemented)"},
+  ]
+  if(user.isAdmin){
+    leftDrawerLinks.push({to: "administerUsersPage", label: "Administrér brugere"},)
+  }
+  return leftDrawerLinks
+
+
 }

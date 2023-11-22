@@ -3,8 +3,8 @@
 
     <q-header elevated class="bg-secondary text-accent">
       <q-toolbar>
-<!--        insert this into q-btn: v-if="userId"-->
         <q-btn
+          v-if="user"
           class="text-h5"
           dense
           flat
@@ -81,8 +81,9 @@
 
 <script>
 import { onMounted, ref } from "vue";
+import{ getDropdownLinks, getLeftDrawerLinks } from "src/service/utility";
 import{ readUserById } from "src/api/user";
-import { useRouter } from 'vue-router'
+import { onBeforeRouteUpdate, useRouter } from "vue-router";
 import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue";
 
 export default {
@@ -91,17 +92,9 @@ export default {
     const router = useRouter()
     const loginAndRegistrationDialogs = ref()
     const leftDrawerOpen = ref(false)
-    const userId = ref(localStorage.getItem("userId"))
+    const user = ref()
     const profileDropdown = ref([])
-    let leftSideLinks = ref([
-      {to: "/", label: "Forside anonym (Slettes)"},
-      {to: "/houseFrontpage", label: "Forside"},
-      {to: "/bookingPage", label: "Booking (Not implemented)"},
-      {to: "/repairPage", label: "Reparation (Not implemented)"},
-      {to: "/informationPage", label: "Information (Not implemented)"},
-      {to: "/documentPage", label: "Dokumenter (Not implemented)"},
-      {to: "/galleryPage", label: "Galleri (Not implemented)"},
-    ])
+    const leftSideLinks = ref([])
 
     // Handling two different types of clicks. Both links and functionality
     const handleDropdownClick = (event) => {
@@ -138,21 +131,14 @@ export default {
     // On page load, make both profile dropdown and left-drawer links as needed
     const onPageLoad = async () => {
       leftDrawerOpen.value = false;
-      userId.value = localStorage.getItem("userId");
-      if (userId.value !== null) {
-        profileDropdown.value = [
-          { to: "/profilePage", label: "Profil" },
-          { to: "/", label: "Log ud" }
-        ]
-        const user = await readUserById(userId.value);
-        if (user.isAdmin === true) {
-          leftSideLinks.value.push({ to: "/administerUsersPage", label: "Administration" },);
+      const userId = localStorage.getItem("userId")
+      if(userId){
+        user.value = await readUserById(userId)
+        if(user.value){
+          leftSideLinks.value = await getLeftDrawerLinks(user.value)
         }
-      } else {
-        profileDropdown.value = [
-          { to: "/", label: "Log ind" }
-        ]
       }
+      profileDropdown.value = await getDropdownLinks(user.value)
     };
 
     // Add event listener when the component is mounted
@@ -161,13 +147,17 @@ export default {
       onPageLoad();
     })
 
+    onBeforeRouteUpdate(() => {
+      onPageLoad();
+    });
+
     return {
       leftDrawerOpen,
       toggleLeftDrawer,
       leftSideLinks,
       handleBodyClick,
       profileDropdown,
-      userId,
+      user,
       handleDropdownClick,
       handleLeftDrawerItemClick,
       loginAndRegistrationDialogs

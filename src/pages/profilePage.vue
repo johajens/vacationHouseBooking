@@ -14,29 +14,21 @@
           </div>
           <div class="col-3">
             <q-input
-              class="q-mt-xl"
+              class="q-mt-xl bg-secondary"
               color="accent"
               outlined
               v-model="name"
               label="Navn"
-              standout="bg-secondary text-accent"
               @update:model-value="inputChange()">
-              <template v-slot:append>
-                <q-icon name="edit" />
-              </template>
             </q-input>
 
             <q-input
-              class="q-mt-xl"
+              class="q-mt-xl bg-secondary"
               color="accent"
               outlined
               v-model="email"
               label="Email"
-              standout="bg-secondary text-accent"
               @update:model-value="inputChange()">
-              <template v-slot:append>
-                <q-icon name="edit" />
-              </template>
             </q-input>
             <div class="text-negative q-mt-xs text-weight-bold">{{ errorMessage }}</div>
 
