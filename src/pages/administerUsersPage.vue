@@ -233,7 +233,7 @@ export default {
 
     const password = ref()
     const hasUnsavedPasswordChanges = ref(false)
-    const password = ref();
+    const isPwd = ref(true)
 
     const showPopupEdit = ref(false)
     const selectedUser = ref()
