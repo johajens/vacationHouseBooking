@@ -2,7 +2,7 @@
   <q-page class="flex">
     <!-- Desktop version -->
     <section class="desktop-only desktop-background-low-opacity">
-      <section class="q-pa-xl row window-width">
+      <section class="q-pa-xl row">
         <!-- Header and password stuff -->
         <h2 class="q-mt-sm col-4">Brugere</h2>
 

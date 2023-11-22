@@ -38,13 +38,12 @@ export async function getDropdownLinks(user){
 
 export async function getLeftDrawerLinks(user) {
   const leftDrawerLinks = [
-    { to: "/", label: "Forside anonym (Slettes)" },
-    { to: "houseFrontpage", label: "Forside" },
-    { to: "bookingPage", label: "Booking (Not implemented)" },
-    { to: "repairPage", label: "Reparation (Not implemented)" },
-    { to: "informationPage", label: "Information (Not implemented)" },
-    { to: "documentPage", label: "Dokumenter (Not implemented)" },
-    { to: "galleryPage", label: "Galleri (Not implemented)" },
+    { to: "/houseFrontpage", label: "Forside" },
+    { to: "/bookingPage", label: "Booking (Not implemented)" },
+    { to: "/repairPage", label: "Reparation (Not implemented)" },
+    { to: "/informationPage", label: "Information (Not implemented)" },
+    { to: "/documentPage", label: "Dokumenter (Not implemented)" },
+    { to: "/galleryPage", label: "Galleri (Not implemented)" },
   ]
   if (user.isAdmin) {
     leftDrawerLinks.push({ to: "administerUsersPage", label: "Administrér brugere" },)

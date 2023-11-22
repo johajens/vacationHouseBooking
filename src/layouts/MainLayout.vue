@@ -50,13 +50,14 @@
       </q-toolbar>
     </q-header>
 
+    <!-- Desktop version -->
     <q-drawer
       class="bg-secondary"
       show-if-above
       v-model="leftDrawerOpen"
       side="left"
-      overlay
       elevated
+      overlay
       behavior="desktop"
       :width="250"
       >
@@ -110,6 +111,9 @@ export default {
     }
 
     const handleLeftDrawerItemClick = (to) => {
+      console.log(to)
+
+      console.log(router.currentRoute.value.path);
       if (router.currentRoute.value.path === to) {
         leftDrawerOpen.value = false
       }
@@ -169,4 +173,11 @@ export default {
 .q-btn-dropdown__arrow{
   display: none
 }
+.q-header {
+  z-index: 1000; /* Adjust the value as needed */
+}
+.q-drawer {
+  z-index: 900; /* Adjust the value as needed */
+}
+
 </style>
