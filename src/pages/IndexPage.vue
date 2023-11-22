@@ -24,7 +24,12 @@
           </div>
           <div class="col-3 q-pt-xl">
             <div>
-              <span class="text-body1">FerieboligBooking er for dig der lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec neque quis ipsum vulputate posuere. Vestibulum luctus congue pellentesque. In vel commodo nunc. Duis interdum mauris nibh, eget iaculis ante rutrum a. Vestibulum luctus congue pellentesque.</span>
+              <span class="text-body1">FerieboligBooking er for dig der der ejer en feriebolig sammen med nogle andre.<br>
+                Her på siden er det muligt at fordele brugsret af huset i en smart kalender, dele vigtig information vedrørende boligen, og holde styr på fejl og mangler i og omkring huset.
+                Du kan holde styr på hvem der kommer i dit hus og i hvilket tidsrum de skal være der.<br>
+                Du kan invitere medejererne af dit huset til din personlige ferieboligside, hvor i sammen kan holde styr på det hele.<br><br>
+                Det er nemt og gratis at benytte siden (for nu), så tøv ikke. Opret en bolig i dag!
+              </span>
             </div>
           </div>
         </section>

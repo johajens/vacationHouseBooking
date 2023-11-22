@@ -18,14 +18,19 @@
             <q-input
               color="accent"
               style="width: 60%"
-              class="q-ml-auto"
+              class="q-ml-auto bg-secondary"
               outlined
               v-model="password"
               label="Password for alle brugere"
-              standout="bg-secondary text-accent"
-              @update:model-value="inputChangePassword()">
+              @update:model-value="inputChange()"
+              :type="isPwd ? 'password' : 'text'">
+
               <template v-slot:append>
-                <q-icon name="edit" />
+                <q-icon
+                  :name="isPwd ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="isPwd = !isPwd"
+                />
               </template>
             </q-input>
           </div>
@@ -75,14 +80,18 @@
           <q-input
             color="accent"
             style="width: 70%"
-            class="q-my-sm"
+            class="q-my-sm bg-secondary"
             outlined
             v-model="password"
             label="Password for alle brugere"
-            standout="bg-secondary text-accent"
-            @update:model-value="inputChangePassword()">
+            @update:model-value="inputChange()"
+            :type="isPwd ? 'password' : 'text'">
             <template v-slot:append>
-              <q-icon name="edit" />
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
             </template>
           </q-input>
           <q-btn
@@ -218,11 +227,13 @@ export default {
   components: { NotificationBanner },
 
   setup () {
+
     const user = ref()
     const users = ref([])
 
     const password = ref()
     const hasUnsavedPasswordChanges = ref(false)
+    const password = ref();
 
     const showPopupEdit = ref(false)
     const selectedUser = ref()
@@ -235,7 +246,6 @@ export default {
     const emailCreate = ref("")
 
     const notificationBanner = ref()
-
 
     const addUserClicked = () => {
       showPopupCreate.value = true
@@ -347,6 +357,7 @@ export default {
       inputChangePassword,
       hasUnsavedPasswordChanges,
       submitChangePassword,
+      isPwd,
 
       //Edit user stuff
       userClicked,
@@ -364,7 +375,6 @@ export default {
       nameCreate,
       addUserClicked,
       createUserClicked,
-
     }
   }
 };
