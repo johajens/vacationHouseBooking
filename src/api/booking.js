@@ -37,8 +37,8 @@ export async function readBookingById(bookingId){
 async function readAllBookings(){
   const retrievedBookings = []
   try{
-    const dbBookingsSnapsnot = await getDocs(collection(database, collectionName))
-    dbBookingsSnapsnot.forEach((doc) => {
+    const dbBookingsSnapshot = await getDocs(collection(database, collectionName))
+    dbBookingsSnapshot.forEach((doc) => {
       retrievedBookings.push({ id: doc.id, ...doc.data() })
     })
     return retrievedBookings
