@@ -125,6 +125,7 @@
 import { onMounted, ref } from "vue";
 import { getUser } from "src/service/authentication";
 import { readAllUsers, updateUserById } from "src/api/user";
+import {isEmailInUse} from "src/service/utility";
 
 export default {
   name: "profilePage",
@@ -137,11 +138,9 @@ export default {
     const errorMessage = ref("");
 
     const submitChangeData = async () => {
-      const users = await readAllUsers();
       if (user.value.email !== email.value) {
-        if (users.value.filter((user) => user.email === email.value).length > 0) {
-          // TODO Fix with proper errormessage
-          errorMessage.value = "* DENNE EMAIL ER ALLEREDE I BRUG *";
+        if (await isEmailInUse(email.value)) {
+          //TODO: Add error handling
         }else{
           await updateUser()
         }
