@@ -159,7 +159,7 @@ export default {
         if (key !== dialogName){
           dialogs.value[key] = false
         }
-      });
+      })
       dialogs.value[dialogName] = !dialogs.value[dialogName]
     }
 

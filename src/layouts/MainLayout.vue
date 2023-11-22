@@ -80,11 +80,11 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { onMounted, ref } from "vue"
 import{ getDropdownLinks, getLeftDrawerLinks } from "src/service/utility";
-import{ readUserById } from "src/api/user";
-import { onBeforeRouteUpdate, useRouter } from "vue-router";
-import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue";
+import{ readUserById } from "src/api/user"
+import { onBeforeRouteUpdate, useRouter } from "vue-router"
+import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue"
 
 export default {
   components: { LoginAndRegistrationDialogs },
@@ -113,7 +113,7 @@ export default {
       if (router.currentRoute.value.path === to) {
         leftDrawerOpen.value = false;
       }
-    };
+    }
 
     //Open left drawer on click
     const toggleLeftDrawer = () => {
@@ -130,26 +130,33 @@ export default {
 
     // On page load, make both profile dropdown and left-drawer links as needed
     const onPageLoad = async () => {
-      leftDrawerOpen.value = false;
-      const userId = localStorage.getItem("userId")
-      if(userId){
-        user.value = await readUserById(userId)
-        if(user.value){
-          leftSideLinks.value = await getLeftDrawerLinks(user.value)
+      leftDrawerOpen.value = false
+      userId.value = localStorage.getItem("userId");
+      if (userId.value !== null) {
+        profileDropdown.value = [
+          { to: "/profilePage", label: "Profil" },
+          { to: "/", label: "Log ud" }
+        ]
+        const user = await readUserById(userId.value);
+        if (user.isAdmin === true) {
+          leftSideLinks.value.push({ to: "/administerUsersPage", label: "Administration" },)
         }
+      } else {
+        profileDropdown.value = [
+          { to: "/", label: "Log ind" }
+        ]
       }
-      profileDropdown.value = await getDropdownLinks(user.value)
-    };
+    }
 
     // Add event listener when the component is mounted
     onMounted(() => {
       document.body.addEventListener("click", handleBodyClick);
-      onPageLoad();
+      onPageLoad()
     })
 
     onBeforeRouteUpdate(() => {
       onPageLoad();
-    });
+    })
 
     return {
       leftDrawerOpen,

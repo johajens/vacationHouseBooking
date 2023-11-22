@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center bg-primary">
+  <q-page class="flex flex-center">
     <div class="text-h1">
       Documents page
     </div>
@@ -7,28 +7,28 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
-import { readHouseById } from "src/api/house";
-import { getUser } from "src/service/authentication";
+import { onMounted, ref } from "vue"
+import { readHouseById } from "src/api/house"
+import { getUser } from "src/service/authentication"
 
 export default {
   name: "documentPage",
   setup () {
-    const user = ref();
-    const house = ref();
+    const user = ref()
+    const house = ref()
     const onPageLoad = async () => {
-      user.value = await getUser();
-      house.value = await readHouseById(user.value.houseId);
+      user.value = await getUser()
+      house.value = await readHouseById(user.value.houseId)
     }
 
     onMounted(() => {
-      onPageLoad();
+      onPageLoad()
     })
 
     return {
     }
   }
-};
+}
 </script>
 
 
