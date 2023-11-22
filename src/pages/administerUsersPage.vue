@@ -9,7 +9,7 @@
         <div class="col-5 column">
           <div class="row">
             <q-btn
-              v-if="hasUnsavedChanges"
+              v-if="hasUnsavedPasswordChanges"
               size="md"
               label="opdater"
               class="bg-secondary q-mx-sm q-px-lg"
@@ -23,7 +23,7 @@
               v-model="password"
               label="Password for alle brugere"
               standout="bg-secondary text-accent"
-              @update:model-value="inputChange()">
+              @update:model-value="inputChangePassword()">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -80,13 +80,13 @@
             v-model="password"
             label="Password for alle brugere"
             standout="bg-secondary text-accent"
-            @update:model-value="inputChange()">
+            @update:model-value="inputChangePassword()">
             <template v-slot:append>
               <q-icon name="edit" />
             </template>
           </q-input>
           <q-btn
-            v-if="hasUnsavedChanges"
+            v-if="hasUnsavedPasswordChanges"
             style="width: 25%;"
             label="opdater"
             class="bg-secondary q-ma-sm"
@@ -130,36 +130,39 @@
 
 
     <!-- Edit user dialog -->
-    <q-dialog v-model="showPopupEdit">
+    <q-dialog v-model="showPopupEdit" @hide="hasUnsavedUpdateChanges = false">
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
           <h4 class="q-mt-none">Redigér bruger</h4>
           <q-input
-            class="q-mt-xl"
+            class="q-mt-xl bg-secondary"
             color="accent"
             outlined
-            v-model="name"
+            v-model="nameUpdate"
             label="Navn"
             standout="bg-secondary text-accent"
+            @update:model-value="inputChangeUpdate()"
             />
           <q-input
-            class="q-mt-xl"
+            class="q-mt-md bg-secondary"
             color="accent"
             outlined
-            v-model="email"
+            v-model="emailUpdate"
             label="E-mail"
             standout="bg-secondary text-accent"
+            @update:model-value="inputChangeUpdate()"
           />
+          <q-card-actions class="q-pa-none q-mt-md" align="between">
+            <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="deleteUser" />
+            <q-btn  v-if="hasUnsavedUpdateChanges" label="Opdater" color="secondary" text-color="accent" @click="saveUser" />
+          </q-card-actions>
         </q-card-section>
-        <q-card-actions align="between">
-          <q-btn icon="delete_forever" color="negative" @click="deleteUser" />
-          <q-btn label="Opdater" color="positive" @click="saveUser" />
-        </q-card-actions>
+
       </q-card>
     </q-dialog>
 
     <!-- Create user dialog -->
-    <q-dialog v-model="showPopupCreate">
+    <q-dialog v-model="showPopupCreate" >
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
           <h4 class="q-mt-none">Opret ny bruger</h4>
@@ -181,16 +184,19 @@
           />
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn label="Opret" color="positive" @click="createUserClicked" />
+          <q-btn label="Opret" color="secondary" text-color="accent" @click="createUserClicked" />
         </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
+  <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
 <script>import { onMounted, ref } from "vue";
-import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById } from "src/api/user";
-import { getUser, routeFrontPage } from "src/service/authentication";
+import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
+import { getUser, routeFrontPage } from "src/service/authentication"
+import { userDataValid } from "src/service/utility";
+import NotificationBanner from "components/notificationBanner.vue";
 
 const columns = {
   mobile: [
@@ -209,74 +215,115 @@ const columns = {
 
 export default {
   name: "administerUsersPage",
+  components: { NotificationBanner },
 
   setup () {
-    const user = ref();
-    const users = ref([]);
-    const password = ref();
-    const hasUnsavedChanges = ref(false);
-    const showPopupEdit = ref(false);
-    const selectedUser = ref();
-    const name = ref("");
-    const email = ref("");
+    const user = ref()
+    const users = ref([])
 
-    const showPopupCreate = ref(false);
-    const nameCreate = ref("");
-    const emailCreate = ref("");
+    const password = ref()
+    const hasUnsavedPasswordChanges = ref(false)
 
-    const submitChangePassword = async () => {
-      if (password.value.length < 1) {
-        // TODO errormessage
-      }else{
-        users.value.forEach(async function(tempUser){
-          tempUser.password = password.value
-          await updateUserById(tempUser)
-        });
-      }
-    };
+    const showPopupEdit = ref(false)
+    const selectedUser = ref()
+    const nameUpdate = ref("")
+    const emailUpdate = ref("")
+    const hasUnsavedUpdateChanges = ref(false)
+
+    const showPopupCreate = ref(false)
+    const nameCreate = ref("")
+    const emailCreate = ref("")
+
+    const notificationBanner = ref()
+
 
     const addUserClicked = () => {
       showPopupCreate.value = true
     }
 
     const createUserClicked = async () => {
-      const newUser = {
-        name: nameCreate.value,
-        email: emailCreate.value,
-        houseId: user.value.houseId,
-        password: user.value.password,
-        isAdmin: false,
+      const data = await userDataValid([emailCreate.value, nameCreate.value], user)
+      if (data.validInfo){
+        const newUser = {
+          name: nameCreate.value,
+          email: emailCreate.value,
+          houseId: user.value.houseId,
+          password: user.value.password,
+          isAdmin: false,
+        }
+        const newUserId = await createUser(newUser)
+        const newUserCreated = await readUserById(newUserId)
+        data.notificationMessage = "Bruger med navnet: '" + nameCreate.value + "' oprettet"
+        users.value.push(newUserCreated)
+        showPopupCreate.value = false
       }
-      await createUser(newUser)
-      window.location.reload()
+      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
 
 
     const userClicked = (data) => {
       showPopupEdit.value = true
       selectedUser.value = data
-      name.value = data.name
-      email.value = data.email
+      nameUpdate.value = data.name
+      emailUpdate.value = data.email
+    }
+
+    function inputChangeUpdate(){
+      if(selectedUser.value.name === nameUpdate.value && selectedUser.value.email === emailUpdate.value){
+        hasUnsavedUpdateChanges.value = false
+      }else{
+        hasUnsavedUpdateChanges.value = true
+      }
     }
 
     const saveUser = async () => {
-      selectedUser.value.email = email.value
-      selectedUser.value.name = name.value
-      await updateUserById(selectedUser.value)
-      window.location.reload()
-    }
-    const deleteUser = async () => {
-      await deleteUserById(selectedUser.value.id)
-      window.location.reload()
+      const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value)
+      if (data.validInfo){
+        selectedUser.value.email = emailUpdate.value
+        selectedUser.value.name = nameUpdate.value
+        await updateUserById(selectedUser.value)
+        data.notificationMessage = "Bruger opdateret"
+        const index = users.value.findIndex(user => user.id === selectedUser.value.id);
+        if (index !== -1) {
+          users[index] = selectedUser.value;
+        }
+        showPopupEdit.value = false
+      }
+      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
 
-    function inputChange(){
+    const deleteUser = async () => {
+      const id = selectedUser.value.id
+      await deleteUserById(id)
+      const index = users.value.findIndex(user => user.id === id);
+      if (index !== -1) {
+        users.value.splice(index, 1);
+      }
+      showPopupEdit.value = false
+      notificationBanner.value.displayNotification("Bruger med navnet: '" + selectedUser.value.name + "' slettet","success")
+    }
+
+    function inputChangePassword(){
       if(user.value.password === password.value){
-        hasUnsavedChanges.value = false
+        hasUnsavedPasswordChanges.value = false
       }else{
-        hasUnsavedChanges.value = true
+        hasUnsavedPasswordChanges.value = true
       }
     }
+
+    const submitChangePassword = async () => {
+      if (password.value.trim().length === 0) {
+        notificationBanner.value.displayNotification("Password må ikke være tom", "error")
+      }else{
+        users.value.forEach(async function(tempUser){
+          tempUser.password = password.value
+          await updateUserById(tempUser)
+        })
+        notificationBanner.value.displayNotification("Password opdateret", "success")
+        hasUnsavedPasswordChanges.value = false
+      }
+    }
+
 
     const onPageLoad = async () => {
       user.value = await getUser();
@@ -293,22 +340,30 @@ export default {
     return {
       users,
       columns,
+      notificationBanner,
+
+      //Password stuff
       password,
-      inputChange,
-      hasUnsavedChanges,
+      inputChangePassword,
+      hasUnsavedPasswordChanges,
       submitChangePassword,
+
+      //Edit user stuff
       userClicked,
       showPopupEdit,
-      userEdit: selectedUser,
-      name,
-      email,
+      nameUpdate,
+      emailUpdate,
+      hasUnsavedUpdateChanges,
+      inputChangeUpdate,
       saveUser,
       deleteUser,
+
+      //Create user stuff
       showPopupCreate,
       emailCreate,
       nameCreate,
       addUserClicked,
-      createUserClicked
+      createUserClicked,
 
     }
   }

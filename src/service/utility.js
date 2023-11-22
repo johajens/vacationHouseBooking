@@ -12,7 +12,7 @@ export function getDateFromTimestamp(date){
 }
 
 //Takes either an array of strings or a single string and returns true if any of the inputs are empty
-export function isInputValid(input){
+export function isInputInvalid(input){
   if (Array.isArray(input)){
     return input.some(element => !element || !element.trim().length)
   } else {
@@ -23,4 +23,28 @@ export function isInputValid(input){
 export async function isEmailInUse(emailToVerify){
   const users = await readAllUsers()
   return users.some(element => element.email.toLowerCase() === emailToVerify.toLowerCase())
+}
+
+export async function userDataValid(input, user){
+  let validInfo = false
+  let notificationMessage = ""
+  let type = "error"
+  if (isInputInvalid(input)){
+    notificationMessage = "Ingen felter må være tomme"
+  }else if(user.email !== input[0]){
+    if (await isEmailInUse(input[0])) {
+      notificationMessage = "Denne email er allerede i brug af en anden bruger"
+    }else {
+      validInfo = true
+      type = "success"
+    }
+  }else {
+    validInfo = true
+    type = "success"
+  }
+  return   {
+    validInfo,
+    notificationMessage,
+    type
+  }
 }
