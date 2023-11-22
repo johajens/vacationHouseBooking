@@ -22,8 +22,5 @@ export function isInputValid(input){
 
 export async function isEmailInUse(emailToVerify){
   const users = await readAllUsers()
-  users.forEach(user => {
-    console.log(user)
-  })
   return users.some(element => element.email.toLowerCase() === emailToVerify.toLowerCase())
 }
