@@ -22,7 +22,7 @@
           <section class="mobile-only">
             <div class="float-right q-ma-sm">
               <span class="text-h6">Feriebolig </span>
-              <span style="font-size: 12px;">Booking</span>
+              <span style="font-size: 12px">Booking</span>
             </div>
           </section>
         </q-toolbar-title>
@@ -80,11 +80,11 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
-import{ getDropdownLinks, getLeftDrawerLinks } from "src/service/utility";
-import{ readUserById } from "src/api/user";
-import { onBeforeRouteUpdate, useRouter } from "vue-router";
-import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue";
+import { onMounted, ref } from "vue"
+import{ getDropdownLinks, getLeftDrawerLinks } from "src/service/utility"
+import{ readUserById } from "src/api/user"
+import { onBeforeRouteUpdate, useRouter } from "vue-router"
+import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue"
 
 export default {
   components: { LoginAndRegistrationDialogs },
@@ -111,9 +111,9 @@ export default {
 
     const handleLeftDrawerItemClick = (to) => {
       if (router.currentRoute.value.path === to) {
-        leftDrawerOpen.value = false;
+        leftDrawerOpen.value = false
       }
-    };
+    }
 
     //Open left drawer on click
     const toggleLeftDrawer = () => {
@@ -130,26 +130,26 @@ export default {
 
     // On page load, make both profile dropdown and left-drawer links as needed
     const onPageLoad = async () => {
-      leftDrawerOpen.value = false;
+      leftDrawerOpen.value = false
       const userId = localStorage.getItem("userId")
-      if(userId){
+      if (userId) {
         user.value = await readUserById(userId)
-        if(user.value){
+        if (user.value) {
           leftSideLinks.value = await getLeftDrawerLinks(user.value)
         }
       }
       profileDropdown.value = await getDropdownLinks(user.value)
-    };
+    }
 
     // Add event listener when the component is mounted
     onMounted(() => {
-      document.body.addEventListener("click", handleBodyClick);
-      onPageLoad();
+      document.body.addEventListener("click", handleBodyClick)
+      onPageLoad()
     })
 
     onBeforeRouteUpdate(() => {
-      onPageLoad();
-    });
+      onPageLoad()
+    })
 
     return {
       leftDrawerOpen,
@@ -167,6 +167,6 @@ export default {
 </script>
 <style>
 .q-btn-dropdown__arrow{
-  display: none;
+  display: none
 }
 </style>

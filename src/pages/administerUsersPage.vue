@@ -1,11 +1,13 @@
 <template>
-  <q-page class="flex flex-center bg-primary">
-    <section class="desktop-only">
-      <section class="q-pa-xl absolute-top row window-width bg-primary">
-
+  <q-page class="flex">
+    <!-- Desktop version -->
+    <section class="desktop-only desktop-background-low-opacity">
+      <section class="q-pa-xl row window-width">
         <!-- Header and password stuff -->
         <h2 class="q-mt-sm col-4">Brugere</h2>
+
         <div class="col-2"></div>
+
         <div class="col-5 column">
           <div class="row">
             <q-btn
@@ -22,7 +24,7 @@
               outlined
               v-model="password"
               label="Password for alle brugere"
-              @update:model-value="inputChange()"
+              @update:model-value="inputChangePassword()"
               :type="isPwd ? 'password' : 'text'">
 
               <template v-slot:append>
@@ -35,7 +37,6 @@
             </q-input>
           </div>
         </div>
-
 
         <!-- Users -->
         <section class="q-pa-md q-mt-none col-12">
@@ -65,6 +66,7 @@
                 </table>
               </div>
         </section>
+
         <div class="col-12" align="center">
           <q-btn icon="person_add" color="secondary" text-color="accent" @click="addUserClicked" />
         </div>
@@ -72,8 +74,8 @@
     </section>
 
     <!-- Mobile version -->
-    <section class="mobile-only">
-      <section class="q-pa-md q-pt-xl absolute-top bg-primary">
+    <section class="mobile-only mobile-background-low-opacity">
+      <section class="q-pa-md q-pt-xl ">
         <section class="q-pa-sm column col-12">
             <h4 class="q-ma-none">Administrer brugere</h4>
           <div class="row">
@@ -84,7 +86,7 @@
             outlined
             v-model="password"
             label="Password for alle brugere"
-            @update:model-value="inputChange()"
+            @update:model-value="inputChangePassword()"
             :type="isPwd ? 'password' : 'text'">
             <template v-slot:append>
               <q-icon
@@ -131,6 +133,7 @@
             </table>
           </div>
         </section>
+
         <div class="col-12" align="center">
           <q-btn icon="person_add" color="secondary" text-color="accent" @click="addUserClicked" />
         </div>
@@ -166,7 +169,6 @@
             <q-btn  v-if="hasUnsavedUpdateChanges" label="Opdater" color="secondary" text-color="accent" @click="saveUser" />
           </q-card-actions>
         </q-card-section>
-
       </q-card>
     </q-dialog>
 
@@ -201,7 +203,7 @@
   <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
-<script>import { onMounted, ref } from "vue";
+<script>import { onMounted, ref } from "vue"
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
 import { getUser, routeFrontPage } from "src/service/authentication"
 import { userDataValid } from "src/service/utility";
@@ -217,9 +219,7 @@ const columns = {
     { name: "email", label: "E-mail", field: "email" },
     { name: "created", label: "Oprettet", field: "created" }
   ]
-};
-
-
+}
 
 export default {
   name: "administerUsersPage",
@@ -324,10 +324,10 @@ export default {
       if (password.value.trim().length === 0) {
         notificationBanner.value.displayNotification("Password må ikke være tom", "error")
       }else{
-        users.value.forEach(async function(tempUser){
+        for (const tempUser of users.value) {
           tempUser.password = password.value
           await updateUserById(tempUser)
-        })
+        }
         notificationBanner.value.displayNotification("Password opdateret", "success")
         hasUnsavedPasswordChanges.value = false
       }
@@ -335,16 +335,16 @@ export default {
 
 
     const onPageLoad = async () => {
-      user.value = await getUser();
+      user.value = await getUser()
       if(user.value.isAdmin !== true){
-        await routeFrontPage();
+        await routeFrontPage()
       }
       const allUsers = await readAllUsersByHouseId(user.value.houseId);
       users.value = allUsers.filter(tempUser => tempUser.id !== user.value.id)
       password.value = user.value.password
     }
     onMounted(() => {
-      onPageLoad();
+      onPageLoad()
     })
 
     return {
@@ -377,19 +377,20 @@ export default {
       createUserClicked,
     }
   }
-};
+}
 </script>
 
 <style scoped>
-table {
-  border-collapse: collapse;
-}
-th, td {
-  text-align: center; /* Center-align content within cells */
-  padding: 8px; /* Add padding for better readability */
-}
-tr {
-  border-bottom: 1pt solid black;
-}
+  table {
+    border-collapse: collapse;
+  }
 
+  th, td {
+    text-align: center; /* Center-align content within cells */
+    padding: 8px; /* Add padding for better readability */
+  }
+
+  tr {
+    border-bottom: 1pt solid black;
+  }
 </style>

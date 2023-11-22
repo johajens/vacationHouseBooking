@@ -1,14 +1,13 @@
 <template>
-  <q-page class="flex flex-center bg-primary">
-    <section class="desktop-only">
-      <img
-        src="~assets/ferieboligbooking-background-swedish-art.png"
-        alt="FerieboligBooking visuel identitet">
-      <section class="q-pa-xl absolute-top">
+  <q-page class="flex">
+    <!-- Desktop version -->
+    <section class="desktop-only desktop-background">
+      <section class="q-pa-xl">
         <section class="q-pa-xl row">
           <div class="col-12">
             <span class="text-h2">Hej, {{ user?.name }}</span>
           </div>
+
           <div class="col-12 q-pt-lg">
             <div v-if="user?.isAdmin" class="row">
               <span class="text-h5 q-pt-xs">Velkommen til</span>
@@ -23,17 +22,19 @@
             </div>
             <span v-else class="text-h5">Velkommen til {{ house?.name }}</span>
           </div>
+
           <div class="col-4 q-pt-lg">
             <q-input v-if="user?.isAdmin"
-              v-model="houseDescription"
-              color="accent"
-              dense
-              autogrow
-              class="text-body1"
-              @update:model-value="inputChange">
+                     v-model="houseDescription"
+                     color="accent"
+                     dense
+                     autogrow
+                     class="text-body1"
+                     @update:model-value="inputChange">
             </q-input>
             <span v-else class="text-body1">{{ house?.description }}</span>
           </div>
+
           <div class="col-12 q-pt-lg">
             <q-btn
               v-if="hasUnsavedChanges"
@@ -47,16 +48,9 @@
       </section>
     </section>
 
-    <!-- background for mobile -->
-    <section class="mobile-only">
-      <div style="max-width: 100vw;overflow: hidden">
-        <img
-          src="~assets/ferieboligbooking-background-m-swedish-art.png"
-          style="object-fit: cover; object-position: 100% 0;"
-          alt="FerieboligBooking visuel identitet"
-        >
-      </div>
-      <section class="q-pa-md q-pt-xl absolute-top">
+    <!-- Mobile version -->
+    <section class="mobile-only mobile-background">
+      <section class="q-pa-md q-pt-xl">
         <section class="q-pa-sm row">
           <div class="col-12">
             <span class="text-h6">Hej, {{ user?.name }}</span>
@@ -102,16 +96,9 @@
             </q-btn>
           </div>
         </section>
-        <section class="fixed-bottom-right q-pa-md">
-          <span class="text-h7 text-accent">FerieboligBooking, JohaJens 2023(™)</span>
-        </section>
       </section>
     </section>
-
   </q-page>
-
-
-
 </template>
 
 <script>
@@ -122,8 +109,8 @@ import { getUser } from "src/service/authentication"
 export default {
   name: "houseFrontpage",
   setup () {
-    const user = ref();
-    const house = ref();
+    const user = ref()
+    const house = ref()
     const houseDescription = ref("")
     const houseName = ref("")
     const hasUnsavedChanges = ref(false)
@@ -168,9 +155,5 @@ export default {
       hasUnsavedChanges
     }
   }
-};
+}
 </script>
-
-<style scoped>
-
-</style>

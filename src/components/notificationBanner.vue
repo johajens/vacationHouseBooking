@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref } from "vue"
 
 export default {
   name: "notificationBanner",
@@ -38,9 +38,5 @@ export default {
       displayNotification
     }
   }
-};
+}
 </script>
-
-<style scoped>
-
-</style>
