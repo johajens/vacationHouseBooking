@@ -133,7 +133,7 @@ export default {
         description: houseDescription.value
       }
       await updateHouseById(updatedHouse)
-      hasUnsavedChanges.value = falses
+      hasUnsavedChanges.value = false
       //TODO: Toggle information dialog
     }
 
