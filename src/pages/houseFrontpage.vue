@@ -10,7 +10,9 @@
 
           <div class="col-12 q-pt-lg">
             <div v-if="user?.isAdmin" class="row">
-              <span class="text-h5 q-pt-xs">Velkommen til</span>
+              <span class="text-h5 q-pt-xs">
+                Velkommen til
+              </span>
               <q-input
                 :style="{ width: `${houseName.length*15+20}px`}"
                 v-model="houseName"
@@ -20,19 +22,24 @@
                 @update:model-value="inputChange()">
               </q-input>
             </div>
-            <span v-else class="text-h5">Velkommen til {{ house?.name }}</span>
+            <span v-else class="text-h5">
+              Velkommen til {{ house?.name }}
+            </span>
           </div>
 
           <div class="col-4 q-pt-lg">
-            <q-input v-if="user?.isAdmin"
-                     v-model="houseDescription"
-                     color="accent"
-                     dense
-                     autogrow
-                     class="text-body1"
-                     @update:model-value="inputChange">
+            <q-input
+              v-if="user?.isAdmin"
+              v-model="houseDescription"
+              color="accent"
+              dense
+              autogrow
+              class="text-body1"
+              @update:model-value="inputChange">
             </q-input>
-            <span v-else class="text-body1">{{ house?.description }}</span>
+            <span v-else class="text-body1">
+              {{ house?.description }}
+            </span>
           </div>
 
           <div class="col-12 q-pt-lg">
@@ -41,7 +48,7 @@
               size="md"
               class="bg-secondary"
               @click="updateHouse">
-              opdater
+              Opdater
             </q-btn>
           </div>
         </section>
@@ -58,18 +65,21 @@
 
           <div class="row col-12 q-pt-lg">
             <div v-if="user?.isAdmin" class="row">
-              <span class="text-h6 text-weight-regular q-pt-xs">Velkommen til</span>
+              <span class="text-h6 text-weight-regular q-pt-xs">
+                Velkommen til
+              </span>
               <q-input
                 :style="{ width: `${houseName.length*12+20}px`}"
                 v-model="houseName"
                 color="accent"
                 dense
                 class="text-h6 q-pl-sm"
-                @update:model-value="inputChange"
-              >
+                @update:model-value="inputChange">
               </q-input>
             </div>
-            <span v-else class="text-h6 text-weight-regular">Velkommen til {{ house?.name }}</span>
+            <span v-else class="text-h6 text-weight-regular">
+              Velkommen til {{ house?.name }}
+            </span>
           </div>
 
           <div class="col-12 q-pt-lg">
@@ -80,10 +90,11 @@
               dense
               autogrow
               class="text-body1"
-              @update:model-value="inputChange"
-            >
+              @update:model-value="inputChange">
             </q-input>
-            <span v-else class="text-body1">{{ house?.description }}</span>
+            <span v-else class="text-body1">
+              {{ house?.description }}
+            </span>
           </div>
 
           <div class="col-12 q-pt-lg">
@@ -111,8 +122,8 @@ export default {
   setup () {
     const user = ref()
     const house = ref()
-    const houseDescription = ref("")
-    const houseName = ref("")
+    const houseDescription = ref()
+    const houseName = ref()
     const hasUnsavedChanges = ref(false)
 
     const updateHouse = async () => {
@@ -121,7 +132,6 @@ export default {
         name: houseName.value,
         description: houseDescription.value
       }
-      console.log(updatedHouse)
       await updateHouseById(updatedHouse)
       hasUnsavedChanges.value = false
       //TODO: Toggle information dialog

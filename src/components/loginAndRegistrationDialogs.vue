@@ -41,7 +41,7 @@
     </q-card>
   </q-dialog>
 
-  <!-- Create user & house pop-up -->
+  <!-- Create user pop-up -->
   <q-dialog v-model="dialogs.createUserInfo" position="right">
     <q-card class="column justify-between bg-primary q-pa-md" style="width: 100vw; height: auto; min-height:55vh">
       <div class="col-10">
@@ -88,6 +88,8 @@
       </div>
     </q-card>
   </q-dialog>
+
+  <!-- Create house pop-up -->
   <q-dialog v-model="dialogs.createHouseInfo" position="right">
     <q-card class="column justify-between bg-primary q-pa-md" style="width: 100vw; height: auto; min-height: 55vh">
       <div class="col-10">

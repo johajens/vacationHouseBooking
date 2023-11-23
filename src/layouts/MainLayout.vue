@@ -1,6 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf" @click="handleBodyClick">
 
+    <!-- Header menu -->
     <q-header elevated class="bg-secondary text-accent">
       <q-toolbar>
         <q-btn
@@ -41,7 +42,10 @@
               v-for="(item, index) in profileDropdown"
               :key="index">
               <q-btn @click="() => handleDropdownClick(item)" flat dense class="q-px-md" no-caps>
-                <q-item-section><q-item-label>{{ item.label }}</q-item-label>
+                <q-item-section>
+                  <q-item-label>
+                    {{ item.label }}
+                  </q-item-label>
                 </q-item-section>
               </q-btn>
             </q-item>
@@ -50,7 +54,7 @@
       </q-toolbar>
     </q-header>
 
-    <!-- Desktop version -->
+    <!-- Left menu -->
     <q-drawer
       class="bg-secondary"
       show-if-above
@@ -91,9 +95,11 @@ export default {
   components: { LoginAndRegistrationDialogs },
   setup () {
     const router = useRouter()
-    const loginAndRegistrationDialogs = ref()
-    const leftDrawerOpen = ref(false)
     const user = ref()
+    // Dialogs
+    const loginAndRegistrationDialogs = ref()
+    // Navigation
+    const leftDrawerOpen = ref(false)
     const profileDropdown = ref([])
     const leftSideLinks = ref([])
 
@@ -110,10 +116,8 @@ export default {
       }
     }
 
+    // Close left drawer if click on page you are on
     const handleLeftDrawerItemClick = (to) => {
-      console.log(to)
-
-      console.log(router.currentRoute.value.path);
       if (router.currentRoute.value.path === to) {
         leftDrawerOpen.value = false
       }
@@ -156,28 +160,31 @@ export default {
     })
 
     return {
+      // General stuff
+      user,
+      loginAndRegistrationDialogs,
+      // Left drawer stuff
       leftDrawerOpen,
       toggleLeftDrawer,
+      handleLeftDrawerItemClick,
       leftSideLinks,
+      // Dropdown stuff
       handleBodyClick,
       profileDropdown,
-      user,
-      handleDropdownClick,
-      handleLeftDrawerItemClick,
-      loginAndRegistrationDialogs
+      handleDropdownClick
     }
   },
 }
 </script>
-<style>
-.q-btn-dropdown__arrow{
-  display: none
-}
-.q-header {
-  z-index: 1000; /* Adjust the value as needed */
-}
-.q-drawer {
-  z-index: 900; /* Adjust the value as needed */
-}
 
+<style>
+  .q-btn-dropdown__arrow{
+    display: none
+  }
+  .q-header {
+    z-index: 1000; /* Adjust the value as needed */
+  }
+  .q-drawer {
+    z-index: 900; /* Adjust the value as needed */
+  }
 </style>

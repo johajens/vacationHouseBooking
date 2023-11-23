@@ -17,7 +17,7 @@ export default {
     const notificationClass = ref('bg-red')
 
     const displayNotification = (message, type) => {
-      switch (type){
+      switch (type.toLowerCase()){
         case 'error': notificationClass.value = 'bg-red'
           break
         case 'success': notificationClass.value = 'bg-green'

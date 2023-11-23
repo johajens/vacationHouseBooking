@@ -13,7 +13,7 @@
             <q-btn
               v-if="hasUnsavedPasswordChanges"
               size="md"
-              label="opdater"
+              label="Opdater"
               class="bg-secondary q-mx-sm q-px-lg"
               @click="submitChangePassword">
             </q-btn>
@@ -24,9 +24,8 @@
               outlined
               v-model="password"
               label="Password for alle brugere"
-              @update:model-value="inputChangePassword()"
+              @update:model-value="inputChangePassword"
               :type="isPwd ? 'password' : 'text'">
-
               <template v-slot:append>
                 <q-icon
                   :name="isPwd ? 'visibility_off' : 'visibility'"
@@ -40,31 +39,30 @@
 
         <!-- Users -->
         <section class="q-pa-md q-mt-none col-12">
-              <div class="q-pr-none">
-                <table class="q-table">
-                  <thead>
-                  <tr>
-                    <th v-for="column in columns.desktop" :key="column.name">{{ column.label }}</th>
-                    <th>Redigér</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="user in users" :key="user.id"><td v-for="column in columns.desktop" :key="column.name" >{{ user[column.field] }}</td>
-                    <td>
-                      <q-btn
-                        size="md"
-                        class="q-mr-md"
-                        color="secondary"
-                        text-color="accent"
-                        @click="userClicked(user)"
-                      >
-                        <q-icon name="edit" />
-                      </q-btn>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="q-pr-none">
+            <table class="q-table">
+              <thead>
+              <tr>
+                <th v-for="column in columns.desktop" :key="column.name">{{ column.label }}</th>
+                <th>Redigér</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="user in users" :key="user.id"><td v-for="column in columns.desktop" :key="column.name" >{{ user[column.field] }}</td>
+                <td>
+                  <q-btn
+                    size="md"
+                    class="q-mr-md"
+                    color="secondary"
+                    text-color="accent"
+                    @click="userClicked(user)">
+                    <q-icon name="edit"/>
+                  </q-btn>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <div class="col-12" align="center">
@@ -86,7 +84,7 @@
             outlined
             v-model="password"
             label="Password for alle brugere"
-            @update:model-value="inputChangePassword()"
+            @update:model-value="inputChangePassword"
             :type="isPwd ? 'password' : 'text'">
             <template v-slot:append>
               <q-icon
@@ -123,8 +121,7 @@
                     class="q-mr-md"
                     color="secondary"
                     text-color="accent"
-                    @click="userClicked(user)"
-                  >
+                    @click="userClicked(user)">
                     <q-icon name="edit" />
                   </q-btn>
                 </td>
@@ -153,7 +150,7 @@
             v-model="nameUpdate"
             label="Navn"
             standout="bg-secondary text-accent"
-            @update:model-value="inputChangeUpdate()"
+            @update:model-value="inputChangeUpdate"
             />
           <q-input
             class="q-mt-md bg-secondary"
@@ -162,7 +159,7 @@
             v-model="emailUpdate"
             label="E-mail"
             standout="bg-secondary text-accent"
-            @update:model-value="inputChangeUpdate()"
+            @update:model-value="inputChangeUpdate"
           />
           <q-card-actions class="q-pa-none q-mt-md" align="between">
             <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="confirmUserDeletion" />
@@ -259,26 +256,25 @@ export default {
   components: { NotificationBanner },
 
   setup () {
-
+    // General
     const user = ref()
     const users = ref([])
-
+    const notificationBanner = ref()
+    // Password
     const password = ref()
     const hasUnsavedPasswordChanges = ref(false)
     const isPwd = ref(true)
-
+    // Edit dialog
     const showPopupEdit = ref(false)
     const selectedUser = ref()
     const nameUpdate = ref("")
     const emailUpdate = ref("")
     const hasUnsavedUpdateChanges = ref(false)
     const confirmUserDeletionDialog = ref()
-
+    // Create user dialog
     const showPopupCreate = ref(false)
     const nameCreate = ref("")
     const emailCreate = ref("")
-
-    const notificationBanner = ref()
 
     const addUserClicked = () => {
       showPopupCreate.value = true
@@ -311,7 +307,7 @@ export default {
       emailUpdate.value = data.email
     }
 
-    function inputChangeUpdate(){
+    const inputChangeUpdate = () => {
       if(selectedUser.value.name === nameUpdate.value && selectedUser.value.email === emailUpdate.value){
         hasUnsavedUpdateChanges.value = false
       }else{
@@ -351,7 +347,7 @@ export default {
       notificationBanner.value.displayNotification("Bruger med navnet: '" + selectedUser.value.name + "' slettet","success")
     }
 
-    function inputChangePassword(){
+    const inputChangePassword = () => {
       if(user.value.password === password.value){
         hasUnsavedPasswordChanges.value = false
       }else{
@@ -371,7 +367,6 @@ export default {
         hasUnsavedPasswordChanges.value = false
       }
     }
-
 
     const onPageLoad = async () => {
       user.value = await getUser()

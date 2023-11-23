@@ -5,7 +5,9 @@
       <section class="q-pa-xl">
         <section class="row">
           <div class="col-12">
-            <span class="text-h2">Hej, {{ user?.name }}</span>
+            <span class="text-h2">
+              Hej, {{ user?.name }}
+            </span>
           </div>
 
           <div class="col-3">
@@ -15,7 +17,7 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="inputChange()">
+              @update:model-value="inputChange">
             </q-input>
 
             <q-input
@@ -24,7 +26,7 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="inputChange()">
+              @update:model-value="inputChange">
             </q-input>
 
             <div class="q-mt-xl">
@@ -60,7 +62,7 @@
               v-model="name"
               label="Navn"
               standout="bg-secondary text-accent"
-              @update:model-value="inputChange()">
+              @update:model-value="inputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -73,7 +75,7 @@
               v-model="email"
               label="Email"
               standout="bg-secondary text-accent"
-              @update:model-value="inputChange()">
+              @update:model-value="inputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -81,15 +83,18 @@
 
             <div class="q-mt-xl">
               <q-input outlined v-model="password" label="Password" :disable="true" />
-              <q-tooltip class="bg-warning text-black" :offset="[0, -40]">Password kan ikke ændres</q-tooltip>
+              <q-tooltip class="bg-warning text-black" :offset="[0, -40]">
+                Password kan ikke ændres
+              </q-tooltip>
             </div>
             <div class="relative-position">
               <q-btn
                 v-if="hasUnsavedChanges"
                 size="md"
                 class="bg-secondary absolute-center q-mt-xl"
-                @click="submitChangeData"
-              >opdater</q-btn>
+                @click="submitChangeData">
+                Opdater
+              </q-btn>
             </div>
           </div>
         </section>
@@ -133,7 +138,7 @@ export default {
       hasUnsavedChanges.value = false
     }
 
-    function inputChange(){
+    const inputChange = () =>{
       if(user.value.name === name.value && user.value.email === email.value){
         hasUnsavedChanges.value = false
       }else{
