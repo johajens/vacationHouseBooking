@@ -165,7 +165,7 @@
             @update:model-value="inputChangeUpdate()"
           />
           <q-card-actions class="q-pa-none q-mt-md" align="between">
-            <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="deleteUser" />
+            <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="confirmUserDeletion" />
             <q-btn  v-if="hasUnsavedUpdateChanges" label="Opdater" color="secondary" text-color="accent" @click="saveUser" />
           </q-card-actions>
         </q-card-section>
@@ -200,7 +200,40 @@
       </q-card>
     </q-dialog>
 
+    <!-- Confirm user deletion -->
+    <q-dialog v-model="confirmUserDeletionDialog" persistent>
+      <q-card class="bg-primary">
+        <q-card-section class="row items-center">
+          <div>
+            <div class="text-h5 text-accent text-bold" >
+              Er du sikker på at du vil slette {{nameUpdate.split(" ").at(0)}}s bruger?
+            </div>
+            <div class="q-pt-sm text-body2 text-accent">
+              Når du sletter {{nameUpdate.split(" ").at(0)}}, vil de ikke længere kunne tilgå nogle af ferieboligens funktionaliteter.
+            </div>
+            <div class="q-pt-xs text-body2 text-accent">
+              Alle {{nameUpdate.split(" ").at(0)}}s bookinger, reparationer, dokumenter, billeder, etc. vil ikke blive slettet.
+            </div>
+          </div>
+        </q-card-section>
 
+        <q-card-actions class="q-ml-sm justify-end">
+          <q-btn
+            label="Annullér"
+            color="secondary"
+            text-color="accent"
+            v-close-popup
+          />
+          <q-btn
+            label="Bekræft"
+            color="secondary"
+            text-color="accent"
+            v-close-popup
+            @click="deleteUser"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
   <notification-banner ref="notificationBanner"></notification-banner>
 </template>
@@ -238,9 +271,10 @@ export default {
 
     const showPopupEdit = ref(false)
     const selectedUser = ref()
-    const nameUpdate = ref("")
+    const nameUpdate = ref("bim")
     const emailUpdate = ref("")
     const hasUnsavedUpdateChanges = ref(false)
+    const confirmUserDeletionDialog = ref()
 
     const showPopupCreate = ref(false)
     const nameCreate = ref("")
@@ -303,14 +337,19 @@ export default {
       notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
 
+    const confirmUserDeletion = () => {
+      showPopupEdit.value = false
+      confirmUserDeletionDialog.value = true
+    }
+
     const deleteUser = async () => {
       const id = selectedUser.value.id
       await deleteUserById(id)
       const index = users.value.findIndex(user => user.id === id);
       if (index !== -1) {
-        users.value.splice(index, 1);
+        users.value.splice(index, 1)
       }
-      showPopupEdit.value = false
+      confirmUserDeletionDialog.value = false
       notificationBanner.value.displayNotification("Bruger med navnet: '" + selectedUser.value.name + "' slettet","success")
     }
 
@@ -370,6 +409,8 @@ export default {
       inputChangeUpdate,
       saveUser,
       deleteUser,
+      confirmUserDeletionDialog,
+      confirmUserDeletion,
 
       //Create user stuff
       showPopupCreate,
