@@ -25,6 +25,7 @@
               v-model="password"
               label="Password for alle brugere"
               @update:model-value="inputChangePassword"
+              @keyup.enter="submitChangePassword"
               :type="isPwd ? 'password' : 'text'">
               <template v-slot:append>
                 <q-icon
@@ -142,7 +143,7 @@
     <q-dialog v-model="showPopupEdit" @hide="hasUnsavedUpdateChanges = false">
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
-          <h4 class="q-mt-none">Redigér bruger</h4>
+          <h4 class="q-mt-none text-accent">Redigér {{getFirstNameWithPossessive(nameUpdate)}} bruger</h4>
           <q-input
             class="q-mt-xl bg-secondary"
             color="accent"
@@ -151,6 +152,7 @@
             label="Navn"
             standout="bg-secondary text-accent"
             @update:model-value="inputChangeUpdate"
+            @keyup.enter="saveUser"
             />
           <q-input
             class="q-mt-md bg-secondary"
@@ -160,6 +162,7 @@
             label="E-mail"
             standout="bg-secondary text-accent"
             @update:model-value="inputChangeUpdate"
+            @keyup.enter="saveUser"
           />
           <q-card-actions class="q-pa-none q-mt-md" align="between">
             <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="confirmUserDeletion" />
@@ -180,6 +183,7 @@
             outlined
             v-model="nameCreate"
             label="Navn"
+            @keyup.enter="createUserClicked"
           />
           <q-input
             class="q-mt-xl bg-secondary"
@@ -187,6 +191,7 @@
             outlined
             v-model="emailCreate"
             label="E-mail"
+            @keyup.enter="createUserClicked"
           />
         </q-card-section>
         <q-card-actions align="center">
@@ -201,13 +206,13 @@
         <q-card-section class="row items-center">
           <div>
             <div class="text-h5 text-accent text-bold" >
-              Er du sikker på at du vil slette {{nameUpdate.split(" ").at(0)}}s bruger?
+              Er du sikker på at du vil slette {{getFirstNameWithPossessive(nameUpdate)}} bruger?
             </div>
             <div class="q-pt-sm text-body2 text-accent">
-              Når du sletter {{nameUpdate.split(" ").at(0)}}, vil de ikke længere kunne tilgå nogle af ferieboligens funktionaliteter.
+              Når du sletter {{getFirstName(nameUpdate)}}, vil de ikke længere kunne tilgå nogle af ferieboligens funktionaliteter.
             </div>
             <div class="q-pt-xs text-body2 text-accent">
-              Alle {{nameUpdate.split(" ").at(0)}}s bookinger, reparationer, dokumenter, billeder, etc. vil ikke blive slettet.
+              Alle {{getFirstNameWithPossessive(nameUpdate)}} bookinger, reparationer, dokumenter, billeder, etc. vil ikke blive slettet.
             </div>
           </div>
         </q-card-section>
@@ -233,10 +238,13 @@
   <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
-<script>import { onMounted, ref } from "vue"
+<script>
+import { onMounted, ref } from "vue"
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
 import { getUserAndRouteFrontpageIfNotFound, routeFrontPage } from "src/service/authentication"
-import { userDataValid } from "src/service/utility";
+import { getUser, routeFrontPage } from "src/service/authentication"
+import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringProperCased } from "src/service/utility";
+
 import NotificationBanner from "components/notificationBanner.vue";
 
 const columns = {
@@ -284,7 +292,7 @@ export default {
       const data = await userDataValid([emailCreate.value, nameCreate.value], user)
       if (data.validInfo){
         const newUser = {
-          name: nameCreate.value,
+          name: getStringProperCased(nameCreate.value, true),
           email: emailCreate.value,
           houseId: user.value.houseId,
           password: user.value.password,
@@ -295,6 +303,8 @@ export default {
         data.notificationMessage = "Bruger med navnet: '" + nameCreate.value + "' oprettet"
         users.value.push(newUserCreated)
         showPopupCreate.value = false
+        nameCreate.value = ""
+        emailCreate.value = ""
       }
       notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
@@ -316,10 +326,13 @@ export default {
     }
 
     const saveUser = async () => {
+      if(!hasUnsavedUpdateChanges.value){
+        return
+      }
       const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value)
       if (data.validInfo){
+        selectedUser.value.name = getStringProperCased(nameUpdate.value, true)
         selectedUser.value.email = emailUpdate.value
-        selectedUser.value.name = nameUpdate.value
         await updateUserById(selectedUser.value)
         data.notificationMessage = "Bruger opdateret"
         const index = users.value.findIndex(user => user.id === selectedUser.value.id);
@@ -356,6 +369,9 @@ export default {
     }
 
     const submitChangePassword = async () => {
+      if(!hasUnsavedPasswordChanges.value){
+        return
+      }
       if (password.value.trim().length === 0) {
         notificationBanner.value.displayNotification("Password må ikke være tom", "error")
       }else{
@@ -404,6 +420,8 @@ export default {
       deleteUser,
       confirmUserDeletionDialog,
       confirmUserDeletion,
+      getFirstName,
+      getFirstNameWithPossessive,
 
       //Create user stuff
       showPopupCreate,

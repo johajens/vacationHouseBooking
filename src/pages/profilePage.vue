@@ -17,7 +17,8 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="inputChange">
+              @update:model-value="inputChange"
+              @keyup.enter="submitChangeData">
             </q-input>
 
             <q-input
@@ -26,7 +27,8 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="inputChange">
+              @update:model-value="inputChange"
+              @keyup.enter="submitChangeData">
             </q-input>
 
             <div class="q-mt-xl">
@@ -108,7 +110,7 @@
 import { onMounted, ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { updateUserById } from "src/api/user"
-import { userDataValid } from "src/service/utility"
+import { userDataValid, getStringProperCased } from "src/service/utility"
 import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
@@ -123,6 +125,9 @@ export default {
     const notificationBanner = ref()
 
     const submitChangeData = async () => {
+      if(!hasUnsavedChanges.value){
+        return
+      }
       const data = await userDataValid([email.value, name.value], user.value)
       if (data.validInfo){
         await updateUser()
@@ -132,7 +137,7 @@ export default {
     }
 
     async function updateUser() {
-      user.value.name = name.value
+      user.value.name = getStringProperCased(name.value, true)
       user.value.email = email.value
       await updateUserById(user.value)
       hasUnsavedChanges.value = false

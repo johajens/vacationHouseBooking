@@ -4,12 +4,25 @@
     <q-card class="bg-primary q-pa-md" style="width: 100vw; height: auto">
       <div class="row justify-around">
         <div class="col-6">
-          <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="loginUserEmail" label="E-mail">
+          <q-input
+            class="bg-secondary q-mt-md"
+            color="accent"
+            outlined
+            v-model="loginUserEmail"
+            label="E-mail"
+            @keyup.enter="handleLogin">
             <template v-slot:append>
               <q-icon name="mail" />
             </template>
           </q-input>
-          <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="loginUserPassword" label="Password" :type="isPwd ? 'password' : 'text'">
+          <q-input
+            class="bg-secondary q-mt-md"
+            color="accent"
+            outlined
+            v-model="loginUserPassword"
+            label="Password"
+            :type="isPwd ? 'password' : 'text'"
+            @keyup.enter="handleLogin">
             <template v-slot:append>
               <q-icon
                 :name="isPwd ? 'visibility_off' : 'visibility'"
@@ -46,17 +59,36 @@
     <q-card class="column justify-between bg-primary q-pa-md" style="width: 100vw; height: auto; min-height:55vh">
       <div class="col-10">
         <div class="text-h4 text-accent">Først, lidt om dig...</div>
-        <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="createUserName" label="Navn">
+        <q-input
+          class="bg-secondary q-mt-md"
+          color="accent"
+          outlined
+          v-model="createUserName"
+          label="Navn"
+          @keyup.enter="validateUserInfoAndProceed">
           <template v-slot:append>
             <q-icon name="badge" />
           </template>
         </q-input>
-        <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="createUserEmail" label="E-mail">
+        <q-input
+          class="bg-secondary q-mt-md"
+          color="accent"
+          outlined
+          v-model="createUserEmail"
+          label="E-mail"
+          @keyup.enter="validateUserInfoAndProceed">
           <template v-slot:append>
             <q-icon name="mail" />
           </template>
         </q-input>
-        <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="createPassword" label="Adgangskode" :type="isPwd ? 'password' : 'text'">
+        <q-input
+          class="bg-secondary q-mt-md"
+          color="accent"
+          outlined
+          v-model="createPassword"
+          label="Adgangskode"
+          :type="isPwd ? 'password' : 'text'"
+          @keyup.enter="validateUserInfoAndProceed">
           <template v-slot:append>
             <q-icon
               :name="isPwd ? 'visibility_off' : 'visibility'"
@@ -65,7 +97,14 @@
             />
           </template>
         </q-input>
-        <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="createPasswordRepeat" label="Gentag adgangskode" :type="isPwdRepeat ? 'password' : 'text'">
+        <q-input
+          class="bg-secondary q-mt-md"
+          color="accent"
+          outlined
+          v-model="createPasswordRepeat"
+          label="Gentag adgangskode"
+          :type="isPwdRepeat ? 'password' : 'text'"
+          @keyup.enter="validateUserInfoAndProceed">
           <template v-slot:append>
             <q-icon
               :name="isPwdRepeat ? 'visibility_off' : 'visibility'"
@@ -94,12 +133,23 @@
     <q-card class="column justify-between bg-primary q-pa-md" style="width: 100vw; height: auto; min-height: 55vh">
       <div class="col-10">
         <div class="text-h4 text-accent">Lidt om ferieboligen</div>
-        <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="createHouseName" label="Ferieboligens navn">
+        <q-input
+          class="bg-secondary q-mt-md"
+          color="accent"
+          outlined v-model="createHouseName"
+          label="Ferieboligens navn"
+          @keyup.enter="validateHouseInfoAndCreateNewUser">
           <template v-slot:append>
             <q-icon name="cabin" />
           </template>
         </q-input>
-        <q-input class="bg-secondary q-mt-md" color="accent" outlined v-model="createHouseDescription" autogrow label="Kort beskrivelse af ferieboligen">
+        <q-input
+          class="bg-secondary q-mt-md"
+          color="accent"
+          outlined
+          v-model="createHouseDescription"
+          autogrow
+          label="Kort beskrivelse af ferieboligen">
           <template v-slot:append>
             <q-icon name="menu_book" />
           </template>
@@ -126,7 +176,7 @@
 <script>
 import { ref } from "vue"
 import { createUser, verifyAndLoginUser } from "src/api/user"
-import { isEmailInUse, isInputInvalid } from "src/service/utility"
+import { isEmailInUse, isInputInvalid, getStringProperCased } from "src/service/utility"
 import { createHouse } from "src/api/house"
 import { useRouter } from "vue-router"
 import NotificationBanner from "components/notificationBanner.vue"
@@ -204,13 +254,13 @@ export default {
 
       try {
         const newHouse = {
-          name: createHouseName.value,
+          name: getStringProperCased(createHouseName.value, false),
           description: createHouseDescription.value
         }
         const houseId = await createHouse(newHouse)
 
         const newUser = {
-          name: createUserName.value,
+          name: getStringProperCased(createUserName.value, true),
           email: createUserEmail.value,
           password: createPassword.value,
           houseId: houseId,

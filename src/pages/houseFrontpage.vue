@@ -19,7 +19,8 @@
                 color="accent"
                 dense
                 class="text-h5 q-pl-sm"
-                @update:model-value="inputChange()">
+                @update:model-value="inputChange()"
+              @keydown.enter="updateHouse">
               </q-input>
             </div>
             <span v-else class="text-h5">
@@ -116,6 +117,7 @@
 import { onMounted, ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
+import { getStringProperCased } from "src/service/utility"
 
 export default {
   name: "houseFrontpage",
@@ -127,6 +129,7 @@ export default {
     const hasUnsavedChanges = ref(false)
 
     const updateHouse = async () => {
+      houseName.value = getStringProperCased(houseName.value, false)
       const updatedHouse = {
         id: user.value.houseId,
         name: houseName.value,
