@@ -76,6 +76,19 @@ export async function userDataValid(input, user){
   }
 }
 
+export function getFirstName(fullName){
+  return fullName.split(" ").at(0)
+}
+
+export function getFirstNameWithPossessive(fullName){
+  const firstName = getFirstName(fullName)
+  if (firstName.endsWith("s") || firstName.endsWith("z") || firstName.endsWith("x")){
+    return `${firstName}'`
+  } else {
+    return `${firstName}s`
+  }
+}
+
 export function getStringProperCased(text, isName){
   if (!isName){
     return  (text.substring(0, 1).toUpperCase() + text.substring(1)).trim()
@@ -86,4 +99,3 @@ export function getStringProperCased(text, isName){
     }).trim()
   }
 }
-
