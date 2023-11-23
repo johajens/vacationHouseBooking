@@ -271,7 +271,7 @@ export default {
 
     const showPopupEdit = ref(false)
     const selectedUser = ref()
-    const nameUpdate = ref("bim")
+    const nameUpdate = ref("")
     const emailUpdate = ref("")
     const hasUnsavedUpdateChanges = ref(false)
     const confirmUserDeletionDialog = ref()
