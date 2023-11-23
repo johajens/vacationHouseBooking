@@ -82,8 +82,8 @@ export function getStringProperCased(text, isName){
   }
   else{
     return text.replace(/(?:^|\s|-)\S/g, function(match) {
-      return match.toUpperCase();
-    })
+      return match.toUpperCase()
+    }).trim()
   }
 }
 
