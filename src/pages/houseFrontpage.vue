@@ -116,7 +116,7 @@
 <script>
 import { onMounted, ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
-import { getUser } from "src/service/authentication"
+import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { getStringProperCased } from "src/service/utility"
 
 export default {
@@ -145,7 +145,7 @@ export default {
     }
 
     const onPageLoad = async () => {
-      user.value = await getUser();
+      user.value = await getUserAndRouteFrontpageIfNotFound();
       house.value = await readHouseById(user.value.houseId);
       if(!house.value.description.trim().endsWith(".")){
         house.value.description = house.value.description.trim()+"."
