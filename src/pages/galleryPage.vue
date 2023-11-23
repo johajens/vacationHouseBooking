@@ -9,7 +9,7 @@
 <script>
 import { onMounted, ref } from "vue"
 import { readHouseById } from "src/api/house"
-import { getUser } from "src/service/authentication"
+import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 
 export default {
   name: "galleryPage",
@@ -17,7 +17,7 @@ export default {
     const user = ref()
     const house = ref()
     const onPageLoad = async () => {
-      user.value = await getUser()
+      user.value = await getUserAndRouteFrontpageIfNotFound()
       house.value = await readHouseById(user.value.houseId)
     }
 

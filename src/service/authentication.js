@@ -7,7 +7,7 @@ export function isLoggedIn(){
   return userId !== null
 }
 
-export async function getUser() {
+export async function getUserAndRouteFrontpageIfNotFound() {
   const router = useRouter()
   const userId = localStorage.getItem("userId")
   if (userId !== null) {

@@ -235,7 +235,7 @@
 
 <script>import { onMounted, ref } from "vue"
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
-import { getUser, routeFrontPage } from "src/service/authentication"
+import { getUserAndRouteFrontpageIfNotFound, routeFrontPage } from "src/service/authentication"
 import { userDataValid } from "src/service/utility";
 import NotificationBanner from "components/notificationBanner.vue";
 
@@ -369,7 +369,7 @@ export default {
     }
 
     const onPageLoad = async () => {
-      user.value = await getUser()
+      user.value = await getUserAndRouteFrontpageIfNotFound()
       if(user.value.isAdmin !== true){
         await routeFrontPage()
       }

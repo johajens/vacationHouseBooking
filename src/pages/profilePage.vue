@@ -106,7 +106,7 @@
 
 <script>
 import { onMounted, ref } from "vue"
-import { getUser } from "src/service/authentication"
+import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { updateUserById } from "src/api/user"
 import { userDataValid } from "src/service/utility"
 import NotificationBanner from "components/notificationBanner.vue"
@@ -147,8 +147,8 @@ export default {
     }
 
     const onPageLoad = async () => {
-      user.value = await getUser()
-      user.value = await getUser()
+      user.value = await getUserAndRouteFrontpageIfNotFound()
+      user.value = await getUserAndRouteFrontpageIfNotFound()
       name.value = user.value.name
       email.value = user.value.email
       password.value = user.value.password

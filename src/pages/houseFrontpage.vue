@@ -115,7 +115,7 @@
 <script>
 import { onMounted, ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
-import { getUser } from "src/service/authentication"
+import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 
 export default {
   name: "houseFrontpage",
@@ -133,7 +133,7 @@ export default {
         description: houseDescription.value
       }
       await updateHouseById(updatedHouse)
-      hasUnsavedChanges.value = false
+      hasUnsavedChanges.value = falses
       //TODO: Toggle information dialog
     }
 
@@ -142,7 +142,7 @@ export default {
     }
 
     const onPageLoad = async () => {
-      user.value = await getUser();
+      user.value = await getUserAndRouteFrontpageIfNotFound();
       house.value = await readHouseById(user.value.houseId);
       if(!house.value.description.trim().endsWith(".")){
         house.value.description = house.value.description.trim()+"."
