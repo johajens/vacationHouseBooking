@@ -295,6 +295,8 @@ export default {
         data.notificationMessage = "Bruger med navnet: '" + nameCreate.value + "' oprettet"
         users.value.push(newUserCreated)
         showPopupCreate.value = false
+        nameCreate.value = ""
+        emailCreate.value = ""
       }
       notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
