@@ -108,7 +108,7 @@
 import { onMounted, ref } from "vue"
 import { getUser } from "src/service/authentication"
 import { updateUserById } from "src/api/user"
-import { userDataValid } from "src/service/utility"
+import { userDataValid, getStringProperCased } from "src/service/utility"
 import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
@@ -132,7 +132,7 @@ export default {
     }
 
     async function updateUser() {
-      user.value.name = name.value
+      user.value.name = getStringProperCased(name.value, true)
       user.value.email = email.value
       await updateUserById(user.value)
       hasUnsavedChanges.value = false

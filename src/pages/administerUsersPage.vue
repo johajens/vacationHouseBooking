@@ -237,7 +237,7 @@
 import { onMounted, ref } from "vue"
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
 import { getUser, routeFrontPage } from "src/service/authentication"
-import { userDataValid, getFirstName, getFirstNameWithPossessive } from "src/service/utility";
+import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringProperCased } from "src/service/utility";
 import NotificationBanner from "components/notificationBanner.vue";
 
 const columns = {
@@ -285,7 +285,7 @@ export default {
       const data = await userDataValid([emailCreate.value, nameCreate.value], user)
       if (data.validInfo){
         const newUser = {
-          name: nameCreate.value,
+          name: getStringProperCased(nameCreate.value, true),
           email: emailCreate.value,
           houseId: user.value.houseId,
           password: user.value.password,
@@ -296,6 +296,8 @@ export default {
         data.notificationMessage = "Bruger med navnet: '" + nameCreate.value + "' oprettet"
         users.value.push(newUserCreated)
         showPopupCreate.value = false
+        nameCreate.value = ""
+        emailCreate.value = ""
       }
       notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
@@ -319,8 +321,8 @@ export default {
     const saveUser = async () => {
       const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value)
       if (data.validInfo){
+        selectedUser.value.name = getStringProperCased(nameUpdate.value, true)
         selectedUser.value.email = emailUpdate.value
-        selectedUser.value.name = nameUpdate.value
         await updateUserById(selectedUser.value)
         data.notificationMessage = "Bruger opdateret"
         const index = users.value.findIndex(user => user.id === selectedUser.value.id);

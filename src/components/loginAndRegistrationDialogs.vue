@@ -126,7 +126,7 @@
 <script>
 import { ref } from "vue"
 import { createUser, verifyAndLoginUser } from "src/api/user"
-import { isEmailInUse, isInputInvalid } from "src/service/utility"
+import { isEmailInUse, isInputInvalid, getStringProperCased } from "src/service/utility"
 import { createHouse } from "src/api/house"
 import { useRouter } from "vue-router"
 import NotificationBanner from "components/notificationBanner.vue"
@@ -204,13 +204,13 @@ export default {
 
       try {
         const newHouse = {
-          name: createHouseName.value,
+          name: getStringProperCased(createHouseName.value, false),
           description: createHouseDescription.value
         }
         const houseId = await createHouse(newHouse)
 
         const newUser = {
-          name: createUserName.value,
+          name: getStringProperCased(createUserName.value, true),
           email: createUserEmail.value,
           password: createPassword.value,
           houseId: houseId,

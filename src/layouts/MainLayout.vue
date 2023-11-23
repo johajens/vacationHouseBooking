@@ -38,16 +38,17 @@
           >
           <q-list class="bg-secondary">
             <q-item
-              class="text-weight-bold text-accent q-pa-none q-space d"
+              class="text-weight-bold text-accent q-pa-none column"
               v-for="(item, index) in profileDropdown"
               :key="index">
-              <q-btn @click="() => handleDropdownClick(item)" flat dense class="q-px-md" no-caps>
+              <q-btn @click="() => handleDropdownClick(item)" flat dense class="q-px-xl q-py-md" style="width: 100%" no-caps>
                 <q-item-section>
                   <q-item-label>
                     {{ item.label }}
                   </q-item-label>
                 </q-item-section>
               </q-btn>
+              <q-separator/>
             </q-item>
           </q-list>
         </q-btn-dropdown>
