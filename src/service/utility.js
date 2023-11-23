@@ -75,3 +75,15 @@ export async function userDataValid(input, user){
     type
   }
 }
+
+export function getStringProperCased(text, isName){
+  if (!isName){
+    return  (text.substring(0, 1).toUpperCase() + text.substring(1)).trim()
+  }
+  else{
+    return text.replace(/(?:^|\s|-)\S/g, function(match) {
+      return match.toUpperCase()
+    }).trim()
+  }
+}
+
