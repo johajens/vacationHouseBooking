@@ -51,7 +51,6 @@ export async function getLeftDrawerLinks(user) {
   return leftDrawerLinks
 }
 
-
 export async function userDataValid(input, email){
   let validInfo = false
   let notificationMessage = ""
@@ -74,6 +73,15 @@ export async function userDataValid(input, email){
     notificationMessage,
     type
   }
+}
+
+export function toggleDialog(dialogsObject, dialogName){
+  Object.keys(dialogsObject).forEach(key => {
+    if (key !== dialogName){
+      dialogsObject[key] = false
+    }
+  })
+  dialogsObject[dialogName] = !dialogsObject[dialogName]
 }
 
 export function getFirstName(fullName){
@@ -99,7 +107,6 @@ export function getStringProperCased(text, isName){
     }).trim()
   }
 }
-
 
 export function hasInputChanged(inputs){
   let inputHasChanged = false

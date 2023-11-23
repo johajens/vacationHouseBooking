@@ -56,7 +56,7 @@
                     class="q-mr-md"
                     color="secondary"
                     text-color="accent"
-                    @click="userClicked(user)">
+                    @click="editUserHandler(user)">
                     <q-icon name="edit"/>
                   </q-btn>
                 </td>
@@ -67,7 +67,7 @@
         </section>
 
         <div class="col-12" align="center">
-          <q-btn icon="person_add" color="secondary" text-color="accent" @click="addUserClicked" />
+          <q-btn icon="person_add" color="secondary" text-color="accent" @click="toggleDialog(dialogs,'createNewUser')" />
         </div>
       </section>
     </section>
@@ -122,7 +122,7 @@
                     class="q-mr-md"
                     color="secondary"
                     text-color="accent"
-                    @click="userClicked(user)">
+                    @click="editUserHandler(user)">
                     <q-icon name="edit" />
                   </q-btn>
                 </td>
@@ -133,14 +133,14 @@
         </section>
 
         <div class="col-12" align="center">
-          <q-btn icon="person_add" color="secondary" text-color="accent" @click="addUserClicked" />
+          <q-btn icon="person_add" color="secondary" text-color="accent" @click="toggleDialog(dialogs,'createNewUser')" />
         </div>
       </section>
     </section>
 
 
     <!-- Edit user dialog -->
-    <q-dialog v-model="showPopupEdit" @hide="hasUnsavedUpdateChanges = false">
+    <q-dialog v-model="dialogs.editUser" @hide="hasUnsavedChanges = false">
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
           <h4 class="q-mt-none text-accent">Redigér {{getFirstNameWithPossessive(selectedUser.name)}} bruger</h4>
@@ -165,15 +165,15 @@
             @keyup.enter="saveUser"
           />
           <q-card-actions class="q-pa-none q-mt-md" align="between">
-            <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="confirmUserDeletion" />
-            <q-btn  v-if="hasUnsavedUpdateChanges" label="Opdater" color="secondary" text-color="accent" @click="saveUser" />
+            <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="toggleDialog(dialogs, 'confirmUserDeletion')" />
+            <q-btn  v-if="hasUnsavedChanges" label="Opdater" color="secondary" text-color="accent" @click="saveUser" />
           </q-card-actions>
         </q-card-section>
       </q-card>
     </q-dialog>
 
     <!-- Create user dialog -->
-    <q-dialog v-model="showPopupCreate">
+    <q-dialog v-model="dialogs.createNewUser">
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
           <h4 class="q-mt-none">Opret ny bruger</h4>
@@ -183,7 +183,7 @@
             outlined
             v-model="nameCreate"
             label="Navn"
-            @keyup.enter="createUserClicked"
+            @keyup.enter="createNewUserHandler"
           />
           <q-input
             class="q-mt-xl bg-secondary"
@@ -191,17 +191,17 @@
             outlined
             v-model="emailCreate"
             label="E-mail"
-            @keyup.enter="createUserClicked"
+            @keyup.enter="createNewUserHandler"
           />
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn label="Opret" color="secondary" text-color="accent" @click="createUserClicked" />
+          <q-btn label="Opret" color="secondary" text-color="accent" @click="createNewUserHandler" />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <!-- Confirm user deletion -->
-    <q-dialog v-model="confirmUserDeletionDialog" persistent>
+    <q-dialog v-model="dialogs.confirmUserDeletion" persistent>
       <q-card class="bg-primary">
         <q-card-section class="row items-center">
           <div>
@@ -242,7 +242,7 @@
 import { onMounted, ref } from "vue"
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
 import { getUserAndRouteFrontpageIfNotFound, routeFrontPage } from "src/service/authentication"
-import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringProperCased, hasInputChanged } from "src/service/utility";
+import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringProperCased, toggleDialog, isInputInvalid, hasInputChanged } from "src/service/utility";
 
 import NotificationBanner from "components/notificationBanner.vue";
 
@@ -266,28 +266,27 @@ export default {
     // General
     const user = ref()
     const users = ref([])
-    const notificationBanner = ref()
     // Password
     const password = ref()
     const hasUnsavedPasswordChanges = ref(false)
     const isPwd = ref(true)
     // Edit dialog
-    const showPopupEdit = ref(false)
     const selectedUser = ref()
     const nameUpdate = ref("")
     const emailUpdate = ref("")
-    const hasUnsavedUpdateChanges = ref(false)
-    const confirmUserDeletionDialog = ref()
+    const hasUnsavedChanges = ref(false)
     // Create user dialog
-    const showPopupCreate = ref(false)
     const nameCreate = ref("")
     const emailCreate = ref("")
+    // Dialogs and components
+    const notificationBanner = ref()
+    const dialogs = ref({
+      confirmUserDeletion: false,
+      createNewUser: false,
+      editUser: false
+    })
 
-    const addUserClicked = () => {
-      showPopupCreate.value = true
-    }
-
-    const createUserClicked = async () => {
+    const createNewUserHandler = async () => {
       const data = await userDataValid([emailCreate.value, nameCreate.value], user.value.email)
       if (data.validInfo){
         const newUser = {
@@ -301,7 +300,7 @@ export default {
         const newUserCreated = await readUserById(newUserId)
         data.notificationMessage = "Bruger med navnet: '" + nameCreate.value + "' oprettet"
         users.value.push(newUserCreated)
-        showPopupCreate.value = false
+        toggleDialog(dialogs.value, 'createNewUser')
         nameCreate.value = ""
         emailCreate.value = ""
       }
@@ -309,8 +308,8 @@ export default {
     }
 
 
-    const userClicked = (data) => {
-      showPopupEdit.value = true
+    const editUserHandler = (data) => {
+      toggleDialog(dialogs.value, 'editUser')
       selectedUser.value = data
       nameUpdate.value = data.name
       emailUpdate.value = data.email
@@ -321,14 +320,14 @@ export default {
         [selectedUser.value.name, nameUpdate.value],
         [selectedUser.value.email, emailUpdate.value]
       ]
-      hasUnsavedUpdateChanges.value = hasInputChanged(input)
+      hasUnsavedChanges.value = hasInputChanged(input)
     }
 
     const saveUser = async () => {
-      if(!hasUnsavedUpdateChanges.value){
+      if(!hasUnsavedChanges.value){
         return
       }
-      const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value)
+      const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value.email)
       if (data.validInfo){
         selectedUser.value.name = getStringProperCased(nameUpdate.value, true)
         selectedUser.value.email = emailUpdate.value
@@ -338,14 +337,13 @@ export default {
         if (index !== -1) {
           users[index] = selectedUser.value;
         }
-        showPopupEdit.value = false
+        toggleDialog(dialogs.value, 'editUser')
       }
       notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
 
-    const confirmUserDeletion = () => {
-      showPopupEdit.value = false
-      confirmUserDeletionDialog.value = true
+    const confirmUserDeletionHandler = () => {
+      toggleDialog(dialogs.value, 'editUser')
     }
 
     const deleteUser = async () => {
@@ -355,7 +353,6 @@ export default {
       if (index !== -1) {
         users.value.splice(index, 1)
       }
-      confirmUserDeletionDialog.value = false
       notificationBanner.value.displayNotification("Bruger med navnet: '" + selectedUser.value.name + "' slettet","success")
     }
 
@@ -367,7 +364,7 @@ export default {
       if(!hasUnsavedPasswordChanges.value){
         return
       }
-      if (password.value.trim().length === 0) {
+      if (isInputInvalid(password.value)) {
         notificationBanner.value.displayNotification("Password må ikke være tom", "error")
       }else{
         for (const tempUser of users.value) {
@@ -396,6 +393,8 @@ export default {
       users,
       columns,
       notificationBanner,
+      dialogs,
+      toggleDialog,
 
       //Password stuff
       password,
@@ -405,26 +404,22 @@ export default {
       isPwd,
 
       //Edit user stuff
-      userClicked,
-      showPopupEdit,
+      editUserHandler,
       nameUpdate,
       emailUpdate,
-      hasUnsavedUpdateChanges,
+      hasUnsavedChanges,
       inputChangeUpdate,
       saveUser,
       deleteUser,
-      confirmUserDeletionDialog,
-      confirmUserDeletion,
+      confirmUserDeletionHandler,
       getFirstName,
       getFirstNameWithPossessive,
       selectedUser,
 
       //Create user stuff
-      showPopupCreate,
       emailCreate,
       nameCreate,
-      addUserClicked,
-      createUserClicked,
+      createNewUserHandler,
     }
   }
 }

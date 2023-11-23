@@ -35,7 +35,7 @@
 
         <div class="col-6">
           <div class="q-ma-md">
-            <span>Administratoren af en feriebolig skal oprette adgang til dig. Har du brug for selv at oprette en feriebolig til udlejning, kan du <a class="cursor-pointer" style="font-weight: bold;text-decoration: underline" @click="toggleDialog('createUserInfo')">oprette en ny feriebolig her</a>.</span>
+            <span>Administratoren af en feriebolig skal oprette adgang til dig. Har du brug for selv at oprette en feriebolig til udlejning, kan du <a class="cursor-pointer" style="font-weight: bold;text-decoration: underline" @click="toggleDialog(dialogs, 'createUserInfo')">oprette en ny feriebolig her</a>.</span>
           </div>
         </div>
 
@@ -176,7 +176,7 @@
 <script>
 import { ref } from "vue"
 import { createUser, verifyAndLoginUser } from "src/api/user"
-import { isEmailInUse, isInputInvalid, getStringProperCased, userDataValid} from "src/service/utility"
+import { isEmailInUse, isInputInvalid, getStringProperCased, toggleDialog, userDataValid } from "src/service/utility"
 import { createHouse } from "src/api/house"
 import { useRouter } from "vue-router"
 import NotificationBanner from "components/notificationBanner.vue"
@@ -205,16 +205,6 @@ export default {
       createHouseInfo: false,
     })
 
-
-    const toggleDialog = (dialogName) => {
-      Object.keys(dialogs.value).forEach(key => {
-        if (key !== dialogName){
-          dialogs.value[key] = false
-        }
-      })
-      dialogs.value[dialogName] = !dialogs.value[dialogName]
-    }
-
     const handleLogin = async () => {
       try {
         const email = loginUserEmail.value
@@ -240,7 +230,7 @@ export default {
         data.type = "error"
       }
       if (data.validInfo){
-        toggleDialog('createHouseInfo')
+        toggleDialog(dialogs.value, 'createHouseInfo')
         return
       }
       notificationBanner.value.displayNotification(data.notificationMessage, data.type)
@@ -269,7 +259,7 @@ export default {
         }
         localStorage.setItem("userId", await createUser(newUser))
         setTimeout(async () => {
-          toggleDialog('createHouseInfo')
+          toggleDialog(dialogs.value, 'createHouseInfo')
           await router.push('houseFrontpage')
         },1000)
         notificationBanner.value.displayNotification("Succes! Brugeren og ferieboligen blev oprettet.", "notification")
@@ -302,7 +292,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>
