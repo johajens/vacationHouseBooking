@@ -176,7 +176,7 @@
 <script>
 import { ref } from "vue"
 import { createUser, verifyAndLoginUser } from "src/api/user"
-import { isEmailInUse, isInputInvalid, getStringProperCased } from "src/service/utility"
+import { isEmailInUse, isInputInvalid, getStringProperCased, userDataValid} from "src/service/utility"
 import { createHouse } from "src/api/house"
 import { useRouter } from "vue-router"
 import NotificationBanner from "components/notificationBanner.vue"
@@ -233,16 +233,17 @@ export default {
     }
 
     const validateUserInfoAndProceed = async () => {
-      const error = isInputInvalid([createUserName.value ,createUserEmail.value, createPassword.value, createPasswordRepeat.value])
-      if (error) {
-        notificationBanner.value.displayNotification("Alle felter skal udfyldes", 'error')
-      } else if (createPassword.value !== createPasswordRepeat.value) {
-        notificationBanner.value.displayNotification("De indtastede adgangskode stemmer ikke overens", 'error')
-      } else if (await isEmailInUse(createUserEmail.value)) {
-        notificationBanner.value.displayNotification("Den indtastede email-adresse er allerede i brug", 'error')
-      } else {
-        toggleDialog('createHouseInfo')
+      const data = await userDataValid([createUserEmail.value.trim(), createUserName.value.trim(), createPassword.value, createPasswordRepeat.value], null)
+      if(createPassword.value !== createPasswordRepeat.value){
+        data.validInfo = false
+        data.notificationMessage = "Password er ikke ens"
+        data.type = "error"
       }
+      if (data.validInfo){
+        toggleDialog('createHouseInfo')
+        return
+      }
+      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
     }
 
     const validateHouseInfoAndCreateNewUser = async () => {
