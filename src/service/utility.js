@@ -52,13 +52,13 @@ export async function getLeftDrawerLinks(user) {
 }
 
 
-export async function userDataValid(input, user){
+export async function userDataValid(input, email){
   let validInfo = false
   let notificationMessage = ""
   let type = "error"
   if (isInputInvalid(input)){
     notificationMessage = "Ingen felter må være tomme"
-  }else if(user.email !== input[0]){
+  }else if(email !== input[0]){
     if (await isEmailInUse(input[0])) {
       notificationMessage = "Denne email er allerede i brug af en anden bruger"
     }else {

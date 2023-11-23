@@ -288,7 +288,7 @@ export default {
     }
 
     const createUserClicked = async () => {
-      const data = await userDataValid([emailCreate.value, nameCreate.value], user)
+      const data = await userDataValid([emailCreate.value, nameCreate.value], user.value.email)
       if (data.validInfo){
         const newUser = {
           name: getStringProperCased(nameCreate.value, true),
