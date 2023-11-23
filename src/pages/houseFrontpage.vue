@@ -19,7 +19,8 @@
                 color="accent"
                 dense
                 class="text-h5 q-pl-sm"
-                @update:model-value="inputChange()">
+                @update:model-value="inputChange()"
+              @keydown.enter="updateHouse">
               </q-input>
             </div>
             <span v-else class="text-h5">
