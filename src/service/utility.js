@@ -75,3 +75,16 @@ export async function userDataValid(input, user){
     type
   }
 }
+
+export function getFirstName(fullName){
+  return fullName.split(" ").at(0)
+}
+
+export function getFirstNameWithPossessive(fullName){
+  const firstName = getFirstName(fullName)
+  if (firstName.endsWith("s") || firstName.endsWith("z") || firstName.endsWith("x")){
+    return `${firstName}'`
+  } else {
+    return `${firstName}s`
+  }
+}
