@@ -116,6 +116,7 @@
 import { onMounted, ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
 import { getUser } from "src/service/authentication"
+import { getStringProperCased } from "src/service/utility"
 
 export default {
   name: "houseFrontpage",
@@ -127,6 +128,7 @@ export default {
     const hasUnsavedChanges = ref(false)
 
     const updateHouse = async () => {
+      houseName.value = getStringProperCased(houseName.value, false)
       const updatedHouse = {
         id: user.value.houseId,
         name: houseName.value,
