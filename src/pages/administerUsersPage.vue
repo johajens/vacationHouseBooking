@@ -25,6 +25,7 @@
               v-model="password"
               label="Password for alle brugere"
               @update:model-value="inputChangePassword"
+              @keyup.enter="submitChangePassword"
               :type="isPwd ? 'password' : 'text'">
               <template v-slot:append>
                 <q-icon
@@ -151,6 +152,7 @@
             label="Navn"
             standout="bg-secondary text-accent"
             @update:model-value="inputChangeUpdate"
+            @keyup.enter="saveUser"
             />
           <q-input
             class="q-mt-md bg-secondary"
@@ -160,6 +162,7 @@
             label="E-mail"
             standout="bg-secondary text-accent"
             @update:model-value="inputChangeUpdate"
+            @keyup.enter="saveUser"
           />
           <q-card-actions class="q-pa-none q-mt-md" align="between">
             <q-btn  icon="delete_forever" color="secondary" text-color="accent" @click="confirmUserDeletion" />
@@ -180,6 +183,7 @@
             outlined
             v-model="nameCreate"
             label="Navn"
+            @keyup.enter="createUserClicked"
           />
           <q-input
             class="q-mt-xl bg-secondary"
@@ -187,6 +191,7 @@
             outlined
             v-model="emailCreate"
             label="E-mail"
+            @keyup.enter="createUserClicked"
           />
         </q-card-section>
         <q-card-actions align="center">
@@ -319,6 +324,9 @@ export default {
     }
 
     const saveUser = async () => {
+      if(!hasUnsavedUpdateChanges.value){
+        return
+      }
       const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value)
       if (data.validInfo){
         selectedUser.value.name = getStringProperCased(nameUpdate.value, true)
@@ -359,6 +367,9 @@ export default {
     }
 
     const submitChangePassword = async () => {
+      if(!hasUnsavedPasswordChanges.value){
+        return
+      }
       if (password.value.trim().length === 0) {
         notificationBanner.value.displayNotification("Password må ikke være tom", "error")
       }else{

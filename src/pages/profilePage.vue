@@ -17,7 +17,8 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="inputChange">
+              @update:model-value="inputChange"
+              @keyup.enter="submitChangeData">
             </q-input>
 
             <q-input
@@ -26,7 +27,8 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="inputChange">
+              @update:model-value="inputChange"
+              @keyup.enter="submitChangeData">
             </q-input>
 
             <div class="q-mt-xl">
@@ -123,6 +125,9 @@ export default {
     const notificationBanner = ref()
 
     const submitChangeData = async () => {
+      if(!hasUnsavedChanges.value){
+        return
+      }
       const data = await userDataValid([email.value, name.value], user.value)
       if (data.validInfo){
         await updateUser()
