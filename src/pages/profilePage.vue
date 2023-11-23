@@ -110,7 +110,7 @@
 import { onMounted, ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { updateUserById } from "src/api/user"
-import { userDataValid, getStringProperCased } from "src/service/utility"
+import { userDataValid, getStringProperCased, hasInputChanged } from "src/service/utility"
 import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
@@ -144,11 +144,11 @@ export default {
     }
 
     const inputChange = () =>{
-      if(user.value.name === name.value && user.value.email === email.value){
-        hasUnsavedChanges.value = false
-      }else{
-        hasUnsavedChanges.value = true
-      }
+      const inputs = [
+        [user.value.name, name.value],
+        [user.value.email, email.value]
+      ]
+      hasUnsavedChanges.value = hasInputChanged(inputs)
     }
 
     const onPageLoad = async () => {

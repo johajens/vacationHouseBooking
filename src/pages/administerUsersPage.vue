@@ -143,7 +143,7 @@
     <q-dialog v-model="showPopupEdit" @hide="hasUnsavedUpdateChanges = false">
       <q-card class="bg-primary window-width">
         <q-card-section align="center">
-          <h4 class="q-mt-none text-accent">Redigér {{getFirstNameWithPossessive(nameUpdate)}} bruger</h4>
+          <h4 class="q-mt-none text-accent">Redigér {{getFirstNameWithPossessive(selectedUser.name)}} bruger</h4>
           <q-input
             class="q-mt-xl bg-secondary"
             color="accent"
@@ -206,13 +206,13 @@
         <q-card-section class="row items-center">
           <div>
             <div class="text-h5 text-accent text-bold" >
-              Er du sikker på at du vil slette {{getFirstNameWithPossessive(nameUpdate)}} bruger?
+              Er du sikker på at du vil slette {{getFirstNameWithPossessive(selectedUser.name)}} bruger?
             </div>
             <div class="q-pt-sm text-body2 text-accent">
-              Når du sletter {{getFirstName(nameUpdate)}}, vil de ikke længere kunne tilgå nogle af ferieboligens funktionaliteter.
+              Når du sletter {{getFirstName(selectedUser.name)}}, vil de ikke længere kunne tilgå nogle af ferieboligens funktionaliteter.
             </div>
             <div class="q-pt-xs text-body2 text-accent">
-              Alle {{getFirstNameWithPossessive(nameUpdate)}} bookinger, reparationer, dokumenter, billeder, etc. vil ikke blive slettet.
+              Alle {{getFirstNameWithPossessive(selectedUser.name)}} bookinger, reparationer, dokumenter, billeder, etc. vil ikke blive slettet.
             </div>
           </div>
         </q-card-section>
@@ -242,7 +242,7 @@
 import { onMounted, ref } from "vue"
 import { readAllUsersByHouseId, updateUserById, createUser, deleteUserById, readUserById } from "src/api/user"
 import { getUserAndRouteFrontpageIfNotFound, routeFrontPage } from "src/service/authentication"
-import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringProperCased } from "src/service/utility";
+import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringProperCased, hasInputChanged } from "src/service/utility";
 
 import NotificationBanner from "components/notificationBanner.vue";
 
@@ -317,11 +317,11 @@ export default {
     }
 
     const inputChangeUpdate = () => {
-      if(selectedUser.value.name === nameUpdate.value && selectedUser.value.email === emailUpdate.value){
-        hasUnsavedUpdateChanges.value = false
-      }else{
-        hasUnsavedUpdateChanges.value = true
-      }
+      const input = [
+        [selectedUser.value.name, nameUpdate.value],
+        [selectedUser.value.email, emailUpdate.value]
+      ]
+      hasUnsavedUpdateChanges.value = hasInputChanged(input)
     }
 
     const saveUser = async () => {
@@ -360,11 +360,7 @@ export default {
     }
 
     const inputChangePassword = () => {
-      if(user.value.password === password.value){
-        hasUnsavedPasswordChanges.value = false
-      }else{
-        hasUnsavedPasswordChanges.value = true
-      }
+      hasUnsavedPasswordChanges.value = hasInputChanged([[user.value.password, password.value]])
     }
 
     const submitChangePassword = async () => {
@@ -421,6 +417,7 @@ export default {
       confirmUserDeletion,
       getFirstName,
       getFirstNameWithPossessive,
+      selectedUser,
 
       //Create user stuff
       showPopupCreate,

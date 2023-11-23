@@ -117,7 +117,7 @@
 import { onMounted, ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
-import { getStringProperCased } from "src/service/utility"
+import { getStringProperCased, hasInputChanged } from "src/service/utility"
 
 export default {
   name: "houseFrontpage",
@@ -141,7 +141,11 @@ export default {
     }
 
     const inputChange = () => {
-      hasUnsavedChanges.value = !(house.value.name === houseName.value && house.value.description === houseDescription.value)
+      const input = [
+        [house.value.name, houseName.value],
+        [house.value.description, houseDescription.value]
+      ]
+      hasUnsavedChanges.value = hasInputChanged(input)
     }
 
     const onPageLoad = async () => {
