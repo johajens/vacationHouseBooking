@@ -128,7 +128,7 @@ export default {
       if(!hasUnsavedChanges.value){
         return
       }
-      const data = await userDataValid([email.value, name.value], user.value)
+      const data = await userDataValid([email.value, name.value], user.value.email)
       if (data.validInfo){
         await updateUser()
         data.notificationMessage = "Bruger opdateret"
