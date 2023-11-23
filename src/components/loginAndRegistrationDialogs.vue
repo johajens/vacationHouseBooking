@@ -176,7 +176,7 @@
 <script>
 import { ref } from "vue"
 import { createUser, verifyAndLoginUser } from "src/api/user"
-import { isEmailInUse, isInputInvalid, getStringProperCased, toggleDialog, userDataValid } from "src/service/utility"
+import { isInputInvalid, getStringProperCased, toggleDialog, userDataValid } from "src/service/utility"
 import { createHouse } from "src/api/house"
 import { useRouter } from "vue-router"
 import NotificationBanner from "components/notificationBanner.vue"
