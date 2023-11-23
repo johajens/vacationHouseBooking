@@ -99,3 +99,14 @@ export function getStringProperCased(text, isName){
     }).trim()
   }
 }
+
+
+export function hasInputChanged(inputs){
+  let inputHasChanged = false
+  for (let i = 0; i < inputs.length; i++) {
+    if (inputs[i][0] !== inputs[i][1]){
+      inputHasChanged = true
+    }
+  }
+  return inputHasChanged
+}
