@@ -84,7 +84,7 @@ export default defineComponent({
     const loginAndRegistrationDialogs = ref()
 
     const toggleLogin = () => {
-      loginAndRegistrationDialogs.value.toggleDialog("login")
+      loginAndRegistrationDialogs.value.toggleDialog(loginAndRegistrationDialogs.value.dialogs,"login")
     }
 
     const onPageLoad = () => {
