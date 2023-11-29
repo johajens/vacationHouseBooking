@@ -110,7 +110,7 @@ export default {
         localStorage.removeItem("userId")
         window.location.reload()
       }else if(event.label === "Log ind"){
-        loginAndRegistrationDialogs.value.toggleDialog("login")
+        loginAndRegistrationDialogs.value.toggleDialog(loginAndRegistrationDialogs.value.dialogs,"login")
       }
       else{
         router.push(event.to)
