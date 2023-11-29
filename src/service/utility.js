@@ -39,7 +39,7 @@ export async function getDropdownLinks(user){
 export async function getLeftDrawerLinks(user) {
   const leftDrawerLinks = [
     { to: "/houseFrontpage", label: "Forside" },
-    { to: "/bookingPage", label: "Booking (Not implemented)" },
+    { to: "/bookingPage", label: "Booking" },
     { to: "/repairPage", label: "Reparation (Not implemented)" },
     { to: "/informationPage", label: "Information (Not implemented)" },
     { to: "/documentPage", label: "Dokumenter (Not implemented)" },
@@ -116,4 +116,18 @@ export function hasInputChanged(inputs){
     }
   }
   return inputHasChanged
+}
+
+
+export function dateDataValid(data){
+  data.forEach(date => {
+    const dateSplittet = date.split("-")
+    if(dateSplittet[0].length !== 4)
+      return false
+    if(dateSplittet[1].length !== 2)
+      return false
+    if(dateSplittet[2].length !== 2)
+      return false
+  })
+  return true
 }
