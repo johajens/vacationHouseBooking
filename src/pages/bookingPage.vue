@@ -121,8 +121,28 @@
           weekday-align="center"
           :day-height="100"
           @mousedown-day="clickDateHandler"
-          no-active-date
-        ></q-calendar-month>
+          no-active-date>
+          <template v-if="bookings.length !== 0" #week="{ scope: { week, weekdays } }">
+            <template
+              v-for="(computedEvent, index) in getWeekEvents(week, weekdays)"
+              :key="index"
+            >
+              <div
+                style="margin-top: 1px;"
+                :class="badgeClasses(computedEvent)"
+                :style="badgeStyles(computedEvent, week.length)"
+              >
+                <div
+                  :id="'id_' + computedEvent.booking.id"
+                  v-if="computedEvent.booking && computedEvent.booking.name"
+                  class="title q-calendar__ellipsis"
+                >
+                  {{ computedEvent.booking.name }}
+                </div>
+              </div>
+            </template>
+          </template>
+        </q-calendar-month>
       </div>
     </section>
     </section>
@@ -250,8 +270,8 @@
             weekday-align="center"
             :day-height="100"
             @mousedown-day="clickDateHandler"
-            no-active-date
-          ></q-calendar-month>
+            no-active-date>
+          </q-calendar-month>
         </div>
       </section>
     </section>
@@ -260,12 +280,14 @@
 </template>
 
 <script>
-import {onMounted, ref} from "vue"
+import { onMounted, ref } from "vue";
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
 import { getStringProperCased, dateDataValid } from "src/service/utility";
 import { createBooking, readAllBookingsByHouseId, readBookingById } from "src/api/booking";
+import { daysBetween, isOverlappingDates, parsed } from "@quasar/quasar-ui-qcalendar";
 import NotificationBanner from "components/notificationBanner.vue";
+
 
 export default {
   name: "bookingPage",
@@ -284,6 +306,75 @@ export default {
 
     const bookingName = ref()
     const bookingNotes = ref("")
+    const calendarLoaded = ref(false)
+
+    const bookingClicked = (bookingId) => {
+      console.log(bookingId);
+    }
+
+    const handleBookingClicks = (e) => {
+      let elements = document.elementsFromPoint(e.clientX, e.clientY);
+      elements.forEach(element => {
+          if(element.id.includes("id_")){
+            bookingClicked(element.id.split("id_")[1])
+          }
+      }
+      )
+    }
+
+
+    const getWeekEvents = (week) => {
+      if(calendarLoaded.value)
+        return
+      const firstDay = parsed(week[ 0 ].date + ' 00:00')
+      const lastDay = parsed(week[ week.length - 1 ].date + ' 23:59')
+      const eventsWeek = []
+      bookings.value.forEach((booking, id) => {
+        const startDate = parsed(booking.startDate)
+        const endDate = parsed(booking.endDate)
+
+        if (isOverlappingDates(startDate, endDate, firstDay, lastDay)) {
+          const left = daysBetween(firstDay, startDate)
+          const right = daysBetween(endDate, lastDay)
+
+          eventsWeek.push({
+            id, // index event
+            left, // Position initial day [0-6]
+            right, // Number days available
+            size: week.length - (left + right), // Size current event (in days)
+            booking // Info
+          })
+        }
+      })
+      return eventsWeek;
+    }
+
+
+    const badgeClasses = (computedEvent) => {
+      if (computedEvent.booking !== undefined) {
+        return {
+          'my-event': true,
+          'text-white': true,
+          'bg-accent': true,
+          'rounded-border': true,
+          'q-calendar__ellipsis': true
+        }
+      }
+      return {
+        'my-void-event': true
+      }
+    }
+
+    const badgeStyles = (computedEvent, weekLength) => {
+      const style = {}
+      if (computedEvent.size !== undefined) {
+        style.width = ((100 / weekLength) * computedEvent.size) + "%"
+        style.marginLeft = ((100 / weekLength) * computedEvent.left) + "%"
+        style.marginRight = ((100 / weekLength) * computedEvent.right) + "%"
+        style.textAlign = "center"
+      }
+      return style
+    }
 
     const formattedMonth = () => {
       const date = new Date(selectedDate.value)
@@ -315,6 +406,7 @@ export default {
       bookings.value.push(await readBookingById(newBookingId))
     }
 
+
     const onPrev = () => {
       calendar.value.prev()
     }
@@ -332,9 +424,11 @@ export default {
       const pickedDate = data.scope.timestamp.date
       if (selectedDateRange.value.length === 0){
         selectedDateRange.value.push(pickedDate,pickedDate)
-      } else if (selectedDateRange.value[0] === selectedDateRange.value[1]){
+      } else if (selectedDateRange.value[0] === selectedDateRange.value[1] && pickedDate !== selectedDateRange.value[0]){
         selectedDateRange.value.pop()
         selectedDateRange.value.push(pickedDate)
+      } else if(pickedDate === selectedDateRange.value[0] && pickedDate === selectedDateRange.value[1]){
+        selectedDateRange.value = []
       } else {
         selectedDateRange.value = [pickedDate, pickedDate]
       }
@@ -344,6 +438,8 @@ export default {
     const onPageLoad = async () => {
       user.value = await getUserAndRouteFrontpageIfNotFound()
       bookings.value = await readAllBookingsByHouseId(user.value.houseId)
+      bookings.value = await readAllBookingsByHouseId(user.value.houseId)
+      document.addEventListener('click', handleBookingClicks);
     }
 
     onMounted(() => {
@@ -368,14 +464,20 @@ export default {
       bookingName,
       bookingNotes,
       submitBooking,
+      getWeekEvents,
+      badgeClasses,
+      badgeStyles,
+      bookings,
+      bookingClicked
 
     }
   }
 }
 </script>
 
-<style scoped>
+<style>
 .calendar{
+
   border-radius: 5px;
   --calendar-border: #85774733 1px solid;
   --calendar-border-dark: #71755d 1px solid;
@@ -448,6 +550,16 @@ export default {
   --calendar-mini-work-week-width: 30px;
   --calendar-work-week-font-size: 1.0em;
   --calendar-head-font-weight: 600
+}
+
+.q-calendar-month__day--month{
+  display: none;
+}
+.q-calendar-month__week--events{
+  z-index: 1;
+}
+.q-calendar-month__day--content{
+  z-index: 2;
 }
 
 </style>

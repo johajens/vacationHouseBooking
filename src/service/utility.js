@@ -120,6 +120,9 @@ export function hasInputChanged(inputs){
 
 
 export function dateDataValid(data){
+  if(data.length === 0){
+    return false
+  }
   data.forEach(date => {
     const dateSplittet = date.split("-")
     if(dateSplittet[0].length !== 4)
@@ -130,4 +133,12 @@ export function dateDataValid(data){
       return false
   })
   return true
+}
+
+export function isDateInRange(booking, dateToCheck) {
+  const startDate = new Date(booking.startDate);
+  const endDate = new Date(booking.endDate);
+  const checkDate = new Date(dateToCheck);
+
+  return checkDate >= startDate && checkDate <= endDate;
 }
