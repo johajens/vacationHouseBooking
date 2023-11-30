@@ -108,7 +108,7 @@
               Næste
             </q-btn>
           </div>
-
+        </section>
       <div class="q-pt-sm">
         <q-calendar-month
           month
@@ -610,7 +610,7 @@ export default {
       badgeClasses,
       badgeStyles,
       bookings,
-      bookingClicked
+      bookingClicked,
 
       // Booking dialog stuff
       dialogs,
