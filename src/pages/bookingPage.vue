@@ -10,13 +10,25 @@
           color="accent"
           outlined
           v-model="bookingName"
-          label="Bookingens navn"
-        />
+          label="Bookingens navn">
+          <template v-slot:append>
+            <q-icon
+              name="help_outline">
+              <q-tooltip
+                class="bg-warning text-black"
+                anchor="center right"
+                self="center start">
+                Bookingens navn udfyldes med brugers navn medmindre andet er indtastet
+              </q-tooltip>
+              </q-icon>
+          </template>
+
+        </q-input>
         <q-input
           class="bg-secondary"
           color="accent"
           outlined
-          v-model="optionalNote"
+          v-model="bookingNotes"
           label="Eventuel note"
           type="textarea"
         />
@@ -55,7 +67,9 @@
         </q-input>
       </div>
       <div>
-        <q-btn>
+        <q-btn
+          @click="submitBooking"
+        >
           Bekræft booking
         </q-btn>
       </div>
@@ -91,27 +105,37 @@
       </div>
     </section>
   </q-page>
+  <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
 <script>
-import {onMounted, ref, defineComponent, computed} from "vue"
-import { readHouseById } from "src/api/house"
+import {onMounted, ref} from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
-import { getStringProperCased } from "src/service/utility";
+import { getStringProperCased, dateDataValid } from "src/service/utility";
+import { createBooking, readAllBookingsByHouseId, readBookingById } from "src/api/booking";
+import NotificationBanner from "components/notificationBanner.vue";
 
 export default {
   name: "bookingPage",
   components: {
+    NotificationBanner,
     QCalendarMonth
   },
   setup () {
+    const notificationBanner = ref()
     const user = ref()
-    const house = ref()
+    const bookings = ref([])
 
     const calendar = ref()
     const selectedDate = ref(today())
     const selectedDateRange = ref([])
+
+    const bookingName = ref()
+    const bookingNotes = ref("")
+
+
+
 
     const formattedMonth = () => {
       const date = new Date(selectedDate.value)
@@ -119,6 +143,30 @@ export default {
       const year = date.getFullYear()
       return `${getStringProperCased(month)} ${year}`
     }
+
+    const submitBooking = async () => {
+      if(!dateDataValid(selectedDateRange.value)){
+        notificationBanner.value.displayNotification("Venligst vælg datoer", "error")
+        return
+      }
+
+      const newBooking = {
+        houseId: user.value.houseId,
+        userId: user.value.id,
+        startDate: selectedDateRange.value[0],
+        endDate: selectedDateRange.value[1],
+        name: bookingName.value,
+        notes: bookingNotes.value,
+        diary: ""
+      }
+      if(!newBooking.name){
+        newBooking.name = user.value.name
+      }
+
+      const newBookingId = await createBooking(newBooking)
+      bookings.value.push(await readBookingById(newBookingId))
+    }
+
 
     const onPrev = () => {
       calendar.value.prev()
@@ -148,7 +196,7 @@ export default {
 
     const onPageLoad = async () => {
       user.value = await getUserAndRouteFrontpageIfNotFound()
-      house.value = await readHouseById(user.value.houseId)
+      bookings.value = await readAllBookingsByHouseId(user.value.houseId)
     }
 
     onMounted(() => {
@@ -156,6 +204,10 @@ export default {
     })
 
     return {
+      // General stuff
+      notificationBanner,
+
+      // Calendar stuff
       calendar,
       selectedDate,
       selectedDateRange,
@@ -164,6 +216,12 @@ export default {
       onPrev,
       formattedMonth,
       clickDateHandler,
+
+      // Booking stuff
+      bookingName,
+      bookingNotes,
+      submitBooking,
+
     }
   }
 }
