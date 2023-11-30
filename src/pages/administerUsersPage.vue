@@ -367,6 +367,8 @@ export default {
       if (isInputInvalid(password.value)) {
         notificationBanner.value.displayNotification("Password må ikke være tom", "error")
       }else{
+        user.value.password = password.value
+        await updateUserById(user.value)
         for (const tempUser of users.value) {
           tempUser.password = password.value
           await updateUserById(tempUser)
