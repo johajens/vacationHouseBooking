@@ -1,9 +1,13 @@
 <template>
+  <!-- Desktop version -->
   <q-page class="flex items-start desktop-only desktop-background row">
     <section class="row">
-      <div class="col-12 q-px-lg q-pt-xl q-pb-xs text-h3 text-accent">
-        Booking
-      </div>
+      <section class="col-12 q-px-lg q-pt-xl q-pb-xs">
+        <div class="text-h3 text-accent">
+          Booking
+        </div>
+      </section>
+
       <section class="col-md-4 col-xs-12 q-px-lg q-pb-lg">
         <div class="q-pt-lg">
           <q-input
@@ -25,12 +29,13 @@
             </template>
           </q-input>
         </div>
+
         <div class="q-pt-lg">
           <q-input
             class="bg-secondary"
             color="accent"
             outlined
-            v-model="bookingNotes"
+            v-model="notes"
             label="Eventuel note"
             type="textarea"
           />
@@ -68,6 +73,7 @@
             </q-popup-proxy>
           </q-input>
         </div>
+
         <div class="flex flex-center q-pt-lg">
           <q-btn
             class="bg-secondary"
@@ -79,55 +85,58 @@
           </q-btn>
         </div>
       </section>
-      <section class="col-md-8 col-xs-12 q-px-lg q-pb-lg">
-      <div class="flex row justify-between q-pt-lg">
-        <div class="col-6 flex justify-between">
-          <q-btn
-            class="bg-secondary text-accent"
-            icon="navigate_before"
-            @click="onPrev">
-            Forrige
-          </q-btn>
-          <q-btn
-            class="bg-secondary text-accent"
-            icon-right="today"
-            @click="onToday">
-            I dag
-          </q-btn>
-          <q-btn
-            class="bg-secondary text-accent"
-            icon-right="navigate_next"
-            @click="onNext">
-            Næste
-          </q-btn>
-        </div>
-        <div class="col-6 flex justify-end text-h4 text-accent">
-          {{formattedMonth()}}
-        </div>
-      </div>
 
-      <div class="q-pt-sm">
-        <q-calendar-month
-          month
-          ref="calendar"
-          v-model="selectedDate"
-          class="calendar shadow-5"
-          :selected-start-end-dates="selectedDateRange"
-          animated
-          show-work-weeks
-          date-align="left"
-          locale="da-dk"
-          :weekdays="[1,2,3,4,5,6,0]"
-          weekday-align="center"
-          :day-height="100"
-          @mousedown-day="clickDateHandler"
-          no-active-date
-        ></q-calendar-month>
-      </div>
-    </section>
+      <section class="col-md-8 col-xs-12 q-px-lg q-pb-lg">
+        <section class="flex row justify-between q-pt-lg">
+          <div class="col-6 flex justify-between">
+            <q-btn
+              class="bg-secondary text-accent"
+              icon="navigate_before"
+              @click="onPrev">
+              Forrige
+            </q-btn>
+            <q-btn
+              class="bg-secondary text-accent"
+              icon-right="today"
+              @click="onToday">
+              I dag
+            </q-btn>
+            <q-btn
+              class="bg-secondary text-accent"
+              icon-right="navigate_next"
+              @click="onNext">
+              Næste
+            </q-btn>
+          </div>
+
+          <div class="col-6 flex justify-end text-h4 text-accent">
+            {{formattedMonth()}}
+          </div>
+        </section>
+
+        <div class="q-pt-sm">
+          <q-calendar-month
+            month
+            ref="calendar"
+            v-model="selectedDate"
+            class="calendar shadow-5"
+            :selected-start-end-dates="selectedDateRange"
+            animated
+            show-work-weeks
+            date-align="left"
+            locale="da-dk"
+            :weekdays="[1,2,3,4,5,6,0]"
+            weekday-align="center"
+            :day-height="100"
+            @mousedown-day="clickDateHandler"
+            no-active-date
+          ></q-calendar-month>
+        </div>
+      </section>
     </section>
   </q-page>
 
+  <!-- Mobile version -->
   <q-page class="flex items-start mobile-only mobile-background row">
     <section class="row">
       <div class="col-12 q-px-lg q-pt-xl q-pb-xs text-h3 text-accent">
@@ -159,7 +168,7 @@
             class="bg-secondary"
             color="accent"
             outlined
-            v-model="bookingNotes"
+            v-model="notes"
             label="Eventuel note"
             type="textarea"
           />
@@ -256,15 +265,99 @@
       </section>
     </section>
   </q-page>
+
+  <!-- Booking popup -->
+  <q-dialog v-model="dialogs.booking">
+    <q-card class="bg-secondary text-accent" style="width: 60vw">
+      <q-card-section class="column items-center bg-primary">
+        <section class="row" style="width: 100%">
+          <q-input
+            v-if="isUserAdmin"
+            v-model="viewBooking.name"
+            color="accent"
+            dense
+            autogrow
+            class="text-h5 text-accent"
+            @update:model-value="bookingChangeHandler">
+          </q-input>
+          <div v-else class="text-h5">{{viewBooking.name}}</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </section>
+
+        <section class="row" style="width: 100%">
+          <q-icon name="more_time" class="q-pr-xs" style="padding-top: 2px"></q-icon>
+          <div class="text-caption">Oprettet d. {{viewBooking.created}} af {{viewBooking.bookersName}}</div>
+        </section>
+      </q-card-section>
+
+      <q-separator></q-separator>
+
+      <q-card-section>
+        <q-input
+          v-if="isUserAdmin"
+          v-model="viewBooking.notes"
+          color="accent"
+          dense
+          autogrow
+          class="text-body1 text-accent"
+          @update:model-value="bookingChangeHandler">
+        </q-input>
+        <span v-else class="text-body1">
+          {{ viewBooking.notes }}
+        </span>
+      </q-card-section>
+
+      <q-separator></q-separator>
+
+      <q-card-section class="flex justify-between">
+        <div>
+          Ankomst: {{viewBooking.startDate}}
+          <q-icon v-if="isUserAdmin" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
+            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
+                <div class="row items-center justify-end">
+                  <q-btn outline v-close-popup label="Bekræft" color="accent" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </div>
+        <div>
+          <q-icon v-if="isUserAdmin" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
+            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.endDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
+                <div class="row items-center justify-end">
+                  <q-btn outline v-close-popup label="Bekræft" color="accent" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+          Afrejse: {{viewBooking.endDate}}
+        </div>
+      </q-card-section>
+
+      <q-card-section class="flex flex-center" v-if="hasUnsavedChanges && isUserAdmin">
+        <q-btn
+          size="md"
+          class="bg-secondary"
+          @click="updateBooking">
+          Opdater
+        </q-btn>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+
   <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
 <script>
-import {onMounted, ref} from "vue"
-import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
+import { onMounted, ref} from "vue"
+import { getUserAndRouteFrontpageIfNotFound, isUserAdmin } from "src/service/authentication"
 import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
-import { getStringProperCased, dateDataValid } from "src/service/utility";
-import { createBooking, readAllBookingsByHouseId, readBookingById } from "src/api/booking";
+import { getStringProperCased, dateDataValid, getFirstNameWithPossessive, toggleDialog, hasInputChanged } from "src/service/utility";
+import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingById} from "src/api/booking";
+import { readUserById } from "src/api/user";
 import NotificationBanner from "components/notificationBanner.vue";
 
 export default {
@@ -273,7 +366,7 @@ export default {
     NotificationBanner,
     QCalendarMonth
   },
-  setup () {
+  setup: function () {
     const notificationBanner = ref()
     const user = ref()
     const bookings = ref([])
@@ -283,7 +376,21 @@ export default {
     const selectedDateRange = ref([])
 
     const bookingName = ref()
-    const bookingNotes = ref("")
+    const notes = ref("")
+
+    // Booking dialog stuff
+    const viewBooking = ref({
+      bookersName: '',
+      name: '',
+      notes: '',
+      created: '',
+      startDate: '',
+      endDate: ''
+    })
+    const dialogs = ref({
+      booking: false
+    })
+    const hasUnsavedChanges = ref()
 
     const formattedMonth = () => {
       const date = new Date(selectedDate.value)
@@ -292,8 +399,45 @@ export default {
       return `${getStringProperCased(month)} ${year}`
     }
 
+    const bookingDialogHandler = async (bookingId) => {
+      bookingId = '5UiFr5MAePtFdgj1mYEr'
+      const bookingToDisplay = await readBookingById(bookingId)
+      const bookedByUser = await readUserById(bookingToDisplay.userId)
+      viewBooking.value.bookersName = bookedByUser.name
+      viewBooking.value.name = bookingToDisplay.name
+      viewBooking.value.notes = bookingToDisplay.notes
+      viewBooking.value.created = bookingToDisplay.created
+      viewBooking.value.startDate = bookingToDisplay.startDate
+      viewBooking.value.endDate = bookingToDisplay.endDate
+      toggleDialog(dialogs.value, 'booking')
+    }
+
+    const updateBooking = async (bookingId) => {
+      bookingId = '5UiFr5MAePtFdgj1mYEr'
+      const bookingToUpdate = await readBookingById(bookingId)
+      bookingToUpdate.name = viewBooking.value.name
+      bookingToUpdate.notes = viewBooking.value.notes
+      bookingToUpdate.startDate = viewBooking.value.startDate
+      bookingToUpdate.endDate = viewBooking.value.endDate
+      await updateBookingById(bookingToUpdate)
+      hasUnsavedChanges.value = false
+    }
+
+    const bookingChangeHandler = async (bookingId) => {
+      bookingId = '5UiFr5MAePtFdgj1mYEr'
+      const bookingToCheck = await readBookingById(bookingId)
+      const input = [
+        [viewBooking.value.name, bookingToCheck.name],
+        [viewBooking.value.notes, bookingToCheck.notes],
+        [viewBooking.value.startDate, bookingToCheck.startDate],
+        [viewBooking.value.endDate, bookingToCheck.endDate]
+      ]
+      console.log(input)
+      hasUnsavedChanges.value = hasInputChanged(input)
+    }
+
     const submitBooking = async () => {
-      if(!dateDataValid(selectedDateRange.value)){
+      if (!dateDataValid(selectedDateRange.value)) {
         notificationBanner.value.displayNotification("Venligst vælg datoer", "error")
         return
       }
@@ -304,10 +448,10 @@ export default {
         startDate: selectedDateRange.value[0],
         endDate: selectedDateRange.value[1],
         name: bookingName.value,
-        notes: bookingNotes.value,
+        notes: notes.value,
         diary: ""
       }
-      if(!newBooking.name){
+      if (!newBooking.name) {
         newBooking.name = user.value.name
       }
 
@@ -328,11 +472,11 @@ export default {
       calendar.value.next()
     }
 
-    const clickDateHandler = (data) =>{
+    const clickDateHandler = (data) => {
       const pickedDate = data.scope.timestamp.date
-      if (selectedDateRange.value.length === 0){
-        selectedDateRange.value.push(pickedDate,pickedDate)
-      } else if (selectedDateRange.value[0] === selectedDateRange.value[1]){
+      if (selectedDateRange.value.length === 0) {
+        selectedDateRange.value.push(pickedDate, pickedDate)
+      } else if (selectedDateRange.value[0] === selectedDateRange.value[1]) {
         selectedDateRange.value.pop()
         selectedDateRange.value.push(pickedDate)
       } else {
@@ -366,8 +510,20 @@ export default {
 
       // Booking stuff
       bookingName,
-      bookingNotes,
+      notes,
       submitBooking,
+
+      // Booking dialog stuff
+      dialogs,
+      viewBooking,
+      bookingDialogHandler,
+      getFirstNameWithPossessive,
+      hasUnsavedChanges,
+      bookingChangeHandler,
+      updateBooking,
+
+      isUserAdmin
+
 
     }
   }

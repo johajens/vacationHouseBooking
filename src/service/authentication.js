@@ -20,3 +20,9 @@ export async function routeFrontPage(){
   const router = useRouter()
   await router.push("/")
 }
+
+export async function isUserAdmin(){
+  const userId = localStorage.getItem("userId")
+  const user = await readUserById(userId)
+  return user.isAdmin
+}
