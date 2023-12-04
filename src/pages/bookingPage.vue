@@ -310,7 +310,7 @@
       <q-card-section class="column items-center bg-primary">
         <section class="row" style="width: 100%">
           <q-input
-            v-if="isUserAdmin"
+            v-if="isUserAdmin || user.id === selectedBooking.userId"
             v-model="viewBooking.name"
             color="accent"
             dense
@@ -333,7 +333,7 @@
 
       <q-card-section>
         <q-input
-          v-if="isUserAdmin"
+          v-if="isUserAdmin || user.id === selectedBooking.userId"
           v-model="viewBooking.notes"
           color="accent"
           dense
@@ -351,7 +351,7 @@
       <q-card-section class="flex justify-between">
         <div>
           Ankomst: {{viewBooking.startDate}}
-          <q-icon v-if="isUserAdmin" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
+          <q-icon v-if="isUserAdmin || user.id === selectedBooking.userId" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
                 <div class="row items-center justify-end">
@@ -362,7 +362,7 @@
           </q-icon>
         </div>
         <div>
-          <q-icon v-if="isUserAdmin" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
+          <q-icon v-if="isUserAdmin || user.id === selectedBooking.userId" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.endDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
                 <div class="row items-center justify-end">
@@ -375,7 +375,7 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="flex flex-center" v-if="hasUnsavedChanges && isUserAdmin">
+      <q-card-section class="flex flex-center" v-if="hasUnsavedChanges && (isUserAdmin || user.id === selectedBooking.userId)">
         <q-btn
           size="md"
           class="bg-secondary"
@@ -617,6 +617,7 @@ export default {
     return {
       // General stuff
       notificationBanner,
+      user,
 
       // Calendar stuff
       calendar,
@@ -645,7 +646,8 @@ export default {
       hasUnsavedChanges,
       bookingChangeHandler,
       updateBooking,
-      isUserAdmin
+      isUserAdmin,
+      selectedBooking
 
 
     }
