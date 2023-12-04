@@ -523,7 +523,7 @@ export default {
 
     const updateBooking = async () => {
       const bookingToUpdate = selectedBooking.value
-      bookingToUpdate.name = viewBooking.value.name
+      bookingToUpdate.name = await getBookingName(viewBooking.value.name, bookingToUpdate.userId)
       bookingToUpdate.notes = viewBooking.value.notes
       bookingToUpdate.startDate = viewBooking.value.startDate
       bookingToUpdate.endDate = viewBooking.value.endDate
@@ -537,7 +537,7 @@ export default {
       notificationBanner.value.displayNotification("Booking opdateret", "success")
     }
 
-    const bookingChangeHandler = async (bookingId) => {
+    const bookingChangeHandler = async () => {
       const bookingToCheck = selectedBooking.value
       const input = [
         [viewBooking.value.name, bookingToCheck.name],
@@ -559,17 +559,23 @@ export default {
         userId: user.value.id,
         startDate: selectedDateRange.value[0],
         endDate: selectedDateRange.value[1],
-        name: bookingName.value,
+        name: null,
         notes: notes.value,
         diary: ""
       }
-      if (!newBooking.name) {
-        newBooking.name = user.value.name
-      }
+      newBooking.name = getBookingName(bookingName.value, user.value.id)
 
       const newBookingId = await createBooking(newBooking)
       bookings.value.push(await readBookingById(newBookingId))
       selectedDateRange.value = []
+    }
+
+    const getBookingName = async (name, bookerId) => {
+      if (!name || name.trim().length === 0) {
+        const booker = await readUserById(bookerId)
+        return booker.name
+      }
+      return name
     }
 
 
