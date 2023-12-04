@@ -14,7 +14,8 @@ export async function createUser(user){
       email: user.email,
       password: user.password,
       isAdmin: user.isAdmin,
-      houseId: user.houseId
+      houseId: user.houseId,
+      colorId: user.colorId
     })
     return userDocRef.id
   } catch (e){
@@ -60,10 +61,6 @@ export async function readAllUsersByHouseId(houseId){
 
 }
 
-
-
-
-
 export async function updateUserById(user){
   try{
     await updateDoc(doc(database, collectionName, user.id), {
@@ -71,7 +68,8 @@ export async function updateUserById(user){
       name: user.name,
       email: user.email,
       password: user.password,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      colorId: user.colorId
     })
   } catch (e){
     throw new Error(`Failed to update user with userId: ${user.id}\n${e.stack}`)
