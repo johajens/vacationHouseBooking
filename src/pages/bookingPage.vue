@@ -108,6 +108,9 @@
               Næste
             </q-btn>
           </div>
+          <div class="col-md-6 col-xs-12 flex justify-end text-h4 text-accent">
+            {{formattedMonth()}}
+          </div>
         </section>
       <div class="q-pt-sm">
         <q-calendar-month
@@ -275,6 +278,26 @@
             :day-height="100"
             @mousedown-day="clickDateHandler"
             no-active-date>
+            <template v-if="bookings.length !== 0" #week="{ scope: { week, weekdays } }">
+              <template
+                v-for="(computedEvent, index) in getWeekEvents(week, weekdays)"
+                :key="index"
+              >
+                <div
+                  style="margin-top: 1px;"
+                  :class="badgeClasses(computedEvent)"
+                  :style="badgeStyles(computedEvent, week.length)"
+                >
+                  <div
+                    :id="'id_' + computedEvent.booking.id"
+                    v-if="computedEvent.booking && computedEvent.booking.name"
+                    class="title q-calendar__ellipsis"
+                  >
+                    {{ computedEvent.booking.name }}
+                  </div>
+                </div>
+              </template>
+            </template>
           </q-calendar-month>
         </div>
       </section>
@@ -368,7 +391,7 @@
 
 <script>
 import { onMounted, ref} from "vue"
-import { getUserAndRouteFrontpageIfNotFound, isUserAdmin } from "src/service/authentication"
+import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
 import { getStringProperCased, dateDataValid, getFirstNameWithPossessive, toggleDialog, hasInputChanged } from "src/service/utility";
 import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingById} from "src/api/booking";
@@ -386,6 +409,7 @@ export default {
   setup: function () {
     const notificationBanner = ref()
     const user = ref()
+    const isUserAdmin = ref(false)
     const bookings = ref([])
 
     const calendar = ref()
@@ -396,6 +420,7 @@ export default {
     const notes = ref("")
 
     // Booking dialog stuff
+    const selectedBooking = ref()
     const viewBooking = ref({
       bookersName: '',
       name: '',
@@ -412,17 +437,13 @@ export default {
     const bookingNotes = ref("")
     const calendarLoaded = ref(false)
 
-    const bookingClicked = (bookingId) => {
-      console.log(bookingId);
-    }
-
     const handleBookingClicks = (e) => {
-      let elements = document.elementsFromPoint(e.clientX, e.clientY);
+      const elements = document.elementsFromPoint(e.clientX, e.clientY);
       elements.forEach(element => {
           if(element.id.includes("id_")){
-            bookingClicked(element.id.split("id_")[1])
+            bookingDialogHandler(element.id.split("id_")[1])
           }
-      }
+        }
       )
     }
 
@@ -488,39 +509,42 @@ export default {
     }
 
     const bookingDialogHandler = async (bookingId) => {
-      bookingId = '5UiFr5MAePtFdgj1mYEr'
-      const bookingToDisplay = await readBookingById(bookingId)
-      const bookedByUser = await readUserById(bookingToDisplay.userId)
+      selectedDateRange.value = []
+      selectedBooking.value = await readBookingById(bookingId)
+      const bookedByUser = await readUserById(selectedBooking.value.userId)
       viewBooking.value.bookersName = bookedByUser.name
-      viewBooking.value.name = bookingToDisplay.name
-      viewBooking.value.notes = bookingToDisplay.notes
-      viewBooking.value.created = bookingToDisplay.created
-      viewBooking.value.startDate = bookingToDisplay.startDate
-      viewBooking.value.endDate = bookingToDisplay.endDate
+      viewBooking.value.name = selectedBooking.value.name
+      viewBooking.value.notes = selectedBooking.value.notes
+      viewBooking.value.created = selectedBooking.value.created
+      viewBooking.value.startDate = selectedBooking.value.startDate
+      viewBooking.value.endDate = selectedBooking.value.endDate
       toggleDialog(dialogs.value, 'booking')
     }
 
-    const updateBooking = async (bookingId) => {
-      bookingId = '5UiFr5MAePtFdgj1mYEr'
-      const bookingToUpdate = await readBookingById(bookingId)
+    const updateBooking = async () => {
+      const bookingToUpdate = selectedBooking.value
       bookingToUpdate.name = viewBooking.value.name
       bookingToUpdate.notes = viewBooking.value.notes
       bookingToUpdate.startDate = viewBooking.value.startDate
       bookingToUpdate.endDate = viewBooking.value.endDate
       await updateBookingById(bookingToUpdate)
+      const index = bookings.value.findIndex(booking => booking.id === selectedBooking.value.id);
+      if (index !== -1) {
+        bookings.value[index] = selectedBooking.value;
+      }
       hasUnsavedChanges.value = false
+      toggleDialog(dialogs.value, 'booking')
+      notificationBanner.value.displayNotification("Booking opdateret", "success")
     }
 
     const bookingChangeHandler = async (bookingId) => {
-      bookingId = '5UiFr5MAePtFdgj1mYEr'
-      const bookingToCheck = await readBookingById(bookingId)
+      const bookingToCheck = selectedBooking.value
       const input = [
         [viewBooking.value.name, bookingToCheck.name],
         [viewBooking.value.notes, bookingToCheck.notes],
         [viewBooking.value.startDate, bookingToCheck.startDate],
         [viewBooking.value.endDate, bookingToCheck.endDate]
       ]
-      console.log(input)
       hasUnsavedChanges.value = hasInputChanged(input)
     }
 
@@ -545,6 +569,7 @@ export default {
 
       const newBookingId = await createBooking(newBooking)
       bookings.value.push(await readBookingById(newBookingId))
+      selectedDateRange.value = []
     }
 
 
@@ -579,6 +604,7 @@ export default {
 
     const onPageLoad = async () => {
       user.value = await getUserAndRouteFrontpageIfNotFound()
+      isUserAdmin.value = user.value.isAdmin
       bookings.value = await readAllBookingsByHouseId(user.value.houseId)
       bookings.value = await readAllBookingsByHouseId(user.value.houseId)
       document.addEventListener('click', handleBookingClicks);
@@ -610,7 +636,6 @@ export default {
       badgeClasses,
       badgeStyles,
       bookings,
-      bookingClicked,
 
       // Booking dialog stuff
       dialogs,
@@ -620,7 +645,6 @@ export default {
       hasUnsavedChanges,
       bookingChangeHandler,
       updateBooking,
-
       isUserAdmin
 
 
