@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, where, query } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { database } from "boot/firebaseConfig";
 
 const collectionName = 'colors'
@@ -51,7 +51,7 @@ export async function updateColorById(color){
 
 export async function deleteColorById(colorId){
   try {
-    deleteDoc(doc(database, collectionName, colorId))
+    await deleteDoc(doc(database, collectionName, colorId))
   } catch (e) {
     throw new Error(`Failed to delete color with id: ${colorId}\n${e.stack}`)
   }
