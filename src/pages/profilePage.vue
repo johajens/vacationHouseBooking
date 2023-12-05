@@ -35,6 +35,40 @@
               <q-input outlined v-model="password" label="Password" :disable="true" />
               <q-tooltip class="bg-warning text-black" :offset="[0, -40]">Password kan ikke ændres</q-tooltip>
             </div>
+
+            <div class="q-mt-xl">
+              <q-btn
+                class="bg-secondary text-accent q-py-sm"
+                style="width: 100%"
+                no-caps
+              >
+                <div class="row justify-between no-wrap" style="width: 100%">
+                  <span class="col-6 text-body1 flex justify-start">Skift din farve</span>
+                  <div class="col-4 flex justify-center shadow-2 q-my-xs" :style="{backgroundColor: color.hexValue, width: '30%', borderRadius:'5px'}"></div>
+                  <q-icon class="col-2" name="chevron_right" size="2em" style="width: max-content;"/>
+                </div>
+                <q-menu
+                  anchor="bottom right"
+                  self="bottom left"
+                  class="bg-secondary flex flex-center q-pb-md"
+                  max-width="30vw"
+                >
+                  <div class="text-h5 text-accent flex flex-center q-pa-md" style="width: 100%">Vælg farve</div>
+                  <q-btn
+                    class="q-ma-xs text-white"
+                    v-for="color in allColorObjects"
+                    :key="color.id"
+                    :title="color.name"
+                    :style="{backgroundColor: color.hexValue}"
+                    :icon="!availableColorObjects.some(availableColor => availableColor.id === color.id) ? 'lock' : ''"
+                    :disable="!availableColorObjects.some(availableColor => availableColor.id === color.id)"
+                    @click="colorClickHandler(color)"
+                    v-close-popup
+                  />
+                </q-menu>
+              </q-btn>
+            </div>
+
             <div class="relative-position">
               <q-btn
                 v-if="hasUnsavedChanges"
@@ -44,7 +78,10 @@
               >opdater</q-btn>
             </div>
           </div>
+
         </section>
+
+
       </section>
     </section>
 
@@ -89,6 +126,39 @@
                 Password kan ikke ændres
               </q-tooltip>
             </div>
+
+            <div class="q-mt-xl">
+              <q-btn
+                class="bg-secondary text-accent q-py-sm"
+                style="width: 100%"
+                no-caps
+              >
+                <div class="row justify-between no-wrap" style="width: 100%">
+                  <span class="col-6 text-body1 flex justify-start">Skift din farve</span>
+                  <div class="col-4 flex justify-center shadow-2 q-my-xs" :style="{backgroundColor: color.hexValue, width: '30%', borderRadius:'5px'}"></div>
+                  <q-icon class="col-2" name="chevron_right" size="2em" style="width: max-content;"/>
+                </div>
+                <q-menu
+                  class="bg-secondary flex flex-center q-pb-md"
+                  fit
+                  max-width="90%"
+                >
+                  <div class="text-h5 text-accent flex flex-center q-pa-md" style="width: 100%">Vælg farve</div>
+                  <q-btn
+                    class="q-ma-xs text-white"
+                    v-for="color in allColorObjects"
+                    :key="color.id"
+                    :title="color.name"
+                    :style="{backgroundColor: color.hexValue, maxWidth: '20%'}"
+                    :icon="!availableColorObjects.some(availableColor => availableColor.id === color.id) ? 'lock' : ''"
+                    :disable="!availableColorObjects.some(availableColor => availableColor.id === color.id)"
+                    @click="colorClickHandler(color)"
+                    v-close-popup
+                  />
+                </q-menu>
+              </q-btn>
+            </div>
+
             <div class="relative-position">
               <q-btn
                 v-if="hasUnsavedChanges"
@@ -109,8 +179,9 @@
 <script>
 import { onMounted, ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
-import { updateUserById } from "src/api/user"
+import { readAllUsers, updateUserById } from "src/api/user"
 import { userDataValid, getStringProperCased, hasInputChanged } from "src/service/utility"
+import { readAllColors, readColorById } from "src/api/color";
 import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
@@ -121,6 +192,11 @@ export default {
     const name = ref("")
     const email = ref("")
     const password = ref("")
+    //color stuff
+    const color = ref("")
+    const availableColorObjects = ref([])
+    const allColorObjects = ref([])
+
     const hasUnsavedChanges = ref(false)
     const notificationBanner = ref()
 
@@ -139,6 +215,7 @@ export default {
     async function updateUser() {
       user.value.name = getStringProperCased(name.value, true)
       user.value.email = email.value
+      user.value.colorId = color.value.id
       await updateUserById(user.value)
       hasUnsavedChanges.value = false
     }
@@ -146,21 +223,47 @@ export default {
     const inputChange = () =>{
       const inputs = [
         [user.value.name, name.value],
-        [user.value.email, email.value]
+        [user.value.email, email.value],
+        [user.value.colorId, color.value]
       ]
       hasUnsavedChanges.value = hasInputChanged(inputs)
     }
 
+    const getAvailableColorObjects = async () => {
+      const colorsTakenById = await readAllUsers().then(users => users.map(user => user.colorId))
+
+      const colorsAvailable = await readAllColors()
+        .then(colors => colors
+          .filter(color => !colorsTakenById.includes(color.id))
+          .sort((a, b) => a.name.localeCompare(b.name)))
+      return colorsAvailable
+    }
+
+    const getAllColorObjects = async () => {
+      const allColorObjects = await readAllColors()
+        .then(colors => colors
+          .sort((a, b) => a.name.localeCompare(b.name)))
+
+      return allColorObjects
+    }
+
+    const colorClickHandler = (colorClicked) => {
+      color.value = colorClicked
+      inputChange()
+    }
+
     const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound()
       user.value = await getUserAndRouteFrontpageIfNotFound()
       name.value = user.value.name
       email.value = user.value.email
+      color.value = await readColorById(user.value.colorId)
       password.value = user.value.password
+      allColorObjects.value = await getAllColorObjects()
+      availableColorObjects.value = await getAvailableColorObjects()
     }
 
     onMounted(() => {
-      onPageLoad();
+      onPageLoad()
     })
 
     return {
@@ -171,7 +274,13 @@ export default {
       hasUnsavedChanges,
       submitChangeData,
       inputChange,
-      notificationBanner
+      notificationBanner,
+
+      //color stuff!
+      color,
+      allColorObjects,
+      availableColorObjects,
+      colorClickHandler,
     }
   },
 }
