@@ -179,7 +179,7 @@
 <script>
 import { onMounted, ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
-import { readAllUsers, updateUserById } from "src/api/user"
+import { readAllUsersByHouseId, updateUserById} from "src/api/user"
 import { userDataValid, getStringProperCased, hasInputChanged } from "src/service/utility"
 import { readAllColors, readColorById } from "src/api/color";
 import NotificationBanner from "components/notificationBanner.vue"
@@ -230,7 +230,7 @@ export default {
     }
 
     const getAvailableColorObjects = async () => {
-      const colorsTakenById = await readAllUsers()
+      const colorsTakenById = await readAllUsersByHouseId(user.value.houseId)
         .then(users => users
           .filter(user => user.colorId !== 'default')
           .map(user => user.colorId))
