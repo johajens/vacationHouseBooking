@@ -329,8 +329,8 @@
 
   <!-- Booking popup -->
   <q-dialog v-model="dialogs.booking" no-backdrop-dismiss>
-    <q-card class="bg-secondary text-accent" style="width: 60vw">
-      <q-card-section class="column items-center bg-primary">
+    <q-card :class="{'bg-secondary': true, 'text-accent': true, 'window-width': isMobile}" :style="{ width: isMobile ? '100%' : '60vw' }">
+    <q-card-section class="column items-center bg-primary">
         <section class="row" style="width: 100%">
           <q-input
             v-if="userCanEdit"
@@ -339,6 +339,7 @@
             dense
             autogrow
             class="text-h5 text-accent"
+            style="width: 70%"
             @update:model-value="bookingChangeHandler">
           </q-input>
           <div v-else class="text-h5">{{viewBooking.name}}</div>
@@ -375,7 +376,6 @@
 
       <q-card-section class="flex justify-between">
         <div>
-          Ankomst: {{viewBooking.startDate}}
           <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
@@ -385,6 +385,7 @@
               </q-date>
             </q-popup-proxy>
           </q-icon>
+          Ankomst: {{viewBooking.startDate}}
         </div>
         <div>
           <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
@@ -511,6 +512,10 @@ export default {
           }
         }
       )
+    }
+
+    const isMobile = () => {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
     const getWeekEvents = (week) => {
@@ -778,7 +783,9 @@ export default {
       userCanEdit,
       singleDatePicker,
       deleteBookingHandler,
-      toggleDialog
+      toggleDialog,
+
+      isMobile
 
     }
   }
