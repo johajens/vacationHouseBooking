@@ -294,6 +294,7 @@ export default {
           email: emailCreate.value,
           houseId: user.value.houseId,
           password: user.value.password,
+          colorId: 'default',
           isAdmin: false,
         }
         const newUserId = await createUser(newUser)

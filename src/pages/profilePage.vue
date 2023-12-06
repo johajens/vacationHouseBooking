@@ -230,7 +230,10 @@ export default {
     }
 
     const getAvailableColorObjects = async () => {
-      const colorsTakenById = await readAllUsers().then(users => users.map(user => user.colorId))
+      const colorsTakenById = await readAllUsers()
+        .then(users => users
+          .filter(user => user.colorId !== 'default')
+          .map(user => user.colorId))
 
       const colorsAvailable = await readAllColors()
         .then(colors => colors
@@ -242,13 +245,16 @@ export default {
     const getAllColorObjects = async () => {
       const allColorObjects = await readAllColors()
         .then(colors => colors
+          .filter(color => color.id !== 'default')
           .sort((a, b) => a.name.localeCompare(b.name)))
 
       return allColorObjects
     }
 
     const colorClickHandler = (colorClicked) => {
-      availableColorObjects.value[availableColorObjects.value.findIndex(colorObject => colorObject.id === colorClicked.id)] = color.value //Fjern fra tilgængelige farver
+      if (color.value.id !== 'default') {
+        availableColorObjects.value[availableColorObjects.value.findIndex(colorObject => colorObject.id === colorClicked.id)] = color.value
+      }
       color.value = colorClicked
       inputChange()
     }
