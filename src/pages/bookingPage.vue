@@ -330,7 +330,7 @@
   </q-page>
 
   <!-- Booking popup -->
-  <q-dialog v-model="dialogs.booking">
+  <q-dialog v-model="dialogs.booking" no-backdrop-dismiss>
     <q-card class="bg-secondary text-accent" style="width: 60vw">
       <q-card-section class="column items-center bg-primary">
         <section class="row" style="width: 100%">
@@ -472,13 +472,12 @@ export default {
     const handleBookingClicks = (e) => {
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
       elements.forEach(element => {
-          if(element.id.includes("id_")){
+          if(element.id.includes("id_") && !dialogs.value.booking){
             bookingDialogHandler(element.id.split("id_")[1])
           }
         }
       )
     }
-
 
     const getWeekEvents = (week) => {
       if(calendarLoaded.value)
