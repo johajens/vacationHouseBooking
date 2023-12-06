@@ -295,6 +295,7 @@ export default {
           houseId: user.value.houseId,
           password: user.value.password,
           isAdmin: false,
+          colorId: ""
         }
         const newUserId = await createUser(newUser)
         const newUserCreated = await readUserById(newUserId)
