@@ -146,14 +146,12 @@
               :key="index"
             >
               <div
-                style="margin-top: 1px;"
                 :class="badgeClasses(computedEvent)"
                 :style="badgeStyles(computedEvent, week.length)"
               >
                 <div
                   :id="'id_' + computedEvent.booking.id"
                   v-if="computedEvent.booking && computedEvent.booking.name"
-                  class="title q-calendar__ellipsis"
                 >
                   {{ computedEvent.booking.name }}
                 </div>
@@ -309,7 +307,7 @@
                 :key="index"
               >
                 <div
-                  style="margin-top: 1px;"
+                  style="margin-top: 1px; "
                   :class="badgeClasses(computedEvent)"
                   :style="badgeStyles(computedEvent, week.length)"
                 >
@@ -424,6 +422,7 @@ import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingB
 import { daysBetween, isOverlappingDates, parsed } from "@quasar/quasar-ui-qcalendar";
 import { readAllUsersByHouseId, readUserById } from "src/api/user";
 import NotificationBanner from "components/notificationBanner.vue";
+import { readAllColors } from "src/api/color";
 
 
 export default {
@@ -441,6 +440,7 @@ export default {
     const userCanEdit = ref(false)
     const bookings = ref([])
     const actingAs = ref()
+    const allColors = ref()
 
     // Calendar stuff
     const calendar = ref()
@@ -512,9 +512,10 @@ export default {
         return {
           'my-event': true,
           'text-white': true,
-          'bg-accent': true,
           'rounded-border': true,
-          'q-calendar__ellipsis': true
+          'q-calendar__ellipsis': true,
+          'shadow-2': true,
+          'q-mb-xs': true,
         }
       }
       return {
@@ -523,14 +524,29 @@ export default {
     }
 
     const badgeStyles = (computedEvent, weekLength) => {
+      const colorToUse = getColorFromBooking(computedEvent.booking)
       const style = {}
       if (computedEvent.size !== undefined) {
+        style.borderRadius = "20px"
+        style.backgroundColor = colorToUse
         style.width = ((100 / weekLength) * computedEvent.size) + "%"
         style.marginLeft = ((100 / weekLength) * computedEvent.left) + "%"
         style.marginRight = ((100 / weekLength) * computedEvent.right) + "%"
         style.textAlign = "center"
       }
       return style
+    }
+    const getColorFromBooking = (booking) => {
+      const userId = booking.userId
+      const index = users.value.findIndex(user => user.id === userId)
+      if (index !== -1) {
+        const colorIdToUse = users.value[index].colorId
+        const colorIndex = allColors.value.findIndex(color => color.id === colorIdToUse)
+        if (colorIndex !== -1) {
+          return allColors.value[colorIndex].hexValue
+        }
+      }
+      return "#857747"
     }
 
     const formattedMonth = () => {
@@ -672,6 +688,7 @@ export default {
       isUserAdmin.value = user.value.isAdmin
       bookings.value = await readAllBookingsByHouseId(user.value.houseId)
       users.value = await readAllUsersByHouseId(user.value.houseId)
+      allColors.value = await readAllColors();
       actingAs.value = user.value
       document.addEventListener('click', handleBookingClicks);
     }
