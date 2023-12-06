@@ -345,6 +345,7 @@
           </q-input>
           <div v-else class="text-h5">{{viewBooking.name}}</div>
           <q-space />
+          <q-btn icon="delete" flat round dense v-if="userCanEdit" @click="toggleDialog(dialogs, 'confirmBookingDeletion')"/>
           <q-btn icon="close" flat round dense v-close-popup />
         </section>
 
@@ -363,7 +364,7 @@
           color="accent"
           dense
           autogrow
-          label="Note:"
+          label="Note"
           class="text-body1 text-accent"
           @update:model-value="bookingChangeHandler">
         </q-input>
@@ -412,6 +413,37 @@
     </q-card>
   </q-dialog>
 
+  <q-dialog v-model="dialogs.confirmBookingDeletion" persistent>
+    <q-card class="bg-primary">
+      <q-card-section class="row items-center">
+        <div>
+          <div class="text-h5 text-accent text-bold" >
+            Er du sikker på at du vil slette booking med navn: {{viewBooking.name}}?
+          </div>
+          <div class="q-pt-sm text-body2 text-accent">
+            Når du sletter bookingen i perioden {{viewBooking.startDate}}-{{viewBooking.endDate}}, vil den blive fjernet fra kalenderen.
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-actions class="q-ml-sm justify-end">
+        <q-btn
+          label="Annullér"
+          color="secondary"
+          text-color="accent"
+          v-close-popup
+        />
+        <q-btn
+          label="Bekræft"
+          color="secondary"
+          text-color="accent"
+          v-close-popup
+          @click="deleteBookingHandler(viewBooking.id)"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
   <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
@@ -420,7 +452,7 @@ import { onMounted, ref} from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
 import { getStringProperCased, dateDataValid, getFirstNameWithPossessive, toggleDialog, hasInputChanged } from "src/service/utility";
-import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingById} from "src/api/booking";
+import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingById, deleteBookingById} from "src/api/booking";
 import { daysBetween, isOverlappingDates, parsed } from "@quasar/quasar-ui-qcalendar";
 import { readAllUsersByHouseId, readUserById } from "src/api/user";
 import NotificationBanner from "components/notificationBanner.vue";
@@ -460,10 +492,12 @@ export default {
       notes: '',
       created: '',
       startDate: '',
-      endDate: ''
+      endDate: '',
+      id: ''
     })
     const dialogs = ref({
-      booking: false
+      booking: false,
+      confirmBookingDeletion: false
     })
     const hasUnsavedChanges = ref()
 
@@ -550,6 +584,7 @@ export default {
       viewBooking.value.created = selectedBooking.value.created
       viewBooking.value.startDate = selectedBooking.value.startDate
       viewBooking.value.endDate = selectedBooking.value.endDate
+      viewBooking.value.id = selectedBooking.value.id
       toggleDialog(dialogs.value, 'booking')
     }
 
@@ -567,6 +602,11 @@ export default {
       hasUnsavedChanges.value = false
       toggleDialog(dialogs.value, 'booking')
       notificationBanner.value.displayNotification("Booking opdateret", "success")
+    }
+
+    const deleteBookingHandler = async (bookingId) => {
+      await deleteBookingById(bookingId)
+      bookings.value.splice(bookings.value.findIndex(booking => booking.id === bookingId), 1)
     }
 
     const bookingChangeHandler = async () => {
@@ -719,7 +759,9 @@ export default {
       isUserAdmin,
       selectedBooking,
       userCanEdit,
-      singleDatePicker
+      singleDatePicker,
+      deleteBookingHandler,
+      toggleDialog
 
     }
   }
