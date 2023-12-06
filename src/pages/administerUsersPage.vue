@@ -296,7 +296,6 @@ export default {
           password: user.value.password,
           colorId: 'default',
           isAdmin: false,
-          colorId: ""
         }
         const newUserId = await createUser(newUser)
         const newUserCreated = await readUserById(newUserId)
