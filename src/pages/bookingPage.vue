@@ -506,7 +506,7 @@ export default {
     const handleBookingClicks = (e) => {
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
       elements.forEach(element => {
-          if(element.id.includes("id_") && !dialogs.value.booking){
+          if(element.id.includes("id_") && !dialogs.value.booking && !dialogs.value.confirmBookingDeletion){
             bookingDialogHandler(element.id.split("id_")[1])
           }
         }
