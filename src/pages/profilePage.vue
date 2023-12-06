@@ -238,7 +238,7 @@ export default {
       const colorsAvailable = await readAllColors()
         .then(colors => colors
           .filter(color => !colorsTakenById.includes(color.id))
-          .sort((a, b) => a.name.localeCompare(b.name)))
+          .sort((a, b) => a.hexValue.localeCompare(b.hexValue)))
       return colorsAvailable
     }
 
@@ -246,7 +246,7 @@ export default {
       const allColorObjects = await readAllColors()
         .then(colors => colors
           .filter(color => color.id !== 'default')
-          .sort((a, b) => a.name.localeCompare(b.name)))
+          .sort((a, b) => a.hexValue.localeCompare(b.hexValue)))
 
       return allColorObjects
     }
