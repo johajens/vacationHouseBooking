@@ -49,9 +49,9 @@
             outlined
             label="Ankomst">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="date">
+              <q-date @update:model-value="singleDatePicker(true, $event)" :options="maxValue">
                 <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
+                  <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
               </q-date>
             </q-popup-proxy>
@@ -62,28 +62,40 @@
             class="bg-secondary col-5"
             color="accent"
             outlined
-            label="Ankomst"
-          >
+            label="Afrejse">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="selectedDateRange[1]">
+              <q-date @update:model-value="singleDatePicker(false, $event)" :options="minValue">
                 <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
+                  <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
               </q-date>
             </q-popup-proxy>
           </q-input>
         </div>
+        <div class="q-pt-lg" v-if="isUserAdmin">
+          <label class="text-h6 text-accent">Booker på vegne af</label>
+          <q-select
+            borderless
+            outlined
+            style="width: 100%;"
+            class="bg-secondary"
+            v-model="actingAs"
+            :options="users"
+            option-value="id"
+            option-label="name"
+            :menu-props="{ style: { backgroundColor: '#FFEEB5', color: '#857747' } }"/>
+        </div>
 
         <div class="flex flex-center q-pt-lg">
           <q-btn
-            class="bg-secondary"
+            class="bg-secondary text-accent"
             style="width: 100%"
             size="large"
-            @click="submitBooking"
-          >
+            @click="submitBooking">
             Bekræft booking
           </q-btn>
         </div>
+
       </section>
 
       <section class="col-md-8 col-xs-12 q-px-lg q-pb-lg">
@@ -200,9 +212,9 @@
             outlined
             label="Ankomst">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="date">
+              <q-date @update:model-value="singleDatePicker(true, $event)" :options="maxValue">
                 <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
+                  <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
               </q-date>
             </q-popup-proxy>
@@ -213,16 +225,29 @@
             class="bg-secondary col-5"
             color="accent"
             outlined
-            label="Ankomst"
+            label="Afrejse"
           >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="selectedDateRange[1]">
+              <q-date @update:model-value="singleDatePicker(false, $event)" :options="minValue">
                 <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
+                  <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
               </q-date>
             </q-popup-proxy>
           </q-input>
+        </div>
+        <div class="q-pt-lg" v-if="isUserAdmin">
+          <label class="text-h6 text-accent">Booker på vegne af</label>
+          <q-select
+            borderless
+            outlined
+            style="width: 100%;"
+            class="bg-secondary"
+            v-model="actingAs"
+            :options="users"
+            option-value="id"
+            option-label="name"
+            :menu-props="{ style: { backgroundColor: '#FFEEB5', color: '#857747' } }"/>
         </div>
         <div class="flex flex-center q-pt-lg">
           <q-btn
@@ -310,7 +335,7 @@
       <q-card-section class="column items-center bg-primary">
         <section class="row" style="width: 100%">
           <q-input
-            v-if="isUserAdmin || user.id === selectedBooking.userId"
+            v-if="userCanEdit"
             v-model="viewBooking.name"
             color="accent"
             dense
@@ -333,11 +358,12 @@
 
       <q-card-section>
         <q-input
-          v-if="isUserAdmin || user.id === selectedBooking.userId"
+          v-if="userCanEdit"
           v-model="viewBooking.notes"
           color="accent"
           dense
           autogrow
+          label="Note:"
           class="text-body1 text-accent"
           @update:model-value="bookingChangeHandler">
         </q-input>
@@ -351,7 +377,7 @@
       <q-card-section class="flex justify-between">
         <div>
           Ankomst: {{viewBooking.startDate}}
-          <q-icon v-if="isUserAdmin || user.id === selectedBooking.userId" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
+          <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
                 <div class="row items-center justify-end">
@@ -362,7 +388,7 @@
           </q-icon>
         </div>
         <div>
-          <q-icon v-if="isUserAdmin || user.id === selectedBooking.userId" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
+          <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.endDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
                 <div class="row items-center justify-end">
@@ -375,7 +401,7 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="flex flex-center" v-if="hasUnsavedChanges && (isUserAdmin || user.id === selectedBooking.userId)">
+      <q-card-section class="flex flex-center" v-if="hasUnsavedChanges && userCanEdit">
         <q-btn
           size="md"
           class="bg-secondary"
@@ -396,7 +422,7 @@ import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
 import { getStringProperCased, dateDataValid, getFirstNameWithPossessive, toggleDialog, hasInputChanged } from "src/service/utility";
 import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingById} from "src/api/booking";
 import { daysBetween, isOverlappingDates, parsed } from "@quasar/quasar-ui-qcalendar";
-import { readUserById } from "src/api/user";
+import { readAllUsersByHouseId, readUserById } from "src/api/user";
 import NotificationBanner from "components/notificationBanner.vue";
 
 
@@ -407,17 +433,24 @@ export default {
     QCalendarMonth
   },
   setup: function () {
+    // General
     const notificationBanner = ref()
     const user = ref()
+    const users = ref()
     const isUserAdmin = ref(false)
+    const userCanEdit = ref(false)
     const bookings = ref([])
+    const actingAs = ref()
 
+    // Calendar stuff
     const calendar = ref()
     const selectedDate = ref(today())
-    const selectedDateRange = ref([])
 
+    // Adding booking stuff
+    const selectedDateRange = ref([])
     const bookingName = ref()
     const notes = ref("")
+    const date = ref()
 
     // Booking dialog stuff
     const selectedBooking = ref()
@@ -434,7 +467,6 @@ export default {
     })
     const hasUnsavedChanges = ref()
 
-    const bookingNotes = ref("")
     const calendarLoaded = ref(false)
 
     const handleBookingClicks = (e) => {
@@ -512,6 +544,7 @@ export default {
       selectedDateRange.value = []
       selectedBooking.value = await readBookingById(bookingId)
       const bookedByUser = await readUserById(selectedBooking.value.userId)
+      userCanEdit.value = (isUserAdmin.value || user.value.id === selectedBooking.value.userId)
       viewBooking.value.bookersName = bookedByUser.name
       viewBooking.value.name = selectedBooking.value.name
       viewBooking.value.notes = selectedBooking.value.notes
@@ -556,14 +589,14 @@ export default {
 
       const newBooking = {
         houseId: user.value.houseId,
-        userId: user.value.id,
+        userId: actingAs.value.id,
         startDate: selectedDateRange.value[0],
         endDate: selectedDateRange.value[1],
         name: null,
         notes: notes.value,
         diary: ""
       }
-      newBooking.name = getBookingName(bookingName.value, user.value.id)
+      newBooking.name = await getBookingName(bookingName.value, actingAs.value.id)
 
       const newBookingId = await createBooking(newBooking)
       bookings.value.push(await readBookingById(newBookingId))
@@ -608,11 +641,38 @@ export default {
       selectedDateRange.value.sort()
     }
 
+    const singleDatePicker = (isArrival, date) => {
+      date = date.replaceAll("/", "-")
+      if (selectedDateRange.value.length === 0){
+        selectedDateRange.value.push(date, date)
+      }else if(isArrival){
+        selectedDateRange.value[0] = date
+      }
+      else{
+        selectedDateRange.value[1] = date
+      }
+    }
+
+    const maxValue = (date) => {
+      if(selectedDateRange.value[1]){
+        return date <= selectedDateRange.value[1].replaceAll("-","/")
+      }
+      return true
+    }
+    const minValue = (date) => {
+      if(selectedDateRange.value[0]){
+        return date >= selectedDateRange.value[0].replaceAll("-","/")
+      }
+      return true
+    }
+
+
     const onPageLoad = async () => {
       user.value = await getUserAndRouteFrontpageIfNotFound()
       isUserAdmin.value = user.value.isAdmin
       bookings.value = await readAllBookingsByHouseId(user.value.houseId)
-      bookings.value = await readAllBookingsByHouseId(user.value.houseId)
+      users.value = await readAllUsersByHouseId(user.value.houseId)
+      actingAs.value = user.value
       document.addEventListener('click', handleBookingClicks);
     }
 
@@ -624,6 +684,8 @@ export default {
       // General stuff
       notificationBanner,
       user,
+      users,
+      actingAs,
 
       // Calendar stuff
       calendar,
@@ -634,6 +696,7 @@ export default {
       onPrev,
       formattedMonth,
       clickDateHandler,
+      date,
 
       // Booking stuff
       bookingName,
@@ -643,6 +706,8 @@ export default {
       badgeClasses,
       badgeStyles,
       bookings,
+      maxValue,
+      minValue,
 
       // Booking dialog stuff
       dialogs,
@@ -653,8 +718,9 @@ export default {
       bookingChangeHandler,
       updateBooking,
       isUserAdmin,
-      selectedBooking
-
+      selectedBooking,
+      userCanEdit,
+      singleDatePicker
 
     }
   }
@@ -663,7 +729,6 @@ export default {
 
 <style>
 .calendar{
-
   border-radius: 5px;
   --calendar-border: #85774733 1px solid;
   --calendar-border-dark: #71755d 1px solid;
@@ -748,4 +813,13 @@ export default {
   z-index: 2;
 }
 
+.q-item-type{
+  background-color: #FFEEB5;
+  color: #857747;
+}
+.q-date__header{
+  display: none;
+}
 </style>
+
+
