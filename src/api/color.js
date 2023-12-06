@@ -7,7 +7,6 @@ export async function createColor(color) {
   try {
     const colorDocRef = await addDoc(collection(database,collectionName), {
       hexValue: color.hexValue,
-      isTaken: color.isTaken,
       name: color.name
     })
     return colorDocRef.id
@@ -43,7 +42,6 @@ export async function updateColorById(color){
   try {
     await updateDoc(doc(database, collectionName, color.id), {
       hexValue: color.hexValue,
-      isTaken: color.isTaken,
       name: color.name
     })
   } catch (e) {

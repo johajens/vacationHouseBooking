@@ -43,8 +43,13 @@
                 no-caps
               >
                 <div class="row justify-between no-wrap" style="width: 100%">
-                  <span class="col-6 text-body1 flex justify-start">Skift din farve</span>
-                  <div class="col-4 flex justify-center shadow-2 q-my-xs" :style="{backgroundColor: color.hexValue, width: '30%', borderRadius:'5px'}"></div>
+                  <span class="col-6 text-body1 flex justify-start q-my-xs">
+                    Skift din farve
+                  </span>
+                  <div
+                    class="col-4 flex justify-center shadow-2 q-my-xs"
+                    :style="{backgroundColor: color.hexValue, width: '30%', borderRadius:'5px'}">
+                  </div>
                   <q-icon class="col-2" name="chevron_right" size="2em" style="width: max-content;"/>
                 </div>
                 <q-menu
@@ -58,13 +63,15 @@
                     class="q-ma-xs text-white"
                     v-for="color in allColorObjects"
                     :key="color.id"
-                    :title="color.name"
                     :style="{backgroundColor: color.hexValue}"
                     :icon="!availableColorObjects.some(availableColor => availableColor.id === color.id) ? 'lock' : ''"
                     :disable="!availableColorObjects.some(availableColor => availableColor.id === color.id)"
                     @click="colorClickHandler(color)"
-                    v-close-popup
-                  />
+                    v-close-popup>
+                    <q-tooltip>
+                      {{color.name}}
+                    </q-tooltip>
+                  </q-btn>
                 </q-menu>
               </q-btn>
             </div>
@@ -75,13 +82,10 @@
                 size="md"
                 class="bg-secondary absolute-center q-mt-xl"
                 @click="submitChangeData"
-              >opdater</q-btn>
+              >Opdater</q-btn>
             </div>
           </div>
-
         </section>
-
-
       </section>
     </section>
 
@@ -95,12 +99,10 @@
 
           <div class="col-12">
             <q-input
-              class="q-mt-xl"
-              color="accent"
+              class="bg-secondary text-accent q-mt-xl"
               outlined
               v-model="name"
               label="Navn"
-              standout="bg-secondary text-accent"
               @update:model-value="inputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
@@ -108,12 +110,10 @@
             </q-input>
 
             <q-input
-              class="q-mt-xl"
-              color="accent"
+              class="bg-secondary text-accent q-mt-xl"
               outlined
               v-model="email"
               label="Email"
-              standout="bg-secondary text-accent"
               @update:model-value="inputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
@@ -134,7 +134,7 @@
                 no-caps
               >
                 <div class="row justify-between no-wrap" style="width: 100%">
-                  <span class="col-6 text-body1 flex justify-start">Skift din farve</span>
+                  <span class="col-6 text-body1 flex justify-start q-my-xs">Skift din farve</span>
                   <div class="col-4 flex justify-center shadow-2 q-my-xs" :style="{backgroundColor: color.hexValue, width: '30%', borderRadius:'5px'}"></div>
                   <q-icon class="col-2" name="chevron_right" size="2em" style="width: max-content;"/>
                 </div>
@@ -148,13 +148,13 @@
                     class="q-ma-xs text-white"
                     v-for="color in allColorObjects"
                     :key="color.id"
-                    :title="color.name"
                     :style="{backgroundColor: color.hexValue, maxWidth: '20%'}"
                     :icon="!availableColorObjects.some(availableColor => availableColor.id === color.id) ? 'lock' : ''"
                     :disable="!availableColorObjects.some(availableColor => availableColor.id === color.id)"
                     @click="colorClickHandler(color)"
-                    v-close-popup
-                  />
+                    v-close-popup>
+                    <q-tooltip>{{color.name}}</q-tooltip>
+                  </q-btn>
                 </q-menu>
               </q-btn>
             </div>
@@ -224,7 +224,7 @@ export default {
       const inputs = [
         [user.value.name, name.value],
         [user.value.email, email.value],
-        [user.value.colorId, color.value]
+        [user.value.colorId, color.value.id]
       ]
       hasUnsavedChanges.value = hasInputChanged(inputs)
     }
@@ -248,6 +248,7 @@ export default {
     }
 
     const colorClickHandler = (colorClicked) => {
+      availableColorObjects.value[availableColorObjects.value.findIndex(colorObject => colorObject.id === colorClicked.id)] = color.value //Fjern fra tilgængelige farver
       color.value = colorClicked
       inputChange()
     }
