@@ -255,6 +255,7 @@ export default {
           email: createUserEmail.value,
           password: createPassword.value,
           houseId: houseId,
+          colorId: 'default',
           isAdmin: true
         }
         localStorage.setItem("userId", await createUser(newUser))
