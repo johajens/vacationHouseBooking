@@ -20,7 +20,7 @@
                 dense
                 class="text-h5 q-pl-sm"
                 @update:model-value="checkForInputChange()"
-              @keydown.enter="updateHouse">
+              @keydown.enter="clickUpdateHouseHandler">
               </q-input>
             </div>
             <span v-else class="text-h5">
@@ -48,7 +48,7 @@
               v-if="hasUnsavedChanges"
               size="md"
               class="bg-secondary"
-              @click="updateHouse">
+              @click="clickUpdateHouseHandler">
               Opdater
             </q-btn>
           </div>
@@ -103,7 +103,7 @@
               v-if="hasUnsavedChanges"
               size="md"
               class="bg-secondary"
-              @click="updateHouse">
+              @click="clickUpdateHouseHandler">
               opdater
             </q-btn>
           </div>
@@ -133,7 +133,7 @@ export default {
   },
 
   methods:{
-    async updateHouse(){
+    async clickUpdateHouseHandler(){
       this.houseName = getStringProperCased(this.houseName, false)
       const updatedHouse = {
         id: this.user.houseId,
