@@ -245,16 +245,13 @@ export default {
     const getAllColorObjects = async () => {
       const allColorObjects = await readAllColors()
         .then(colors => colors
-          .filter(color => color.id !== 'default')
           .sort((a, b) => a.hexValue.localeCompare(b.hexValue)))
 
       return allColorObjects
     }
 
     const colorClickHandler = (colorClicked) => {
-      if (color.value.id !== 'default') {
-        availableColorObjects.value[availableColorObjects.value.findIndex(colorObject => colorObject.id === colorClicked.id)] = color.value
-      }
+      availableColorObjects.value[availableColorObjects.value.findIndex(colorObject => colorObject.id === colorClicked.id)] = color.value
       color.value = colorClicked
       inputChange()
     }
