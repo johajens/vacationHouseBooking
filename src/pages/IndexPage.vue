@@ -18,7 +18,7 @@
               text-color="accent"
               icon="login"
               label="Log ind"
-              @click="toggleLogin"/>
+              @click="clickLoginHandler"/>
 
           </div>
 
@@ -47,7 +47,7 @@
           </div>
 
           <div class="col-12 q-pt-lg">
-            <q-btn class="q-px-lg" push size="lg" color="secondary" text-color="accent" icon="login" label="Log ind" @click="toggleLogin" />
+            <q-btn class="q-px-lg" push size="lg" color="secondary" text-color="accent" icon="login" label="Log ind" @click="clickLoginHandler" />
           </div>
 
           <div class="col-12 q-pt-xl">
@@ -71,40 +71,35 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted} from 'vue'
 import { useRouter } from 'vue-router'
 import houseFrontpage from "pages/houseFrontpage.vue"
 import LoginAndRegistrationDialogs from "components/loginAndRegistrationDialogs.vue"
 
-export default defineComponent({
+export default {
   name: 'IndexPage',
-  components: { LoginAndRegistrationDialogs },
-  setup () {
-    const router = useRouter()
-    const loginAndRegistrationDialogs = ref()
 
-    const toggleLogin = () => {
-      loginAndRegistrationDialogs.value.toggleDialog(loginAndRegistrationDialogs.value.dialogs,"login")
-    }
+  components: {LoginAndRegistrationDialogs},
 
-    const onPageLoad = () => {
-      if (localStorage.getItem('userId')){
-        setTimeout(async () => {
-
-          await router.push('houseFrontpage')
-          window.location.reload()
-        },1000)
-      }
-    }
-
-    onMounted(() => {
-      onPageLoad()
-    })
-
+  data() {
     return {
-      loginAndRegistrationDialogs,
-      toggleLogin
+      router: useRouter(),
+    }
+  },
+
+  methods: {
+    clickLoginHandler() {
+      this.loginAndRegistrationDialogs.toggleDialog(this.loginAndRegistrationDialogs.dialogs, "login")
+    }
+  },
+  mounted() {
+    this.loginAndRegistrationDialogs = this.$refs.loginAndRegistrationDialogs
+    if (localStorage.getItem('userId')) {
+      setTimeout(async () => {
+
+        await this.router.push('houseFrontpage')
+        window.location.reload()
+      }, 1000)
     }
   }
-})
+}
 </script>
