@@ -4,30 +4,34 @@
       Gallery page
     </div>
   </q-page>
+  <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
 <script>
-import { onMounted, ref } from "vue"
-import { readHouseById } from "src/api/house"
+import { ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
+import { readAllUsersByHouseId } from "src/api/user";
 
 export default {
   name: "galleryPage",
-  setup () {
-    const user = ref()
-    const house = ref()
-    const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound()
-      house.value = await readHouseById(user.value.houseId)
-    }
 
-    onMounted(() => {
-      onPageLoad()
-    })
-
+  data() {
     return {
+      // General stuff
+      user: ref(),
+      users: ref()
     }
-  }
+  },
+
+  methods: {
+
+  },
+
+  async mounted() {
+    this.notificationBanner = this.$refs.notificationBanner
+    this.user = await getUserAndRouteFrontpageIfNotFound()
+    this.users = await readAllUsersByHouseId(this.user.houseId)
+  },
 }
 </script>
 
