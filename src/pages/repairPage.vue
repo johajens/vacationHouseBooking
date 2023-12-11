@@ -15,7 +15,7 @@
             outlined
             v-model="repairName"
             label="Titel"
-            @keyup.enter="submitRepair">
+            @keyup.enter="clickSubmitRepairHandler">
           </q-input>
         </div>
 
@@ -50,7 +50,7 @@
             class="bg-secondary text-accent"
             style="width: 100%"
             size="large"
-            @click="submitRepair">
+            @click="clickSubmitRepairHandler">
             Bekræft opgave
           </q-btn>
         </div>
@@ -72,14 +72,14 @@
               <span>Dato oprettet</span>
             </div>
               <q-scroll-area
-                :style="scrollAreaHeight(true)">
+                :style="calculateScrollAreaHeightByRepairList(true)">
                 <table class="q-table overflow-hidden-y">
                   <tbody>
                   <tr
                     class="bg-secondary text-accent flex justify-between q-card--bordered cursor-pointer"
                     v-for="repair in notDoneRepairs"
                     :key="repair.id"
-                    @click="repairClickHandler(repair)">
+                    @click="clickRepairHandler(repair)">
                     <td
                       style="font-size: 25px; width: 70%; overflow: hidden;">
                       {{ repair.name }}
@@ -107,14 +107,14 @@
             </div>
             <!-- Done repairs-->
             <q-scroll-area
-              :style="scrollAreaHeight(false)">
+              :style="calculateScrollAreaHeightByRepairList(false)">
               <table class="q-table overflow-hidden-y ">
                 <tbody>
                 <tr
                   class="bg-accent text-secondary flex justify-between q-card--bordered cursor-pointer"
                   v-for="repair in doneRepairs"
                   :key="repair.id"
-                  @click="repairClickHandler(repair)">
+                  @click="clickRepairHandler(repair)">
                   <td
                     style="font-size: 25px; width: 70%; overflow: hidden;">
                     {{ repair.name }}
@@ -149,8 +149,8 @@
             autogrow
             label="Titel"
             class="text-h5 text-accent"
-            @keyup.enter="updateRepairHandler"
-            @update:model-value="repairChangeHandler">
+            @keyup.enter="clickUpdateRepairHandler"
+            @update:model-value="checkForInputChange">
           </q-input>
           <q-space />
           <q-btn icon="delete" flat round dense @click="toggleDialog(dialogs, 'confirmRepairDeletion')"/>
@@ -167,7 +167,7 @@
           autogrow
           label="Beskrivelse"
           class="text-body1 text-accent"
-          @update:model-value="repairChangeHandler">
+          @update:model-value="checkForInputChange">
         </q-input>
       </q-card-section>
 
@@ -184,7 +184,7 @@
           option-value="id"
           option-label="name"
           :menu-props="{ style: { backgroundColor: '#FFEEB5', color: '#857747' } }"
-          @update:model-value="repairChangeHandler"/>
+          @update:model-value="checkForInputChange"/>
       </q-card-section>
 
       <q-card-section class="flex justify-between">
@@ -194,12 +194,12 @@
           v-model="selectedRepair.done"
           label="Udført"
           color="accent"
-          @update:model-value="toggleRepair"/>
+          @update:model-value="clickToggleRepairState"/>
         <q-btn
           v-if="hasUnsavedChanges"
           size="md"
           class="bg-secondary"
-          @click="updateRepairHandler">
+          @click="clickUpdateRepairHandler">
           Opdater
         </q-btn>
       </q-card-section>
@@ -233,7 +233,7 @@
           color="secondary"
           text-color="accent"
           v-close-popup
-          @click="deleteRepairHandler(selectedRepair.id)"
+          @click="clickConfirmDeleteRepairHandler(selectedRepair.id)"
         />
       </q-card-actions>
     </q-card>
@@ -243,210 +243,176 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue"
+import { ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { getReadableTimestamp, hasInputChanged, toggleDialog } from "src/service/utility";
 import { readAllUsersByHouseId, readUserById } from "src/api/user";
+import { createRepair, deleteRepairById, readAllRepairsByHouseId, readRepairById, updateRepairById } from "src/api/repair";
 import NotificationBanner from "components/notificationBanner.vue";
-import {
-  createRepair,
-  deleteRepairById,
-  readAllRepairsByHouseId,
-  readRepairById,
-  updateRepairById
-} from "src/api/repair";
-const nobody = {name:"[Ingen]", id: "[Ingen]"}
 
 export default {
   name: "repairPage",
+
   components: { NotificationBanner },
-  setup () {
-    // General stuff
-    const notificationBanner = ref()
-    const user = ref()
-    const users = ref([])
-    const allRepairs = ref([])
-    const doneRepairs = ref([])
-    const notDoneRepairs = ref([])
 
-    // Repair stuff
-    const repairName = ref("")
-    const description = ref("")
-    const responsibleSelector = ref()
+  data(){
+    return{
+      // General Data
+      user: ref(),
+      users: ref([]),
+      allRepairs: ref([]),
+      doneRepairs: ref([]),
+      notDoneRepairs: ref([]),
+      nobody: {name:"[Ingen]", id: "[Ingen]"},
 
-    // Dialog stuff
-    const hasUnsavedChanges = ref()
-    const responsible = ref()
-    const selectedRepair = ref()
-    const selectedRepairResponsibleSelector = ref()
-    const viewRepair = ref({
-      name: '',
-      description: '',
-      responsibleId: ''
-    })
-    const dialogs = ref({
-      repair: false,
-      confirmRepairDeletion: false
-    })
+      // Repair data
+      repairName: ref(""),
+      description: ref(""),
+      responsibleSelector: ref(),
 
-    const repairClickHandler = async (data) => {
-      selectedRepair.value = data
-      viewRepair.value.name = data.name
-      viewRepair.value.description = data.description
-      viewRepair.value.responsibleId = data.responsibleId
+      // Dialog data
+      hasUnsavedChanges: ref(),
+      responsible: ref(),
+      selectedRepair: ref(),
+      selectedRepairResponsibleSelector: ref(),
+      viewRepair: ref({
+        name: '',
+        description: '',
+        responsibleId: ''
+      }),
+      dialogs:ref({
+        repair: false,
+        confirmRepairDeletion: false
+      })
+    }
+  },
+
+  methods:{
+    toggleDialog,
+
+    async clickRepairHandler(data){
+      this.selectedRepair = data
+      this.viewRepair.name = data.name
+      this.viewRepair.description = data.description
+      this.viewRepair.responsibleId = data.responsibleId
       if(data.responsibleId !== ""){
-        responsible.value = await readUserById(data.responsibleId)
-        if(!responsible.value.name){
+        this.responsible = await readUserById(data.responsibleId)
+        if(!this.responsible.name){
           // If user has been deleted
-          responsible.value = nobody
+          this.responsible = this.nobody
         }
       } else{
-        responsible.value = nobody
+        this.responsible = this.nobody
       }
-      selectedRepairResponsibleSelector.value = responsible.value
-      hasUnsavedChanges.value = false
-      toggleDialog(dialogs.value, 'repair')
-    }
+      this.selectedRepairResponsibleSelector = this.responsible
+      this.hasUnsavedChanges = false
+      toggleDialog(this.dialogs, 'repair')
+    },
 
-    const repairChangeHandler = async () => {
+    async checkForInputChange(){
       const input = [
-        [viewRepair.value.name, selectedRepair.value.name],
-        [viewRepair.value.description, selectedRepair.value.description],
-        [viewRepair.value.responsibleId, selectedRepair.value.responsibleId],
-        [selectedRepairResponsibleSelector.value.id,responsible.value.id]
+        [this.viewRepair.name, this.selectedRepair.name],
+        [this.viewRepair.description, this.selectedRepair.description],
+        [this.viewRepair.responsibleId, this.selectedRepair.responsibleId],
+        [this.selectedRepairResponsibleSelector.id,this.responsible.id]
       ]
-      hasUnsavedChanges.value = hasInputChanged(input)
-    }
+      this.hasUnsavedChanges = hasInputChanged(input)
+    },
 
-    const updateRepairHandler = async () => {
-      await updateRepair(true)
-    }
+    async clickUpdateRepairHandler(){
+      await this.updateRepairHandler(true)
+    },
 
-    const updateRepair = async (closePopup) => {
-      if (viewRepair.value.name.trim().length === 0) {
-        notificationBanner.value.displayNotification("Opgaven mangler en titel", "error")
+    async clickToggleRepairState(){
+      this.selectedRepair.finished = this.selectedRepair.done ? getReadableTimestamp() : ""
+      await this.updateRepairHandler(false)
+    },
+
+    async updateRepairHandler(closePopup){
+      if (this.viewRepair.name.trim().length === 0) {
+        this.notificationBanner.displayNotification("Opgaven mangler en titel", "error")
         return
       }
-      selectedRepair.value.name = viewRepair.value.name
-      selectedRepair.value.description = viewRepair.value.description
-      selectedRepair.value.responsibleId = selectedRepairResponsibleSelector.value.id
-      await updateRepairById(selectedRepair.value)
-      const index = allRepairs.value.findIndex(repair => repair.id === selectedRepair.value.id);
+      this.selectedRepair.name = this.viewRepair.name
+      this.selectedRepair.description = this.viewRepair.description
+      this.selectedRepair.responsibleId = this.selectedRepairResponsibleSelector.id
+      await updateRepairById(this.selectedRepair)
+      const index = this.allRepairs.findIndex(repair => repair.id === this.selectedRepair.id);
       if (index !== -1) {
-        allRepairs.value[index] = selectedRepair.value;
+        this.allRepairs[index] = this.selectedRepair;
       }
       if(closePopup){
-        notificationBanner.value.displayNotification("Opgave opdateret", "success")
+        this.notificationBanner.displayNotification("Opgave opdateret", "success")
       }else{
-        const bannerText = selectedRepair.value.done ? "Opgave færdigmeldt" : "Opgave tilbagekaldt"
-        notificationBanner.value.displayNotification(bannerText, "success")
+        const bannerText = this.selectedRepair.done ? "Opgave færdigmeldt" : "Opgave tilbagekaldt"
+        this.notificationBanner.displayNotification(bannerText, "success")
       }
-      hasUnsavedChanges.value = false
-      updateRepairLists()
-      toggleDialog(dialogs.value, 'repair')
-    }
+      this.hasUnsavedChanges = false
+      this.updateRepairLists()
+      toggleDialog(this.dialogs, 'repair')
+    },
 
-    const submitRepair = async () => {
-      if (repairName.value.trim().length === 0) {
-        notificationBanner.value.displayNotification("Opgaven mangler en titel", "error")
+    async clickSubmitRepairHandler(){
+      if (this.repairName.trim().length === 0) {
+        this.notificationBanner.displayNotification("Opgaven mangler en titel", "error")
         return
       }
 
       const newRepair = {
-        houseId: user.value.houseId,
-        userId: user.value.id,
-        name: repairName.value,
-        description: description.value,
-        responsibleId: responsibleSelector.value.id,
+        houseId: this.user.houseId,
+        userId: this.user.id,
+        name: this.repairName,
+        description: this.description,
+        responsibleId: this.responsibleSelector.id,
         finished: "",
         done: false
       }
       const newRepairId = await createRepair(newRepair)
       if(newRepairId){
-        allRepairs.value.push(await readRepairById(newRepairId))
-        notificationBanner.value.displayNotification("Ny Opgave oprettet", "success")
-        repairName.value = ""
-        description.value = ""
+        this.allRepairs.push(await readRepairById(newRepairId))
+        this.notificationBanner.displayNotification("Ny Opgave oprettet", "success")
+        this.repairName = ""
+        this.description = ""
       }
-      updateRepairLists()
-    }
+      await this.updateRepairLists()
+    },
 
-    const deleteRepairHandler = async (id) => {
+    async clickConfirmDeleteRepairHandler(id){
       await deleteRepairById(id)
-      allRepairs.value.splice(allRepairs.value.findIndex(repair => repair.id === id), 1)
-      notificationBanner.value.displayNotification("Opgave slettet", "success")
-      updateRepairLists()
-    }
+      this.allRepairs.splice(this.allRepairs.findIndex(repair => repair.id === id), 1)
+      this.notificationBanner.displayNotification("Opgave slettet", "success")
+      await this.updateRepairLists()
+    },
 
-    const toggleRepair = async () => {
-      selectedRepair.value.finished = selectedRepair.value.done ? getReadableTimestamp() : ""
-      await updateRepair(false)
-    }
+    async updateRepairLists(){
+      this.doneRepairs = this.allRepairs.filter(repair => repair.done);;
+      this.doneRepairs.sort((a, b) => a.finished.localeCompare(b.finished));
+      this.notDoneRepairs = this.allRepairs.filter(repair => !repair.done);
+      this.notDoneRepairs.sort((a, b) => a.created.localeCompare(b.created));
+    },
 
-    const updateRepairLists = () => {
-      doneRepairs.value = allRepairs.value.filter(repair => repair.done);;
-      doneRepairs.value.sort((a, b) => a.finished.localeCompare(b.finished));
-      notDoneRepairs.value = allRepairs.value.filter(repair => !repair.done);
-      notDoneRepairs.value.sort((a, b) => a.created.localeCompare(b.created));
-    }
-
-    const scrollAreaHeight = (isDone) => {
+    calculateScrollAreaHeightByRepairList(isDone){
       const style = {}
       let listLength;
       if(!isDone){
-        listLength = doneRepairs.value.length
+        listLength = this.doneRepairs.length
       }else{
-        listLength = notDoneRepairs.value.length
+        listLength = this.notDoneRepairs.length
       }
       style.maxHeight = (6* 50) + "px"
       style.height =  (listLength* 50) + "px"
       return style
     }
+  },
 
-    const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound()
-      users.value = await readAllUsersByHouseId(user.value.houseId)
-      users.value.push(nobody)
-      responsibleSelector.value = nobody
-      allRepairs.value = await readAllRepairsByHouseId(user.value.houseId)
-      updateRepairLists()
-    }
-
-    onMounted(() => {
-      onPageLoad()
-    })
-
-    return {
-      // General
-      notificationBanner,
-      users,
-      doneRepairs,
-      notDoneRepairs,
-
-      // Repair stuff
-      repairName,
-      description,
-      responsibleSelector,
-      submitRepair,
-      scrollAreaHeight,
-
-      // Dialog stuff
-      repairClickHandler,
-      dialogs,
-      toggleDialog,
-      viewRepair,
-      selectedRepair,
-      repairChangeHandler,
-      deleteRepairHandler,
-      hasUnsavedChanges,
-      selectedRepairResponsibleSelector,
-      toggleRepair,
-      updateRepairHandler
-
-    }
+  async mounted() {
+    this.user = await getUserAndRouteFrontpageIfNotFound()
+    this.users = await readAllUsersByHouseId(this.user.houseId)
+    this.users.push(this.nobody)
+    this.responsibleSelector = this.nobody
+    this.allRepairs = await readAllRepairsByHouseId(this.user.houseId)
+    await this.updateRepairLists()
+    this.notificationBanner = this.$refs.notificationBanner;
   }
 }
 </script>
-<style scoped>
-
-</style>
