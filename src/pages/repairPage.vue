@@ -319,6 +319,10 @@ export default {
     }
 
     const updateRepairHandler = async () => {
+      await updateRepair(true)
+    }
+
+    const updateRepair = async (closePopup) => {
       if (viewRepair.value.name.trim().length === 0) {
         notificationBanner.value.displayNotification("Opgaven mangler en titel", "error")
         return
@@ -326,10 +330,6 @@ export default {
       selectedRepair.value.name = viewRepair.value.name
       selectedRepair.value.description = viewRepair.value.description
       selectedRepair.value.responsibleId = selectedRepairResponsibleSelector.value.id
-      await updateRepair(true)
-    }
-
-    const updateRepair = async (closePopup) => {
       await updateRepairById(selectedRepair.value)
       const index = allRepairs.value.findIndex(repair => repair.id === selectedRepair.value.id);
       if (index !== -1) {
