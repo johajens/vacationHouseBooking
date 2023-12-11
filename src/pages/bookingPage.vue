@@ -569,6 +569,7 @@ export default {
       }
       return style
     }
+
     const getColorFromBooking = (booking) => {
       const userId = booking.userId
       const index = users.value.findIndex(user => user.id === userId)
