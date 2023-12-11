@@ -348,7 +348,7 @@ export default {
 
     const submitRepair = async () => {
       if (repairName.value.trim().length === 0) {
-        notificationBanner.value.displayNotification("Opgavenen mangler en titel", "error")
+        notificationBanner.value.displayNotification("Opgaven mangler en titel", "error")
         return
       }
 
