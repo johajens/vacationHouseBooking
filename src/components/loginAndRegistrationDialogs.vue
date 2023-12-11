@@ -113,6 +113,11 @@
             />
           </template>
         </q-input>
+        <section class="text-accent">* Da dette er en beta version, er vores sikkerhed ikke helt på plads.
+          <br>
+          Brug derfor
+          <span class="text-weight-bold">IKKE</span>
+          en adgangskode du benytter på andre sider, da vi ikke kan garantere konfidentialitet.</section>
       </div>
       <div class="col-2">
         <q-btn

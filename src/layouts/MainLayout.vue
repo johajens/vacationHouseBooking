@@ -14,16 +14,9 @@
           @click.stop="toggleLeftDrawer"
           />
         <q-toolbar-title>
-          <section class="desktop-only">
+          <section>
             <div class="float-right q-ma-sm">
-              <span class="text-h4">Feriebolig </span>
-              <span class="text-h6">Booking</span>
-            </div>
-          </section>
-          <section class="mobile-only">
-            <div class="float-right q-ma-sm">
-              <span class="text-h6">Feriebolig </span>
-              <span style="font-size: 12px">Booking</span>
+              <span class="text-h4">FerieFiks</span>
             </div>
           </section>
         </q-toolbar-title>
