@@ -784,7 +784,6 @@ export default {
       singleDatePicker,
       deleteBookingHandler,
       toggleDialog,
-
       isMobile
 
     }
