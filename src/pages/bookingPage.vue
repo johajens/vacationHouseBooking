@@ -344,7 +344,7 @@
           </q-input>
           <div v-else class="text-h5">{{viewBooking.name}}</div>
           <q-space />
-          <q-btn icon="delete" flat round dense v-if="userCanEdit" @click="toggleDialog(dialogs, 'confirmBookingDeletion')"/>
+          <q-btn icon="delete" flat round dense v-if="userCanEdit" @click="toggleDialog()(dialogs, 'confirmBookingDeletion')"/>
           <q-btn icon="close" flat round dense v-close-popup />
         </section>
 
@@ -506,6 +506,9 @@ export default {
   },
 
   methods:{
+    toggleDialog() {
+      return toggleDialog
+    },
     clickBookingHandler(e){
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
       elements.forEach(element => {
