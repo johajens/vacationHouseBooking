@@ -36,3 +36,7 @@
 .mobile-background-low-opacity {
   @include mobile-style('src/assets/ferieboligbooking-background-m-swedish-art-low-opacity.png');
 }
+.q-item-type{
+  background-color: #FFEEB5;
+  color: #857747;
+}

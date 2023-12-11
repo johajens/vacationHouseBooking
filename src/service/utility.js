@@ -40,7 +40,7 @@ export async function getLeftDrawerLinks(user) {
   const leftDrawerLinks = [
     { to: "/houseFrontpage", label: "Forside" },
     { to: "/bookingPage", label: "Booking" },
-    { to: "/repairPage", label: "Reparation (Not implemented)" },
+    { to: "/repairPage", label: "Opgaver" },
     { to: "/informationPage", label: "Information (Not implemented)" },
     { to: "/documentPage", label: "Dokumenter (Not implemented)" },
     { to: "/galleryPage", label: "Galleri (Not implemented)" },

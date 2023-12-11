@@ -424,7 +424,7 @@
         </div>
       </q-card-section>
 
-      <q-card-actions class="q-ml-sm justify-end">
+      <q-card-actions class="q-ml-sm justify-between">
         <q-btn
           label="Annullér"
           color="secondary"
@@ -869,11 +869,6 @@ export default {
 }
 .q-calendar-month__day--content{
   z-index: 2;
-}
-
-.q-item-type{
-  background-color: #FFEEB5;
-  color: #857747;
 }
 .q-date__header{
   display: none;
