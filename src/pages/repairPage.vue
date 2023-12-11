@@ -245,10 +245,10 @@
 <script>
 import { ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
-import { getReadableTimestamp, hasInputChanged, toggleDialog } from "src/service/utility";
-import { readAllUsersByHouseId, readUserById } from "src/api/user";
-import { createRepair, deleteRepairById, readAllRepairsByHouseId, readRepairById, updateRepairById } from "src/api/repair";
-import NotificationBanner from "components/notificationBanner.vue";
+import { getReadableTimestamp, hasInputChanged, toggleDialog } from "src/service/utility"
+import { readAllUsersByHouseId, readUserById } from "src/api/user"
+import { createRepair, deleteRepairById, readAllRepairsByHouseId, readRepairById, updateRepairById } from "src/api/repair"
+import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
   name: "repairPage",
@@ -337,9 +337,9 @@ export default {
       this.selectedRepair.description = this.viewRepair.description
       this.selectedRepair.responsibleId = this.selectedRepairResponsibleSelector.id
       await updateRepairById(this.selectedRepair)
-      const index = this.allRepairs.findIndex(repair => repair.id === this.selectedRepair.id);
+      const index = this.allRepairs.findIndex(repair => repair.id === this.selectedRepair.id)
       if (index !== -1) {
-        this.allRepairs[index] = this.selectedRepair;
+        this.allRepairs[index] = this.selectedRepair
       }
       if(closePopup){
         this.notificationBanner.displayNotification("Opgave opdateret", "success")
@@ -385,15 +385,15 @@ export default {
     },
 
     async updateRepairLists(){
-      this.doneRepairs = this.allRepairs.filter(repair => repair.done);;
-      this.doneRepairs.sort((a, b) => a.finished.localeCompare(b.finished));
-      this.notDoneRepairs = this.allRepairs.filter(repair => !repair.done);
-      this.notDoneRepairs.sort((a, b) => a.created.localeCompare(b.created));
+      this.doneRepairs = this.allRepairs.filter(repair => repair.done)
+      this.doneRepairs.sort((a, b) => a.finished.localeCompare(b.finished))
+      this.notDoneRepairs = this.allRepairs.filter(repair => !repair.done)
+      this.notDoneRepairs.sort((a, b) => a.created.localeCompare(b.created))
     },
 
     calculateScrollAreaHeightByRepairList(isDone){
       const style = {}
-      let listLength;
+      let listLength
       if(!isDone){
         listLength = this.doneRepairs.length
       }else{
@@ -412,7 +412,7 @@ export default {
     this.responsibleSelector = this.nobody
     this.allRepairs = await readAllRepairsByHouseId(this.user.houseId)
     await this.updateRepairLists()
-    this.notificationBanner = this.$refs.notificationBanner;
+    this.notificationBanner = this.$refs.notificationBanner
   }
 }
 </script>
