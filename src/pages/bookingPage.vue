@@ -15,7 +15,8 @@
             color="accent"
             outlined
             v-model="bookingName"
-            label="Bookingens navn">
+            label="Bookingens navn"
+            @keyup.enter="submitBooking">
             <template v-slot:append>
               <q-icon
                 name="help_outline">
@@ -340,7 +341,8 @@
             autogrow
             class="text-h5 text-accent"
             style="width: 70%"
-            @update:model-value="bookingChangeHandler">
+            @update:model-value="bookingChangeHandler"
+            @keyup.enter="updateBooking">
           </q-input>
           <div v-else class="text-h5">{{viewBooking.name}}</div>
           <q-space />
