@@ -17,7 +17,7 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="checkInputChange"
+              @update:model-value="checkForInputChange"
               @keyup.enter="clickUpdateUserHandler">
             </q-input>
 
@@ -27,7 +27,7 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="checkInputChange"
+              @update:model-value="checkForInputChange"
               @keyup.enter="clickUpdateUserHandler">
             </q-input>
 
@@ -103,7 +103,7 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="checkInputChange">
+              @update:model-value="checkForInputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -114,7 +114,7 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="checkInputChange">
+              @update:model-value="checkForInputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -191,13 +191,18 @@ export default {
 
   data(){
     return{
+      //Profile data
       user: ref(),
       name: ref(""),
       email: ref(""),
       password: ref(""),
       color: ref(""),
+
+      //Color function data
       availableColorObjects: ref([]),
       allColorObjects: ref([]),
+
+      //Update data
       hasUnsavedChanges: ref(false)
     }
   },
@@ -219,7 +224,7 @@ export default {
       this.notificationBanner.displayNotification(data.notificationMessage, data.type)
     },
 
-    checkInputChange(){
+    checkForInputChange(){
       const inputs = [
         [this.user.name, this.name],
         [this.user.email, this.email],
@@ -252,7 +257,7 @@ export default {
     clickColorHandler(colorClicked){
       this.availableColorObjects[this.availableColorObjects.findIndex(colorObject => colorObject.id === colorClicked.id)] = this.color
       this.color = colorClicked
-      this.checkInputChange()
+      this.checkForInputChange()
     }
   },
 
@@ -264,7 +269,7 @@ export default {
     this.password = this.user.password
     this.allColorObjects = await this.getAllColorObjects()
     this.availableColorObjects = await this.getAvailableColorObjects()
-    this.notificationBanner = this.$refs.notificationBanner;
+    this.notificationBanner = this.$refs.notificationBanner
   },
 }
 </script>

@@ -56,7 +56,7 @@
                     class="q-mr-md"
                     color="secondary"
                     text-color="accent"
-                    @click="editUserHandler(user)">
+                    @click="clickEditUserHandler(user)">
                     <q-icon name="edit"/>
                   </q-btn>
                 </td>
@@ -122,7 +122,7 @@
                     class="q-mr-md"
                     color="secondary"
                     text-color="accent"
-                    @click="editUserHandler(user)">
+                    @click="clickEditUserHandler(user)">
                     <q-icon name="edit" />
                   </q-btn>
                 </td>
@@ -138,7 +138,6 @@
       </section>
     </section>
 
-
     <!-- Edit user dialog -->
     <q-dialog v-model="dialogs.editUser" @hide="hasUnsavedChanges = false">
       <q-card class="bg-primary window-width">
@@ -151,7 +150,7 @@
             v-model="nameUpdate"
             label="Navn"
             standout="bg-secondary text-accent"
-            @update:model-value="inputChangeUpdate"
+            @update:model-value="checkForInputChange"
             @keyup.enter="saveUser"
             />
           <q-input
@@ -161,7 +160,7 @@
             v-model="emailUpdate"
             label="E-mail"
             standout="bg-secondary text-accent"
-            @update:model-value="inputChangeUpdate"
+            @update:model-value="checkForInputChange"
             @keyup.enter="saveUser"
           />
           <q-card-actions class="q-pa-none q-mt-md" align="between">
@@ -183,7 +182,7 @@
             outlined
             v-model="nameCreate"
             label="Navn"
-            @keyup.enter="createNewUserHandler"
+            @keyup.enter="clickCreateNewUserHandler"
           />
           <q-input
             class="q-mt-xl bg-secondary"
@@ -191,11 +190,11 @@
             outlined
             v-model="emailCreate"
             label="E-mail"
-            @keyup.enter="createNewUserHandler"
+            @keyup.enter="clickCreateNewUserHandler"
           />
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn label="Opret" color="secondary" text-color="accent" @click="createNewUserHandler" />
+          <q-btn label="Opret" color="secondary" text-color="accent" @click="clickCreateNewUserHandler" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -246,184 +245,164 @@ import { userDataValid, getFirstName, getFirstNameWithPossessive, getStringPrope
 
 import NotificationBanner from "components/notificationBanner.vue";
 
-const columns = {
-  mobile: [
-    { name: "name", label: "Navn", field: "name" },
-    { name: "email", label: "E-mail", field: "email" }
-  ],
-  desktop: [
-    { name: "name", label: "Navn", field: "name" },
-    { name: "email", label: "E-mail", field: "email" },
-    { name: "created", label: "Oprettet", field: "created" }
-  ]
-}
-
 export default {
   name: "administerUsersPage",
+
   components: { NotificationBanner },
 
-  setup () {
-    // General
-    const user = ref()
-    const users = ref([])
-    // Password
-    const password = ref()
-    const hasUnsavedPasswordChanges = ref(false)
-    const isPwd = ref(true)
-    // Edit dialog
-    const selectedUser = ref()
-    const nameUpdate = ref("")
-    const emailUpdate = ref("")
-    const hasUnsavedChanges = ref(false)
-    // Create user dialog
-    const nameCreate = ref("")
-    const emailCreate = ref("")
-    // Dialogs and components
-    const notificationBanner = ref()
-    const dialogs = ref({
-      confirmUserDeletion: false,
-      createNewUser: false,
-      editUser: false
-    })
+  data(){
+    return{
+      //Static data
+      user: ref(),
+      users: ref([]),
+      password: ref(),
+      hasUnsavedPasswordChanges: ref(false),
+      isPwd: ref(true),
 
-    const createNewUserHandler = async () => {
-      const data = await userDataValid([emailCreate.value, nameCreate.value], user.value.email)
+      //Update data
+      selectedUser: ref(),
+      nameUpdate: ref(""),
+      emailUpdate: ref(""),
+      hasUnsavedChanges: ref(false),
+
+      //Create data
+      nameCreate: ref(""),
+      emailCreate: ref(""),
+
+      //Dialog data
+      dialogs: ref({
+        confirmUserDeletion: false,
+        createNewUser: false,
+        editUser: false}),
+
+      //Model data
+      columns: {
+        mobile: [
+          { name: "name", label: "Navn", field: "name" },
+          { name: "email", label: "E-mail", field: "email" }
+        ],
+        desktop: [
+          { name: "name", label: "Navn", field: "name" },
+          { name: "email", label: "E-mail", field: "email" },
+          { name: "created", label: "Oprettet", field: "created" }
+        ]
+      },
+    }
+  },
+
+  methods:{
+    getFirstName,
+
+    getFirstNameWithPossessive,
+
+    toggleDialog,
+
+    async clickCreateNewUserHandler(){
+      const data = await userDataValid([this.emailCreate, this.nameCreate], this.user.email)
       if (data.validInfo){
         const newUser = {
-          name: getStringProperCased(nameCreate.value, true),
-          email: emailCreate.value,
-          houseId: user.value.houseId,
-          password: user.value.password,
+          name: getStringProperCased(this.nameCreate, true),
+          email: this.emailCreate,
+          houseId: this.user.houseId,
+          password: this.user.password,
           colorId: 'default',
           isAdmin: false,
         }
         const newUserId = await createUser(newUser)
         const newUserCreated = await readUserById(newUserId)
-        data.notificationMessage = "Bruger med navnet: '" + nameCreate.value + "' oprettet"
-        users.value.push(newUserCreated)
-        toggleDialog(dialogs.value, 'createNewUser')
-        nameCreate.value = ""
-        emailCreate.value = ""
+        data.notificationMessage = "Bruger med navnet: '" + this.nameCreate + "' oprettet"
+        this.users.push(newUserCreated)
+        toggleDialog(this.dialogs, 'createNewUser')
+        this.nameCreate = ""
+        this.emailCreate = ""
       }
-      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
-    }
+      this.notificationBanner.displayNotification(data.notificationMessage, data.type)
+    },
 
+    clickEditUserHandler(data){
+      toggleDialog(this.dialogs, 'editUser')
+      this.selectedUser = data
+      this.nameUpdate = data.name
+      this.emailUpdate = data.email
+    },
 
-    const editUserHandler = (data) => {
-      toggleDialog(dialogs.value, 'editUser')
-      selectedUser.value = data
-      nameUpdate.value = data.name
-      emailUpdate.value = data.email
-    }
-
-    const inputChangeUpdate = () => {
+    checkForInputChange(){
       const input = [
-        [selectedUser.value.name, nameUpdate.value],
-        [selectedUser.value.email, emailUpdate.value]
+        [this.selectedUser.name, this.nameUpdate],
+        [this.selectedUser.email, this.emailUpdate]
       ]
-      hasUnsavedChanges.value = hasInputChanged(input)
-    }
+      this.hasUnsavedChanges = hasInputChanged(input)
+    },
 
-    const saveUser = async () => {
-      if(!hasUnsavedChanges.value){
+    async saveUser(){
+      if(!this.hasUnsavedChanges){
         return
       }
-      const data = await userDataValid([emailUpdate.value, nameUpdate.value], selectedUser.value.email)
+      const data = await userDataValid([this.emailUpdate, this.nameUpdate], this.selectedUser.email)
       if (data.validInfo){
-        selectedUser.value.name = getStringProperCased(nameUpdate.value, true)
-        selectedUser.value.email = emailUpdate.value
-        await updateUserById(selectedUser.value)
+        this.selectedUser.name = getStringProperCased(this.nameUpdate, true)
+        this.selectedUser.email = this.emailUpdate
+        await updateUserById(this.selectedUser)
         data.notificationMessage = "Bruger opdateret"
-        const index = users.value.findIndex(user => user.id === selectedUser.value.id);
+        const index = this.users.findIndex(user => user.id === this.selectedUser.id);
         if (index !== -1) {
-          users[index] = selectedUser.value;
+          this.users[index] = this.selectedUser;
         }
-        toggleDialog(dialogs.value, 'editUser')
+        toggleDialog(this.dialogs, 'editUser')
       }
-      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
-    }
+      this.notificationBanner.displayNotification(data.notificationMessage, data.type)
+    },
 
-    const confirmUserDeletionHandler = () => {
-      toggleDialog(dialogs.value, 'editUser')
-    }
+    async confirmUserDeletionHandler(){
+      toggleDialog(this.dialogs, 'editUser')
+    },
 
-    const deleteUser = async () => {
-      const id = selectedUser.value.id
+    async deleteUser(){
+      const id = this.selectedUser.id
       await deleteUserById(id)
-      const index = users.value.findIndex(user => user.id === id);
+      const index = this.users.findIndex(user => user.id === id);
       if (index !== -1) {
-        users.value.splice(index, 1)
+        this.users.splice(index, 1)
       }
-      notificationBanner.value.displayNotification("Bruger med navnet: '" + selectedUser.value.name + "' slettet","success")
-    }
+      this.notificationBanner.displayNotification("Bruger med navnet: '" + this.selectedUser.name + "' slettet","success")
+    },
 
-    const inputChangePassword = () => {
-      hasUnsavedPasswordChanges.value = hasInputChanged([[user.value.password, password.value]])
-    }
+    inputChangePassword(){
+      this.hasUnsavedPasswordChanges = hasInputChanged([[this.user.password, this.password]])
+    },
 
-    const submitChangePassword = async () => {
-      if(!hasUnsavedPasswordChanges.value){
+    async submitChangePassword(){
+      if(!this.hasUnsavedPasswordChanges){
         return
       }
-      if (isInputInvalid(password.value)) {
-        notificationBanner.value.displayNotification("Password må ikke være tom", "error")
+      if (isInputInvalid(this.password)) {
+        this.notificationBanner.displayNotification("Password må ikke være tom", "error")
       }else{
-        user.value.password = password.value
-        await updateUserById(user.value)
-        for (const tempUser of users.value) {
-          tempUser.password = password.value
+        this.user.password = this.password
+        await updateUserById(this.user)
+        for (const tempUser of this.users) {
+          tempUser.password = this.password
           await updateUserById(tempUser)
         }
-        notificationBanner.value.displayNotification("Password opdateret", "success")
-        hasUnsavedPasswordChanges.value = false
+        this.notificationBanner.displayNotification("Password opdateret", "success")
+        this.hasUnsavedPasswordChanges = false
       }
     }
+  },
 
-    const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound()
-      if(user.value.isAdmin !== true){
-        await routeFrontPage()
-      }
-      const allUsers = await readAllUsersByHouseId(user.value.houseId);
-      users.value = allUsers.filter(tempUser => tempUser.id !== user.value.id)
-      password.value = user.value.password
+  async mounted() {
+    this.user = await getUserAndRouteFrontpageIfNotFound()
+
+    if(this.user.isAdmin !== true){
+      await routeFrontPage()
     }
-    onMounted(() => {
-      onPageLoad()
-    })
 
-    return {
-      users,
-      columns,
-      notificationBanner,
-      dialogs,
-      toggleDialog,
+    this.users = await readAllUsersByHouseId(this.user.houseId)
+      .then(users => users
+        .filter(tempUser => tempUser.id !== this.user.id))
 
-      //Password stuff
-      password,
-      inputChangePassword,
-      hasUnsavedPasswordChanges,
-      submitChangePassword,
-      isPwd,
-
-      //Edit user stuff
-      editUserHandler,
-      nameUpdate,
-      emailUpdate,
-      hasUnsavedChanges,
-      inputChangeUpdate,
-      saveUser,
-      deleteUser,
-      confirmUserDeletionHandler,
-      getFirstName,
-      getFirstNameWithPossessive,
-      selectedUser,
-
-      //Create user stuff
-      emailCreate,
-      nameCreate,
-      createNewUserHandler,
-    }
+    this.password = this.user.password
+    this.notificationBanner = this.$refs.notificationBanner
   }
 }
 </script>
