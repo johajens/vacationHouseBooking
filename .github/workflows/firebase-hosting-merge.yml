@@ -11,7 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: quasar build
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '21.1.0'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
+
+      - name: Build the project
+        run: quasar build
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
