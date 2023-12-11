@@ -10,6 +10,7 @@ export async function createRepair(repair){
     const repairDocRef = await addDoc(collection(database, collectionName), {
       created: currentTime,
       updated: currentTime,
+      finished: "",
       houseId: repair.houseId,
       userId: repair.userId,
       name: repair.name,
@@ -64,6 +65,7 @@ export async function updateRepairById(repair){
   try{
     await updateDoc(doc(database, collectionName, repair.id), {
       updated: getReadableTimestamp(),
+      finished: repair.finished,
       houseId: repair.houseId,
       userId: repair.userId,
       name: repair.name,
