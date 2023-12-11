@@ -19,8 +19,8 @@
                 color="accent"
                 dense
                 class="text-h5 q-pl-sm"
-                @update:model-value="inputChange()"
-              @keydown.enter="updateHouse">
+                @update:model-value="checkForInputChange()"
+              @keydown.enter="clickUpdateHouseHandler">
               </q-input>
             </div>
             <span v-else class="text-h5">
@@ -36,7 +36,7 @@
               dense
               autogrow
               class="text-body1"
-              @update:model-value="inputChange">
+              @update:model-value="checkForInputChange">
             </q-input>
             <span v-else class="text-body1">
               {{ house?.description }}
@@ -48,7 +48,7 @@
               v-if="hasUnsavedChanges"
               size="md"
               class="bg-secondary"
-              @click="updateHouse">
+              @click="clickUpdateHouseHandler">
               Opdater
             </q-btn>
           </div>
@@ -75,7 +75,7 @@
                 color="accent"
                 dense
                 class="text-h6 q-pl-sm"
-                @update:model-value="inputChange">
+                @update:model-value="checkForInputChange">
               </q-input>
             </div>
             <span v-else class="text-h6 text-weight-regular">
@@ -91,7 +91,7 @@
               dense
               autogrow
               class="text-body1"
-              @update:model-value="inputChange">
+              @update:model-value="checkForInputChange">
             </q-input>
             <span v-else class="text-body1">
               {{ house?.description }}
@@ -103,7 +103,7 @@
               v-if="hasUnsavedChanges"
               size="md"
               class="bg-secondary"
-              @click="updateHouse">
+              @click="clickUpdateHouseHandler">
               opdater
             </q-btn>
           </div>
@@ -114,63 +114,54 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { getStringProperCased, hasInputChanged } from "src/service/utility"
 
 export default {
   name: "houseFrontpage",
-  setup () {
-    const user = ref()
-    const house = ref()
-    const houseDescription = ref()
-    const houseName = ref()
-    const hasUnsavedChanges = ref(false)
 
-    const updateHouse = async () => {
-      houseName.value = getStringProperCased(houseName.value, false)
+  data () {
+    return {
+      user: ref(),
+      house: ref(),
+      houseDescription: ref(),
+      houseName: ref(),
+      hasUnsavedChanges: ref(false)
+    }
+  },
+
+  methods:{
+    async clickUpdateHouseHandler(){
+      this.houseName = getStringProperCased(this.houseName, false)
       const updatedHouse = {
-        id: user.value.houseId,
-        name: houseName.value,
-        description: houseDescription.value
+        id: this.user.houseId,
+        name: this.houseName,
+        description: this.houseDescription
       }
       await updateHouseById(updatedHouse)
-      hasUnsavedChanges.value = false
+      this.hasUnsavedChanges = false
       //TODO: Toggle information dialog
-    }
+    },
 
-    const inputChange = () => {
+    checkForInputChange(){
       const input = [
-        [house.value.name, houseName.value],
-        [house.value.description, houseDescription.value]
+        [this.house.name, this.houseName],
+        [this.house.description, this.houseDescription]
       ]
-      hasUnsavedChanges.value = hasInputChanged(input)
+      this.hasUnsavedChanges = hasInputChanged(input)
     }
+  },
 
-    const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound();
-      house.value = await readHouseById(user.value.houseId);
-      if(!house.value.description.trim().endsWith(".")){
-        house.value.description = house.value.description.trim()+"."
-      }
-      houseDescription.value = house.value.description
-      houseName.value = house.value.name
+  async mounted() {
+    this.user = await getUserAndRouteFrontpageIfNotFound();
+    this.house = await readHouseById(this.user.houseId);
+    if(!this.house.description.trim().endsWith(".")){
+      this.house.description = this.house.description.trim()+"."
     }
-
-    onMounted(() => {
-      onPageLoad()
-    })
-
-    return {
-      user,
-      house,
-      houseDescription,
-      houseName,
-      inputChange,
-      updateHouse,
-      hasUnsavedChanges
-    }
+    this.houseDescription = this.house.description
+    this.houseName = this.house.name
   }
 }
 </script>
