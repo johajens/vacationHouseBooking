@@ -17,8 +17,8 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="inputChange"
-              @keyup.enter="submitChangeData">
+              @update:model-value="checkInputChange"
+              @keyup.enter="clickUpdateUserHandler">
             </q-input>
 
             <q-input
@@ -27,8 +27,8 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="inputChange"
-              @keyup.enter="submitChangeData">
+              @update:model-value="checkInputChange"
+              @keyup.enter="clickUpdateUserHandler">
             </q-input>
 
             <div class="q-mt-xl">
@@ -66,7 +66,7 @@
                     :style="{backgroundColor: color.hexValue}"
                     :icon="!availableColorObjects.some(availableColor => availableColor.id === color.id) ? 'lock' : ''"
                     :disable="!availableColorObjects.some(availableColor => availableColor.id === color.id)"
-                    @click="colorClickHandler(color)"
+                    @click="clickColorHandler(color)"
                     v-close-popup>
                     <q-tooltip>
                       {{color.name}}
@@ -81,7 +81,7 @@
                 v-if="hasUnsavedChanges"
                 size="md"
                 class="bg-secondary absolute-center q-mt-xl"
-                @click="submitChangeData"
+                @click="clickUpdateUserHandler"
               >Opdater</q-btn>
             </div>
           </div>
@@ -103,7 +103,7 @@
               outlined
               v-model="name"
               label="Navn"
-              @update:model-value="inputChange">
+              @update:model-value="checkInputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -114,7 +114,7 @@
               outlined
               v-model="email"
               label="Email"
-              @update:model-value="inputChange">
+              @update:model-value="checkInputChange">
               <template v-slot:append>
                 <q-icon name="edit" />
               </template>
@@ -151,7 +151,7 @@
                     :style="{backgroundColor: color.hexValue, maxWidth: '20%'}"
                     :icon="!availableColorObjects.some(availableColor => availableColor.id === color.id) ? 'lock' : ''"
                     :disable="!availableColorObjects.some(availableColor => availableColor.id === color.id)"
-                    @click="colorClickHandler(color)"
+                    @click="clickColorHandler(color)"
                     v-close-popup>
                     <q-tooltip>{{color.name}}</q-tooltip>
                   </q-btn>
@@ -164,7 +164,7 @@
                 v-if="hasUnsavedChanges"
                 size="md"
                 class="bg-secondary absolute-center q-mt-xl"
-                @click="submitChangeData">
+                @click="clickUpdateUserHandler">
                 Opdater
               </q-btn>
             </div>
@@ -177,7 +177,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue"
+import { ref } from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { readAllUsersByHouseId, updateUserById} from "src/api/user"
 import { userDataValid, getStringProperCased, hasInputChanged } from "src/service/utility"
@@ -186,51 +186,50 @@ import NotificationBanner from "components/notificationBanner.vue"
 
 export default {
   name: "profilePage",
+
   components: { NotificationBanner },
-  setup() {
-    const user = ref()
-    const name = ref("")
-    const email = ref("")
-    const password = ref("")
-    //color stuff
-    const color = ref("")
-    const availableColorObjects = ref([])
-    const allColorObjects = ref([])
 
-    const hasUnsavedChanges = ref(false)
-    const notificationBanner = ref()
+  data(){
+    return{
+      user: ref(),
+      name: ref(""),
+      email: ref(""),
+      password: ref(""),
+      color: ref(""),
+      availableColorObjects: ref([]),
+      allColorObjects: ref([]),
+      hasUnsavedChanges: ref(false)
+    }
+  },
 
-    const submitChangeData = async () => {
-      if(!hasUnsavedChanges.value){
+  methods:{
+    async clickUpdateUserHandler(){
+      if(!this.hasUnsavedChanges){
         return
       }
-      const data = await userDataValid([email.value, name.value], user.value.email)
+      const data = await userDataValid([this.email, this.name], this.user.email)
       if (data.validInfo){
-        await updateUser()
+        this.user.name = getStringProperCased(this.name, true)
+        this.user.email = this.email
+        this.user.colorId = this.color.id
+        await updateUserById(this.user)
+        this.hasUnsavedChanges = false
         data.notificationMessage = "Bruger opdateret"
       }
-      notificationBanner.value.displayNotification(data.notificationMessage, data.type)
-    }
+      this.notificationBanner.displayNotification(data.notificationMessage, data.type)
+    },
 
-    async function updateUser() {
-      user.value.name = getStringProperCased(name.value, true)
-      user.value.email = email.value
-      user.value.colorId = color.value.id
-      await updateUserById(user.value)
-      hasUnsavedChanges.value = false
-    }
-
-    const inputChange = () =>{
+    checkInputChange(){
       const inputs = [
-        [user.value.name, name.value],
-        [user.value.email, email.value],
-        [user.value.colorId, color.value.id]
+        [this.user.name, this.name],
+        [this.user.email, this.email],
+        [this.user.colorId, this.color.id]
       ]
-      hasUnsavedChanges.value = hasInputChanged(inputs)
-    }
+      this.hasUnsavedChanges = hasInputChanged(inputs)
+    },
 
-    const getAvailableColorObjects = async () => {
-      const colorsTakenById = await readAllUsersByHouseId(user.value.houseId)
+    async getAvailableColorObjects(){
+      const colorsTakenById = await readAllUsersByHouseId(this.user.houseId)
         .then(users => users
           .filter(user => user.colorId !== 'default')
           .map(user => user.colorId))
@@ -240,52 +239,32 @@ export default {
           .filter(color => !colorsTakenById.includes(color.id))
           .sort((a, b) => a.hexValue.localeCompare(b.hexValue)))
       return colorsAvailable
-    }
+    },
 
-    const getAllColorObjects = async () => {
+    async getAllColorObjects(){
       const allColorObjects = await readAllColors()
         .then(colors => colors
           .sort((a, b) => a.hexValue.localeCompare(b.hexValue)))
 
       return allColorObjects
+    },
+
+    clickColorHandler(colorClicked){
+      this.availableColorObjects[this.availableColorObjects.findIndex(colorObject => colorObject.id === colorClicked.id)] = this.color
+      this.color = colorClicked
+      this.checkInputChange()
     }
+  },
 
-    const colorClickHandler = (colorClicked) => {
-      availableColorObjects.value[availableColorObjects.value.findIndex(colorObject => colorObject.id === colorClicked.id)] = color.value
-      color.value = colorClicked
-      inputChange()
-    }
-
-    const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound()
-      name.value = user.value.name
-      email.value = user.value.email
-      color.value = await readColorById(user.value.colorId)
-      password.value = user.value.password
-      allColorObjects.value = await getAllColorObjects()
-      availableColorObjects.value = await getAvailableColorObjects()
-    }
-
-    onMounted(() => {
-      onPageLoad()
-    })
-
-    return {
-      user,
-      name,
-      email,
-      password,
-      hasUnsavedChanges,
-      submitChangeData,
-      inputChange,
-      notificationBanner,
-
-      //color stuff!
-      color,
-      allColorObjects,
-      availableColorObjects,
-      colorClickHandler,
-    }
+  async mounted(){
+    this.user = await getUserAndRouteFrontpageIfNotFound()
+    this.name = this.user.name
+    this.email = this.user.email
+    this.color = await readColorById(this.user.colorId)
+    this.password = this.user.password
+    this.allColorObjects = await this.getAllColorObjects()
+    this.availableColorObjects = await this.getAvailableColorObjects()
+    this.notificationBanner = this.$refs.notificationBanner;
   },
 }
 </script>
