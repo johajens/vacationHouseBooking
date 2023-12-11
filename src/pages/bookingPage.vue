@@ -16,7 +16,7 @@
             outlined
             v-model="bookingName"
             label="Bookingens navn"
-            @keyup.enter="submitBooking">
+            @keyup.enter="clickCreateNewBookingHandler">
             <template v-slot:append>
               <q-icon
                 name="help_outline">
@@ -50,7 +50,7 @@
             outlined
             label="Ankomst">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date @update:model-value="singleDatePicker(true, $event)" :options="maxValue">
+              <q-date @update:model-value="clickSingleDateHandler(true, $event)" :options="getMaxDateValue">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
@@ -65,7 +65,7 @@
             outlined
             label="Afrejse">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date @update:model-value="singleDatePicker(false, $event)" :options="minValue">
+              <q-date @update:model-value="clickSingleDateHandler(false, $event)" :options="getMinDateValue">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
@@ -92,7 +92,7 @@
             class="bg-secondary text-accent"
             style="width: 100%"
             size="large"
-            @click="submitBooking">
+            @click="clickCreateNewBookingHandler">
             Bekræft booking
           </q-btn>
         </div>
@@ -105,24 +105,24 @@
             <q-btn
               class="bg-secondary text-accent"
               icon="navigate_before"
-              @click="onPrev">
+              @click="clickPreviousMonthHandler">
               Forrige
             </q-btn>
             <q-btn
               class="bg-secondary text-accent"
               icon-right="today"
-              @click="onToday">
+              @click="clickTodayHandler">
               I dag
             </q-btn>
             <q-btn
               class="bg-secondary text-accent"
               icon-right="navigate_next"
-              @click="onNext">
+              @click="clickNextMonthHandler">
               Næste
             </q-btn>
           </div>
           <div class="col-md-6 col-xs-12 flex justify-end text-h4 text-accent">
-            {{formattedMonth()}}
+            {{ getFormattedMonth() }}
           </div>
         </section>
       <div class="q-pt-sm">
@@ -139,7 +139,7 @@
           :weekdays="[1,2,3,4,5,6,0]"
           weekday-align="center"
           :day-height="100"
-          @mousedown-day="clickDateHandler"
+          @mousedown-day="clickCalendarDateHandler"
           no-active-date>
           <template v-if="bookings.length !== 0" #week="{ scope: { week, weekdays } }">
             <template
@@ -147,9 +147,8 @@
               :key="index"
             >
               <div
-                :class="badgeClasses(computedEvent)"
-                :style="badgeStyles(computedEvent, week.length)"
-              >
+                class="my-event text-white rounded-border q-calendar__ellipsis shadow-2 q-mb-xs"
+                :style="getCalendarBookingStyle(computedEvent, week.length)">
                 <div
                   :id="'id_' + computedEvent.booking.id"
                   v-if="computedEvent.booking && computedEvent.booking.name"
@@ -211,7 +210,7 @@
             outlined
             label="Ankomst">
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date @update:model-value="singleDatePicker(true, $event)" :options="maxValue">
+              <q-date @update:model-value="clickSingleDateHandler(true, $event)" :options="getMaxDateValue">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
@@ -227,7 +226,7 @@
             label="Afrejse"
           >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date @update:model-value="singleDatePicker(false, $event)" :options="minValue">
+              <q-date @update:model-value="clickSingleDateHandler(false, $event)" :options="getMinDateValue">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="LUK" color="accent" flat icon-right="close"/>
                 </div>
@@ -253,7 +252,7 @@
             class="bg-secondary"
             style="width: 100%"
             size="large"
-            @click="submitBooking"
+            @click="clickCreateNewBookingHandler"
           >
             Bekræft booking
           </q-btn>
@@ -263,25 +262,25 @@
       <section class="col-md-8 col-xs-12 q-px-lg q-pb-lg">
         <div class="flex row justify-between q-pt-lg">
           <div class="col-md-6 col-xs-12 flex justify-end text-h4 text-accent">
-            {{formattedMonth()}}
+            {{ getFormattedMonth() }}
           </div>
           <div class="col-md-6 col-xs-12 flex justify-between">
             <q-btn
               class="bg-secondary text-accent"
               icon="navigate_before"
-              @click="onPrev">
+              @click="clickPreviousMonthHandler">
               Forrige
             </q-btn>
             <q-btn
               class="bg-secondary text-accent q-mx-xs"
               icon-right="today"
-              @click="onToday">
+              @click="clickTodayHandler">
               I dag
             </q-btn>
             <q-btn
               class="bg-secondary text-accent"
               icon-right="navigate_next"
-              @click="onNext">
+              @click="clickNextMonthHandler">
               Næste
             </q-btn>
           </div>
@@ -300,7 +299,7 @@
             :weekdays="[1,2,3,4,5,6,0]"
             weekday-align="center"
             :day-height="100"
-            @mousedown-day="clickDateHandler"
+            @mousedown-day="clickCalendarDateHandler"
             no-active-date>
             <template v-if="bookings.length !== 0" #week="{ scope: { week, weekdays } }">
               <template
@@ -308,9 +307,8 @@
                 :key="index"
               >
                 <div
-                  style="margin-top: 1px; "
-                  :class="badgeClasses(computedEvent)"
-                  :style="badgeStyles(computedEvent, week.length)"
+                  class="my-event text-white rounded-border q-calendar__ellipsis shadow-2 q-mb-xs"
+                  :style="getCalendarBookingStyle(computedEvent, week.length)"
                 >
                   <div
                     :id="'id_' + computedEvent.booking.id"
@@ -341,8 +339,8 @@
             autogrow
             class="text-h5 text-accent"
             style="width: 70%"
-            @update:model-value="bookingChangeHandler"
-            @keyup.enter="updateBooking">
+            @update:model-value="checkForInputChange"
+            @keyup.enter="clickUpdateBookingHandler">
           </q-input>
           <div v-else class="text-h5">{{viewBooking.name}}</div>
           <q-space />
@@ -367,7 +365,7 @@
           autogrow
           label="Note"
           class="text-body1 text-accent"
-          @update:model-value="bookingChangeHandler">
+          @update:model-value="checkForInputChange">
         </q-input>
         <span v-else class="text-body1">
           {{ viewBooking.notes }}
@@ -380,7 +378,7 @@
         <div>
           <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
+              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="checkForInputChange" minimal today-btn landscape>
                 <div class="row items-center justify-end">
                   <q-btn outline v-close-popup label="Bekræft" color="accent" flat />
                 </div>
@@ -392,7 +390,7 @@
         <div>
           <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.endDate" @update:model-value="bookingChangeHandler" minimal today-btn landscape>
+              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.endDate" @update:model-value="checkForInputChange" minimal today-btn landscape>
                 <div class="row items-center justify-end">
                   <q-btn outline v-close-popup label="Bekræft" color="accent" flat />
                 </div>
@@ -407,7 +405,7 @@
         <q-btn
           size="md"
           class="bg-secondary"
-          @click="updateBooking">
+          @click="clickUpdateBookingHandler">
           Opdater
         </q-btn>
       </q-card-section>
@@ -439,7 +437,7 @@
           color="secondary"
           text-color="accent"
           v-close-popup
-          @click="deleteBookingHandler(viewBooking.id)"
+          @click="clickDeleteBookingHandler(viewBooking.id)"
         />
       </q-card-actions>
     </q-card>
@@ -449,10 +447,10 @@
 </template>
 
 <script>
-import { onMounted, ref} from "vue"
+import { ref} from "vue"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { QCalendarMonth, today } from '@quasar/quasar-ui-qcalendar/src/index'
-import { getStringProperCased, dateDataValid, getFirstNameWithPossessive, toggleDialog, hasInputChanged } from "src/service/utility";
+import { getStringProperCased, dateDataValid, toggleDialog, hasInputChanged } from "src/service/utility";
 import {createBooking, readAllBookingsByHouseId, readBookingById, updateBookingById, deleteBookingById} from "src/api/booking";
 import { daysBetween, isOverlappingDates, parsed } from "@quasar/quasar-ui-qcalendar";
 import { readAllUsersByHouseId, readUserById } from "src/api/user";
@@ -466,67 +464,69 @@ export default {
     NotificationBanner,
     QCalendarMonth
   },
-  setup: function () {
-    // General
-    const notificationBanner = ref()
-    const user = ref()
-    const users = ref()
-    const isUserAdmin = ref(false)
-    const userCanEdit = ref(false)
-    const bookings = ref([])
-    const actingAs = ref()
-    const allColors = ref()
 
-    // Calendar stuff
-    const calendar = ref()
-    const selectedDate = ref(today())
+  data(){
+    return{
+      // General stuff
+      user: ref(),
+      users: ref(),
+      isUserAdmin: ref(false),
+      userCanEdit: ref(false),
+      actingAs: ref(),
 
-    // Adding booking stuff
-    const selectedDateRange = ref([])
-    const bookingName = ref()
-    const notes = ref("")
-    const date = ref()
+      // Calendar stuff
+      calendarLoaded: ref(false),
+      bookings: ref([]),
+      allColors: ref(),
+      selectedDate: ref(today()),
+      selectedDateRange: ref([]),
+      bookingName: ref(),
+      notes: ref(""),
+      date: ref(),
 
-    // Booking dialog stuff
-    const selectedBooking = ref()
-    const viewBooking = ref({
-      bookersName: '',
-      name: '',
-      notes: '',
-      created: '',
-      startDate: '',
-      endDate: '',
-      id: ''
-    })
-    const dialogs = ref({
-      booking: false,
-      confirmBookingDeletion: false
-    })
-    const hasUnsavedChanges = ref()
+      // Specific booking stuff
+      selectedBooking: ref(),
+      viewBooking: ref({
+        bookersName: '',
+        name: '',
+        notes: '',
+        created: '',
+        startDate: '',
+        endDate: '',
+        id: ''
+      }),
+      dialogs: ref({
+        booking: false,
+        confirmBookingDeletion: false
+      }),
+      hasUnsavedChanges: ref(),
 
-    const calendarLoaded = ref(false)
 
-    const handleBookingClicks = (e) => {
+    }
+  },
+
+  methods:{
+    clickBookingHandler(e){
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
       elements.forEach(element => {
-          if(element.id.includes("id_") && !dialogs.value.booking && !dialogs.value.confirmBookingDeletion){
-            bookingDialogHandler(element.id.split("id_")[1])
+          if(element.id.includes("id_") && !this.dialogs.booking && !this.dialogs.confirmBookingDeletion){
+            this.bookingDialogHandler(element.id.split("id_")[1])
           }
         }
       )
-    }
+    },
 
-    const isMobile = () => {
+    isMobile(){
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
+    },
 
-    const getWeekEvents = (week) => {
-      if(calendarLoaded.value)
+    getWeekEvents(week){
+      if(this.calendarLoaded)
         return
       const firstDay = parsed(week[ 0 ].date + ' 00:00')
       const lastDay = parsed(week[ week.length - 1 ].date + ' 23:59')
       const eventsWeek = []
-      bookings.value.forEach((booking, id) => {
+      this.bookings.forEach((booking, id) => {
         const startDate = parsed(booking.startDate)
         const endDate = parsed(booking.endDate)
 
@@ -544,27 +544,10 @@ export default {
         }
       })
       return eventsWeek;
-    }
+    },
 
-
-    const badgeClasses = (computedEvent) => {
-      if (computedEvent.booking !== undefined) {
-        return {
-          'my-event': true,
-          'text-white': true,
-          'rounded-border': true,
-          'q-calendar__ellipsis': true,
-          'shadow-2': true,
-          'q-mb-xs': true,
-        }
-      }
-      return {
-        'my-void-event': true
-      }
-    }
-
-    const badgeStyles = (computedEvent, weekLength) => {
-      const colorToUse = getColorFromBooking(computedEvent.booking)
+    getCalendarBookingStyle(computedEvent, weekLength){
+      const colorToUse = this.getColorFromBooking(computedEvent.booking)
       const style = {}
       if (computedEvent.size !== undefined) {
         style.borderRadius = "20px"
@@ -575,221 +558,171 @@ export default {
         style.textAlign = "center"
       }
       return style
-    }
+    },
 
-    const getColorFromBooking = (booking) => {
+    getColorFromBooking(booking){
       const userId = booking.userId
-      const index = users.value.findIndex(user => user.id === userId)
+      const index = this.users.findIndex(user => user.id === userId)
       if (index !== -1) {
-        const colorIdToUse = users.value[index].colorId
-        const colorIndex = allColors.value.findIndex(color => color.id === colorIdToUse)
+        const colorIdToUse =  this.users[index].colorId
+        const colorIndex = this.allColors.findIndex(color => color.id === colorIdToUse)
         if (colorIndex !== -1) {
-          return allColors.value[colorIndex].hexValue
+          return this.allColors[colorIndex].hexValue
         }
       }
       return "#857747"
-    }
+    },
 
-    const formattedMonth = () => {
-      const date = new Date(selectedDate.value)
+    getFormattedMonth(){
+      const date = new Date(this.selectedDate)
       const month = date.toLocaleString('da-DK', {month: 'long'})
       const year = date.getFullYear()
       return `${getStringProperCased(month)} ${year}`
-    }
+    },
 
-    const bookingDialogHandler = async (bookingId) => {
-      selectedDateRange.value = []
-      selectedBooking.value = await readBookingById(bookingId)
-      const bookedByUser = await readUserById(selectedBooking.value.userId)
-      userCanEdit.value = (isUserAdmin.value || user.value.id === selectedBooking.value.userId)
-      viewBooking.value.bookersName = bookedByUser.name
-      viewBooking.value.name = selectedBooking.value.name
-      viewBooking.value.notes = selectedBooking.value.notes
-      viewBooking.value.created = selectedBooking.value.created
-      viewBooking.value.startDate = selectedBooking.value.startDate
-      viewBooking.value.endDate = selectedBooking.value.endDate
-      viewBooking.value.id = selectedBooking.value.id
-      toggleDialog(dialogs.value, 'booking')
-    }
+    async bookingDialogHandler(bookingId){
+      this.selectedDateRange = []
+      this.selectedBooking = await readBookingById(bookingId)
+      const bookedByUser = await readUserById(this.selectedBooking.userId)
+      this.userCanEdit = (this.isUserAdmin || this.user.id === this.selectedBooking.userId)
+      this.viewBooking.bookersName = bookedByUser.name
+      this.viewBooking.name = this.selectedBooking.name
+      this.viewBooking.notes = this.selectedBooking.notes
+      this.viewBooking.created = this.selectedBooking.created
+      this.viewBooking.startDate = this.selectedBooking.startDate
+      this.viewBooking.endDate = this.selectedBooking.endDate
+      this.viewBooking.id = this.selectedBooking.id
+      toggleDialog(this.dialogs, 'booking')
+    },
 
-    const updateBooking = async () => {
-      const bookingToUpdate = selectedBooking.value
-      bookingToUpdate.name = await getBookingName(viewBooking.value.name, bookingToUpdate.userId)
-      bookingToUpdate.notes = viewBooking.value.notes
-      bookingToUpdate.startDate = viewBooking.value.startDate
-      bookingToUpdate.endDate = viewBooking.value.endDate
+    async clickUpdateBookingHandler(){
+      const bookingToUpdate = this.selectedBooking
+      bookingToUpdate.name = await this.getBookingName(this.viewBooking.name, bookingToUpdate.userId)
+      bookingToUpdate.notes = this.viewBooking.notes
+      bookingToUpdate.startDate = this.viewBooking.startDate
+      bookingToUpdate.endDate = this.viewBooking.endDate
       await updateBookingById(bookingToUpdate)
-      const index = bookings.value.findIndex(booking => booking.id === selectedBooking.value.id);
+      const index = this.bookings.findIndex(booking => booking.id === this.selectedBooking.id);
       if (index !== -1) {
-        bookings.value[index] = selectedBooking.value;
+        this.bookings[index] = this.selectedBooking;
       }
-      hasUnsavedChanges.value = false
-      toggleDialog(dialogs.value, 'booking')
-      notificationBanner.value.displayNotification("Booking opdateret", "success")
-    }
+      this.hasUnsavedChanges = false
+      toggleDialog(this.dialogs, 'booking')
+      this.notificationBanner.displayNotification("Booking opdateret", "success")
+    },
 
-    const deleteBookingHandler = async (bookingId) => {
+    async clickDeleteBookingHandler(bookingId){
       await deleteBookingById(bookingId)
-      bookings.value.splice(bookings.value.findIndex(booking => booking.id === bookingId), 1)
-    }
+      this.bookings.splice(this.bookings.findIndex(booking => booking.id === bookingId), 1)
+    },
 
-    const bookingChangeHandler = async () => {
-      const bookingToCheck = selectedBooking.value
+    async checkForInputChange(){
+      const bookingToCheck = this.selectedBooking
       const input = [
-        [viewBooking.value.name, bookingToCheck.name],
-        [viewBooking.value.notes, bookingToCheck.notes],
-        [viewBooking.value.startDate, bookingToCheck.startDate],
-        [viewBooking.value.endDate, bookingToCheck.endDate]
+        [this.viewBooking.name, bookingToCheck.name],
+        [this.viewBooking.notes, bookingToCheck.notes],
+        [this.viewBooking.startDate, bookingToCheck.startDate],
+        [this.viewBooking.endDate, bookingToCheck.endDate]
       ]
-      hasUnsavedChanges.value = hasInputChanged(input)
-    }
+      this.hasUnsavedChanges = hasInputChanged(input)
+    },
 
-    const submitBooking = async () => {
-      if (!dateDataValid(selectedDateRange.value)) {
-        notificationBanner.value.displayNotification("Venligst vælg datoer", "error")
+    async clickCreateNewBookingHandler(){
+      if (!dateDataValid(this.selectedDateRange)) {
+        this.notificationBanner.displayNotification("Venligst vælg datoer", "error")
         return
       }
 
       const newBooking = {
-        houseId: user.value.houseId,
-        userId: actingAs.value.id,
-        startDate: selectedDateRange.value[0],
-        endDate: selectedDateRange.value[1],
+        houseId: this.user.houseId,
+        userId: this.actingAs.id,
+        startDate: this.selectedDateRange[0],
+        endDate: this.selectedDateRange[1],
         name: null,
-        notes: notes.value,
+        notes: this.notes,
         diary: ""
       }
-      newBooking.name = await getBookingName(bookingName.value, actingAs.value.id)
+      newBooking.name = await this.getBookingName(this.bookingName, this.actingAs.id)
 
       const newBookingId = await createBooking(newBooking)
-      bookings.value.push(await readBookingById(newBookingId))
-      selectedDateRange.value = []
-    }
+      this.bookings.push(await readBookingById(newBookingId))
+      this.selectedDateRange = []
+    },
 
-    const getBookingName = async (name, bookerId) => {
+    async getBookingName(name, bookerId){
       if (!name || name.trim().length === 0) {
         const booker = await readUserById(bookerId)
         return booker.name
       }
       return name
-    }
+    },
 
+    clickPreviousMonthHandler(){
+      this.calendar.prev()
+    },
 
-    const onPrev = () => {
-      calendar.value.prev()
-    }
+    clickTodayHandler(){
+      this.calendar.moveToToday()
+      this.getFormattedMonth()
+    },
 
-    const onToday = () => {
-      calendar.value.moveToToday()
-      formattedMonth()
-    }
+    clickNextMonthHandler(){
+      this.calendar.next()
+    },
 
-    const onNext = () => {
-      calendar.value.next()
-    }
-
-    const clickDateHandler = (data) => {
+    clickCalendarDateHandler(data){
       const pickedDate = data.scope.timestamp.date
-
-      if (selectedDateRange.value.length === 0){
-        selectedDateRange.value.push(pickedDate,pickedDate)
-      } else if (selectedDateRange.value[0] === selectedDateRange.value[1] && pickedDate !== selectedDateRange.value[0]){
-        selectedDateRange.value.pop()
-        selectedDateRange.value.push(pickedDate)
-      } else if(pickedDate === selectedDateRange.value[0] && pickedDate === selectedDateRange.value[1]){
-        selectedDateRange.value = []
+      if (this.selectedDateRange.length === 0){
+        this.selectedDateRange.push(pickedDate,pickedDate)
+      } else if (this.selectedDateRange[0] === this.selectedDateRange[1] && pickedDate !== this.selectedDateRange[0]){
+        this.selectedDateRange.pop()
+        this.selectedDateRange.push(pickedDate)
+      } else if(pickedDate === this.selectedDateRange[0] && pickedDate === this.selectedDateRange[1]){
+        this.selectedDateRange = []
       } else {
-        selectedDateRange.value = [pickedDate, pickedDate]
+        this.selectedDateRange = [pickedDate, pickedDate]
       }
-      selectedDateRange.value.sort()
-    }
+      this.selectedDateRange.sort()
+    },
 
-    const singleDatePicker = (isArrival, date) => {
+    clickSingleDateHandler(isArrival, date){
       date = date.replaceAll("/", "-")
-      if (selectedDateRange.value.length === 0){
-        selectedDateRange.value.push(date, date)
+      if (this.selectedDateRange.length === 0){
+        this.selectedDateRange.push(date, date)
       }else if(isArrival){
-        selectedDateRange.value[0] = date
+        this.selectedDateRange[0] = date
       }
       else{
-        selectedDateRange.value[1] = date
+        this.selectedDateRange[1] = date
       }
-    }
+    },
 
-    const maxValue = (date) => {
-      if(selectedDateRange.value[1]){
-        return date <= selectedDateRange.value[1].replaceAll("-","/")
+    getMaxDateValue(date){
+      if(this.selectedDateRange[1]){
+        return date <= this.selectedDateRange[1].replaceAll("-","/")
+      }
+      return true
+    },
+
+    getMinDateValue(date){
+      if(this.selectedDateRange[0]){
+        return date >= this.selectedDateRange[0].replaceAll("-","/")
       }
       return true
     }
-    const minValue = (date) => {
-      if(selectedDateRange.value[0]){
-        return date >= selectedDateRange.value[0].replaceAll("-","/")
-      }
-      return true
-    }
 
+  },
 
-    const onPageLoad = async () => {
-      user.value = await getUserAndRouteFrontpageIfNotFound()
-      isUserAdmin.value = user.value.isAdmin
-      bookings.value = await readAllBookingsByHouseId(user.value.houseId)
-      users.value = await readAllUsersByHouseId(user.value.houseId)
-      allColors.value = await readAllColors();
-      actingAs.value = user.value
-      document.addEventListener('click', handleBookingClicks);
-    }
-
-    onMounted(() => {
-      onPageLoad()
-    })
-
-    return {
-      // General stuff
-      notificationBanner,
-      user,
-      users,
-      actingAs,
-
-      // Calendar stuff
-      calendar,
-      selectedDate,
-      selectedDateRange,
-      onNext,
-      onToday,
-      onPrev,
-      formattedMonth,
-      clickDateHandler,
-      date,
-
-      // Booking stuff
-      bookingName,
-      notes,
-      submitBooking,
-      getWeekEvents,
-      badgeClasses,
-      badgeStyles,
-      bookings,
-      maxValue,
-      minValue,
-
-      // Booking dialog stuff
-      dialogs,
-      viewBooking,
-      bookingDialogHandler,
-      getFirstNameWithPossessive,
-      hasUnsavedChanges,
-      bookingChangeHandler,
-      updateBooking,
-      isUserAdmin,
-      selectedBooking,
-      userCanEdit,
-      singleDatePicker,
-      deleteBookingHandler,
-      toggleDialog,
-      isMobile
-
-    }
+  async mounted(){
+    this.user = await getUserAndRouteFrontpageIfNotFound()
+    this.isUserAdmin = this.user.isAdmin
+    this.bookings = await readAllBookingsByHouseId(this.user.houseId)
+    this.users = await readAllUsersByHouseId(this.user.houseId)
+    this.allColors = await readAllColors();
+    this.actingAs = this.user
+    this.notificationBanner = this.$refs.notificationBanner;
+    this.calendar = this.$refs.calendar;
+    document.addEventListener('click', this.clickBookingHandler);
   }
 }
 </script>
