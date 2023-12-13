@@ -28,7 +28,8 @@
                 Her på siden er det muligt at fordele brugsret af huset i en smart kalender, dele vigtig information vedrørende boligen, og holde styr på fejl og mangler i og omkring huset.
                 Du kan holde styr på hvem der kommer i dit hus og i hvilket tidsrum de skal være der.<br>
                 Du kan invitere medejererne af dit huset til din personlige FerieFiks side, hvor i sammen kan holde styr på det hele.<br><br>
-                Det er nemt og gratis at benytte siden (for nu), så tøv ikke. Opret en bolig i dag!
+
+                <a class="cursor-pointer text-weight-bold" style="text-decoration: underline" @click="routeTerms">Læs vores terms inden du opretter en bolig her.</a>
               </span>
             </div>
           </div>
@@ -38,7 +39,7 @@
 
     <!-- background for mobile -->
     <section class="mobile-only mobile-background">
-      <section class="q-pa-md q-pt-xl">
+      <section class="q-pa-md">
         <section class="q-pa-md row">
           <div class="col-12">
             <span class="text-h4">
@@ -57,7 +58,8 @@
                 Her på siden er det muligt at fordele brugsret af huset i en smart kalender, dele vigtig information vedrørende boligen, og holde styr på fejl og mangler i og omkring huset.
                 Du kan holde styr på hvem der kommer i dit hus og i hvilket tidsrum de skal være der.<br>
                 Du kan invitere medejererne af dit huset til din personlige FerieFiks side, hvor i sammen kan holde styr på det hele.<br><br>
-                Det er nemt og gratis at benytte siden (for nu), så tøv ikke. Opret en bolig i dag!
+                <a class="cursor-pointer text-weight-bold" style="text-decoration: underline" @click="routeTerms">Læs vores terms inden du opretter en bolig her.</a>
+
               </span>
             </div>
           </div>
@@ -89,6 +91,9 @@ export default {
   methods: {
     clickLoginHandler() {
       this.loginAndRegistrationDialogs.toggleDialog(this.loginAndRegistrationDialogs.dialogs, "login")
+    },
+    routeTerms(){
+      this.router.push('termsPage')
     }
   },
   mounted() {
