@@ -6,6 +6,10 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'App'
+  name: 'App',
+  metaInfo: {
+    title: 'Feriefiks',
+    titleTemplate: '%s | Feriefiks'
+  }
 })
 </script>
