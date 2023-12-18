@@ -293,6 +293,8 @@
             class="calendar shadow-5"
             :selected-start-end-dates="selectedDateRange"
             animated
+            draggable="true"
+            v-touch-pan.horizontal.prevent.mouse="dragHandler"
             show-work-weeks
             date-align="left"
             locale="da-dk"
@@ -483,6 +485,8 @@ export default {
       bookingName: ref(),
       notes: ref(""),
       date: ref(),
+      startPos: ref(),
+      finalPos: ref(),
 
       // Specific booking stuff
       selectedBooking: ref(),
@@ -710,8 +714,29 @@ export default {
         return date >= this.selectedDateRange[0].replaceAll("-","/")
       }
       return true
-    }
+    },
 
+    dragHandler({ evt, ...newInfo }){
+      const minimumSwipeDistance = 15
+      if (newInfo.isFirst) {
+        this.startPos = newInfo.position.left
+      }
+      else if (newInfo.isFinal) {
+        this.finalPos = newInfo.position.left
+        if(this.startPos !== undefined && this.finalPos !== undefined){
+          console.log("start: " + this.startPos);
+          console.log("end: " + this.finalPos);
+          if(this.finalPos > (this.startPos + minimumSwipeDistance)){
+            this.clickPreviousMonthHandler()
+          }
+          else if((this.finalPos + minimumSwipeDistance) < this.startPos){
+            this.clickNextMonthHandler()
+          }
+        }
+      }
+
+
+    }
   },
 
   async mounted(){
