@@ -724,8 +724,6 @@ export default {
       else if (newInfo.isFinal) {
         this.finalPos = newInfo.position.left
         if(this.startPos !== undefined && this.finalPos !== undefined){
-          console.log("start: " + this.startPos);
-          console.log("end: " + this.finalPos);
           if(this.finalPos > (this.startPos + minimumSwipeDistance)){
             this.clickPreviousMonthHandler()
           }
@@ -734,8 +732,6 @@ export default {
           }
         }
       }
-
-
     }
   },
 
