@@ -60,7 +60,6 @@
         <q-list>
           <!-- Done repairs-->
           <q-expansion-item
-            group="repairs"
             icon="assignment"
             label="Mangler"
             default-opened
@@ -95,7 +94,6 @@
               </q-scroll-area>
           </q-expansion-item>
           <q-expansion-item
-            group="repairs"
             icon="done"
             label="Færdigmeldte"
             header-class="text-accent bg-secondary"
@@ -133,7 +131,6 @@
 
       </section>
     </section>
-
   </q-page>
 
   <!-- Specific repair dialog -->
