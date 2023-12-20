@@ -378,7 +378,14 @@
         <div>
           <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.startDate" @update:model-value="checkForInputChange" minimal today-btn landscape>
+              <q-date
+                class="bg-secondary text-accent"
+                mask="YYYY-MM-DD" v-model="viewBooking.startDate"
+                @update:model-value="checkForInputChange"
+                minimal
+                today-btn
+                landscape
+                :options="(date) => date <= viewBooking.endDate.replaceAll('-', '/')">
                 <div class="row items-center justify-end">
                   <q-btn outline v-close-popup label="Bekræft" color="accent" flat />
                 </div>
@@ -390,7 +397,15 @@
         <div>
           <q-icon v-if="userCanEdit" class="q-pb-xs cursor-pointer" size="1.5em" name="edit_calendar" >
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-date class="bg-secondary text-accent" mask="YYYY-MM-DD" v-model="viewBooking.endDate" @update:model-value="checkForInputChange" minimal today-btn landscape>
+              <q-date
+                class="bg-secondary text-accent"
+                mask="YYYY-MM-DD"
+                v-model="viewBooking.endDate"
+                @update:model-value="checkForInputChange"
+                minimal
+                today-btn
+                landscape
+                :options="(date) => date >= viewBooking.startDate.replaceAll('-', '/')">
                 <div class="row items-center justify-end">
                   <q-btn outline v-close-popup label="Bekræft" color="accent" flat />
                 </div>
@@ -710,8 +725,7 @@ export default {
         return date >= this.selectedDateRange[0].replaceAll("-","/")
       }
       return true
-    }
-
+    },
   },
 
   async mounted(){
