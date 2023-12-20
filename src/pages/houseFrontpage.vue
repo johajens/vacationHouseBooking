@@ -111,6 +111,7 @@
       </section>
     </section>
   </q-page>
+  <notification-banner ref="notificationBanner"></notification-banner>
 </template>
 
 <script>
@@ -118,9 +119,11 @@ import { ref } from "vue";
 import { readHouseById, updateHouseById } from "src/api/house"
 import { getUserAndRouteFrontpageIfNotFound } from "src/service/authentication"
 import { getStringProperCased, hasInputChanged } from "src/service/utility"
+import NotificationBanner from "components/notificationBanner.vue";
 
 export default {
   name: "houseFrontpage",
+  components: { NotificationBanner },
 
   data () {
     return {
@@ -142,7 +145,7 @@ export default {
       }
       await updateHouseById(updatedHouse)
       this.hasUnsavedChanges = false
-      //TODO: Toggle information dialog
+      this.notificationBanner.displayNotification("Hus information opdateret", "success")
     },
 
     checkForInputChange(){
@@ -162,6 +165,7 @@ export default {
     }
     this.houseDescription = this.house.description
     this.houseName = this.house.name
+    this.notificationBanner = this.$refs.notificationBanner;
   }
 }
 </script>
