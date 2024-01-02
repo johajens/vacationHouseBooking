@@ -41,9 +41,9 @@ export async function getLeftDrawerLinks(user) {
     { to: "/houseFrontpage", label: "Forside" },
     { to: "/bookingPage", label: "Booking" },
     { to: "/repairPage", label: "Opgaver" },
-    { to: "/informationPage", label: "Information (Not implemented)" },
-    { to: "/documentPage", label: "Dokumenter (Not implemented)" },
-    { to: "/galleryPage", label: "Galleri (Not implemented)" },
+/*    { to: "/informationPage", label: "Information" },
+    { to: "/documentPage", label: "Dokumenter" },
+    { to: "/galleryPage", label: "Galleri" },*/
   ]
   if (user.isAdmin) {
     leftDrawerLinks.push({ to: "administerUsersPage", label: "Administrér brugere" },)
