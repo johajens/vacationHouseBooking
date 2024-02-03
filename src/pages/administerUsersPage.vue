@@ -74,34 +74,34 @@
 
     <!-- Mobile version -->
     <section class="mobile-only mobile-background-low-opacity">
-      <section class="q-pa-md q-pt-xl ">
+      <section class="q-pa-md q-pt-md ">
         <section class="q-pa-sm column col-12">
-            <h4 class="q-ma-none">Administrer brugere</h4>
+            <h4 class="text-accent q-ma-none">Administrer brugere</h4>
           <div class="row">
-          <q-input
-            color="accent"
-            style="width: 70%"
-            class="q-my-sm bg-secondary"
-            outlined
-            v-model="password"
-            label="Password for alle brugere"
-            @update:model-value="inputChangePassword"
-            :type="isPwd ? 'password' : 'text'">
-            <template v-slot:append>
-              <q-icon
-                :name="isPwd ? 'visibility_off' : 'visibility'"
-                class="cursor-pointer"
-                @click="isPwd = !isPwd"
-              />
-            </template>
-          </q-input>
-          <q-btn
-            v-if="hasUnsavedPasswordChanges"
-            style="width: 25%;"
-            label="opdater"
-            class="bg-secondary q-ma-sm"
-            @click="submitChangePassword">
-          </q-btn>
+            <q-input
+              color="accent"
+              style="width: 70%"
+              class="q-my-sm bg-secondary"
+              outlined
+              v-model="password"
+              label="Password for alle brugere"
+              @update:model-value="inputChangePassword"
+              :type="isPwd ? 'password' : 'text'">
+              <template v-slot:append>
+                <q-icon
+                  :name="isPwd ? 'visibility_off' : 'visibility'"
+                  class="cursor-pointer"
+                  @click="isPwd = !isPwd"
+                />
+              </template>
+            </q-input>
+            <q-btn
+              v-if="hasUnsavedPasswordChanges"
+              style="width: 25%;"
+              label="opdater"
+              class="bg-secondary q-ma-sm"
+              @click="submitChangePassword">
+            </q-btn>
           </div>
         </section>
 
@@ -211,12 +211,12 @@
               Når du sletter {{getFirstName(selectedUser.name)}}, vil de ikke længere kunne tilgå nogle af ferieboligens funktionaliteter.
             </div>
             <div class="q-pt-xs text-body2 text-accent">
-              Alle {{getFirstNameWithPossessive(selectedUser.name)}} bookinger, reparationer, dokumenter, billeder, etc. vil ikke blive slettet.
+              Alle {{getFirstNameWithPossessive(selectedUser.name)}} bookinger, opgaver, dokumenter, billeder, etc. vil ikke blive slettet.
             </div>
           </div>
         </q-card-section>
 
-        <q-card-actions class="q-ml-sm justify-end">
+        <q-card-actions class="q-ml-sm justify-between">
           <q-btn
             label="Annullér"
             color="secondary"

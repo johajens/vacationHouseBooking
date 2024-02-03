@@ -58,7 +58,7 @@
 
       <section class="col-md-8 col-xs-12 q-pa-lg">
         <q-list>
-          <!-- Done repairs-->
+          <!-- Not done repairs-->
           <q-expansion-item
             icon="assignment"
             label="Mangler"

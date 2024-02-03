@@ -38,15 +38,15 @@ export async function getDropdownLinks(user){
 
 export async function getLeftDrawerLinks(user) {
   const leftDrawerLinks = [
-    { to: "/houseFrontpage", label: "Forside" },
-    { to: "/bookingPage", label: "Booking" },
-    { to: "/repairPage", label: "Opgaver" },
-/*    { to: "/informationPage", label: "Information" },
-    { to: "/documentPage", label: "Dokumenter" },
-    { to: "/galleryPage", label: "Galleri" },*/
+    { to: "/houseFrontpage", label: "Forside", icon: "home"},
+    { to: "/bookingPage", label: "Booking", icon: "calendar_month"},
+    { to: "/repairPage", label: "Opgaver", icon: "assignment"},
+    { to: "/informationPage", label: "Opslagstavlen", icon: "push_pin"},
+    /*    { to: "/documentPage", label: "Dokumenter", icon: "calendar_month"},
+        { to: "/galleryPage", label: "Galleri", icon: "calendar_month"},*/
   ]
   if (user.isAdmin) {
-    leftDrawerLinks.push({ to: "administerUsersPage", label: "Administrér brugere" },)
+    leftDrawerLinks.push({ to: "administerUsersPage", label: "Administrér brugere", icon: "group_add"},)
   }
   return leftDrawerLinks
 }

@@ -167,7 +167,7 @@
   <!-- Mobile version -->
   <q-page class="flex items-start mobile-only mobile-background row">
     <section class="row">
-      <div class="col-12 q-px-lg q-pt-xl q-pb-xs text-h3 text-accent">
+      <div class="col-12 q-px-lg q-pt-md q-pb-xs text-h3 text-accent">
         Booking
       </div>
       <section class="col-md-4 col-xs-12 q-px-lg q-pb-lg">

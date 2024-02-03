@@ -62,11 +62,15 @@
       <q-scroll-area class="fit">
         <q-item
           class="text-accent text-weight-bold q-ma-sm"
-          v-for="(link, index) in leftSideLinks"
+          v-for="(item, index) in leftSideLinks"
           :key="index"
-          :to="link.to"
-          @click="handleLeftDrawerItemClick(link.to)">
-          <q-item-section>{{ link.label }}</q-item-section>
+          :to="item.to"
+          @click="handleLeftDrawerItemClick(item.to)">
+          <q-item-section>{{ item.label }}</q-item-section>
+          <q-icon
+            size="sm"
+            :name="item.icon">
+          </q-icon>
         </q-item>
       </q-scroll-area>
     </q-drawer>
