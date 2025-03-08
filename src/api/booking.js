@@ -16,6 +16,7 @@ export async function createBooking(booking){
       endDate: booking.endDate,
       name: booking.name,
       notes: booking.notes,
+      isPlanning: booking.isPlanning,
       diary: booking.diary
     })
     return bookingDocRef.id
@@ -71,6 +72,7 @@ export async function updateBookingById(booking){
       startDate: booking.startDate,
       endDate: booking.endDate,
       notes: booking.notes,
+      isPlanning: booking.isPlanning,
       diary: booking.diary
     })
   } catch (e){

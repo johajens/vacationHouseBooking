@@ -86,7 +86,14 @@
             option-label="name"
             :menu-props="{ style: { backgroundColor: '#FFEEB5', color: '#857747' } }"/>
         </div>
-
+        <div class="q-pt-lg" >
+          <q-checkbox
+            size="md"
+            v-model="isPlanning"
+            label="Ønsket booking"
+            color="accent"
+          />
+        </div>
         <div class="flex flex-center q-pt-lg">
           <q-btn
             class="bg-secondary text-accent"
@@ -331,7 +338,7 @@
   <!-- Booking popup -->
   <q-dialog v-model="dialogs.booking" no-backdrop-dismiss>
     <q-card :class="{'bg-secondary': true, 'text-accent': true, 'window-width': isMobile}" :style="{ width: isMobile ? '100%' : '60vw' }">
-    <q-card-section class="column items-center bg-primary">
+      <q-card-section class="column items-center bg-primary">
         <section class="row" style="width: 100%">
           <q-input
             v-if="userCanEdit"
@@ -354,10 +361,18 @@
           <q-icon name="more_time" class="q-pr-xs" style="padding-top: 2px"></q-icon>
           <div class="text-caption">Oprettet d. {{viewBooking.created}} af {{viewBooking.bookersName}}</div>
         </section>
+        <section style="width: 100%">
+          <q-checkbox
+            size="md"
+            v-if="userCanEdit"
+            v-model="viewBooking.isPlanning"
+            label="Ønsket booking"
+            color="accent"
+            @update:model-value="checkForInputChange"/>
+        </section>
       </q-card-section>
 
       <q-separator></q-separator>
-
       <q-card-section>
         <q-input
           v-if="userCanEdit"
@@ -500,6 +515,7 @@ export default {
       bookingName: ref(),
       notes: ref(""),
       date: ref(),
+      isPlanning: ref(false),
       startPos: ref(),
       finalPos: ref(),
 
@@ -509,6 +525,7 @@ export default {
         bookersName: '',
         name: '',
         notes: '',
+        isPlanning: false,
         created: '',
         startDate: '',
         endDate: '',
@@ -568,6 +585,7 @@ export default {
 
     getCalendarBookingStyle(computedEvent, weekLength){
       const colorToUse = this.getColorFromBooking(computedEvent.booking)
+      const isPlanning = computedEvent.booking.isPlanning;
       const style = {}
       if (computedEvent.size !== undefined) {
         style.borderRadius = "20px"
@@ -576,6 +594,8 @@ export default {
         style.marginLeft = ((100 / weekLength) * computedEvent.left) + "%"
         style.marginRight = ((100 / weekLength) * computedEvent.right) + "%"
         style.textAlign = "center"
+        style.opacity = isPlanning ? "0.5" : "1"
+        style.border = isPlanning ? "2px dotted white" : ""
       }
       return style
     },
@@ -608,6 +628,7 @@ export default {
       this.viewBooking.bookersName = bookedByUser.name
       this.viewBooking.name = this.selectedBooking.name
       this.viewBooking.notes = this.selectedBooking.notes
+      this.viewBooking.isPlanning = this.selectedBooking.isPlanning
       this.viewBooking.created = this.selectedBooking.created
       this.viewBooking.startDate = this.selectedBooking.startDate
       this.viewBooking.endDate = this.selectedBooking.endDate
@@ -621,6 +642,7 @@ export default {
       bookingToUpdate.notes = this.viewBooking.notes
       bookingToUpdate.startDate = this.viewBooking.startDate
       bookingToUpdate.endDate = this.viewBooking.endDate
+      bookingToUpdate.isPlanning = this.viewBooking.isPlanning
       await updateBookingById(bookingToUpdate)
       const index = this.bookings.findIndex(booking => booking.id === this.selectedBooking.id);
       if (index !== -1) {
@@ -642,7 +664,8 @@ export default {
         [this.viewBooking.name, bookingToCheck.name],
         [this.viewBooking.notes, bookingToCheck.notes],
         [this.viewBooking.startDate, bookingToCheck.startDate],
-        [this.viewBooking.endDate, bookingToCheck.endDate]
+        [this.viewBooking.endDate, bookingToCheck.endDate],
+        [this.viewBooking.isPlanning, bookingToCheck.isPlanning]
       ]
       this.hasUnsavedChanges = hasInputChanged(input)
     },
@@ -660,6 +683,7 @@ export default {
         endDate: this.selectedDateRange[1],
         name: null,
         notes: this.notes,
+        isPlanning: this.isPlanning,
         diary: ""
       }
       newBooking.name = await this.getBookingName(this.bookingName, this.actingAs.id)
