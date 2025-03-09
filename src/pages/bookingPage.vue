@@ -254,6 +254,14 @@
             option-label="name"
             :menu-props="{ style: { backgroundColor: '#FFEEB5', color: '#857747' } }"/>
         </div>
+        <div class="q-pt-lg" >
+          <q-checkbox
+            size="md"
+            v-model="isPlanning"
+            label="Ønsket booking"
+            color="accent"
+          />
+        </div>
         <div class="flex flex-center q-pt-lg">
           <q-btn
             class="bg-secondary"
